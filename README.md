@@ -22,7 +22,7 @@ Unexpectedly, this research produced *the Grid* that behaves like a Cartesian co
 Current Goals
 =============
 
-As soon as the Four Mountains core works, one goal is to write several artificial intelligences based on the Analytic Metaphysics of Quality and to write a statistical comparison tool for evaluating which strategies, and which combinations of strategies (on different agents) work best.
+As soon as the Four Mountains core works, one goal is to write several Artificial Intelligences based on the Analytic Metaphysics of Quality and to write a statistical comparison tool for evaluating which strategies, and which combinations of strategies (on different agents) work best.
 
 Another goal is to implement a model of the spatial world into Four Mountains. This would allow computer-controlled characters in a virtual environment to spontaneously express emotions, form friendships, have arguments, specialize in different roles, form a heterarchy, increase or reduce the social authority of each other, split into subgroups according to friendship instead of plan and so on. What kind of friendships are sought after can be affected by situational factors. Such as, if a computer-controlled character wanted to have fun, they might seek the company of "party people" characters, and if they wanted to learn things they might seek the company of characters who have intellectual authority.
 
@@ -47,11 +47,20 @@ Markover is available at http://a.moq.fi. This application only works on Firefox
 
 
 
+How it Works
+============
+
+Four Mountains is intended to recognize prescipted and/or heuristically detected activity options, push them into an array and to sort the array according to various criteria. These criteria are the core of the Artificial Intelligence aspect of the model. The criteria could be thought to form the personality of each agent.
+
+Since the behavior of the agents is consistent with their personality, Four Mountains facilitates a motive-based Artificial Intelligence so that the ultimate motive appears to be self-expression -- even at the agent's own expense in case he is highly altruistic.
+
+
+
 How to Use
 ==========
 
 Currently, Four Mountains is mostly a computer game that accumulates varying kinds of score and can have human players, computer players or both. Humans play the game by clicking on slots of the grid. Upon doing so the player in turn moves into that slot whereas all other players move into a slot whose coordinates are the vector sum of that slot and their current position.
 
-All available slots are colored with the exception of slots that are situated on the axes of the coordinate system. These slots are called nonrelativized and their metaphysical structure is not well-understood. However, mathematical considerations necessitate them as omitting them would be like omitting the number zero from arithmetic. Four Mountains uses these slots as an "experience level" system that models social authority. There are four stacks of experience levels and experience level increases when a player is moved, by another player, to a nonrelativized slot that would otherwise be inaccessible for her.
+All available slots are colored with the exception of slots that are situated on the axes of the coordinate system. These slots are called nonrelativized and their metaphysical structure is not well-understood. However, mathematical considerations necessitate them as omitting them would be like omitting the number zero from arithmetic. Four Mountains uses these slots as an "experience level" system that models social authority. There are four stacks of experience levels and experience level increases when a player is moved, by another player, to a nonrelativized slot that would otherwise be inaccessible for her. The score and experience levels simulate the identity of each agent.
 
 The behavior of the simplest possible Four Mountains Artificial Intelligences tends to eventually become repetitive. However, no ending conditions for the game are necessary.
