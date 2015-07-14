@@ -5,8 +5,8 @@ Four Mountains is an application of the Analytic Metaphysics of Quality. It simu
 
 
 
-Goals
-=====
+Initial Goals
+=============
 
 The Analytic Metaphysics of Quality is a metaphysical theory which, according to Antti Kukkonen (MA, M.Soc.Sci), is an important contribution to process philosophy. Its development began as an attempt to:
 
