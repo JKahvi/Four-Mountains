@@ -15,7 +15,7 @@ The Analytic Metaphysics of Quality is a metaphysical theory which, according to
 - Create a general theory of emergence.
 - Create a standard model of metaphysics.
 
-Unexpectedly, this research produced *the Grid* that behaves like a Cartesian coordinate system with regards to vector summation. Four Mountains interprets this Cartesian coordinate system to simulate the natural behavior of animals with varying degrees of consciousness and moral reasoning ability, varying qualities of character and varying degrees of malleability of character.
+Unexpectedly, this research produced *the Grid* that behaves like a Cartesian coordinate system with regards to vector summation. Four Mountains interprets this Cartesian coordinate system to simulate the natural behavior of animals with varying degrees of consciousness and moral reasoning ability, varying qualities of character and varying degrees of malleability of character. Decision making is influenced by random factors whenever several choices appear equally good so identical starting conditions frequently develop into completely different situations after a few turns.
 
 
 
