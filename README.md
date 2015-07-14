@@ -55,7 +55,7 @@ Markover is available at http://a.moq.fi. This application only works on Firefox
 How it Works
 ============
 
-Four Mountains is intended to recognize prescipted and/or heuristically detected activity options, push them into an array, to sort the array according to various criteria and to perform any of the actions that it has deemed best. These criteria are the core of the Artificial Intelligence aspect of the model. The criteria could be thought to form the personality of each agent.
+Four Mountains is intended to recognize prescipted and/or heuristically detected activity options, push them into an array, to sort the array according to various criteria and to perform any of the actions it has deemed best. These criteria are the core of the Artificial Intelligence aspect of the model. The criteria could be thought to form the personality of each agent.
 
 Since the behavior of the agents is consistent with their personality, Four Mountains facilitates a motive-based Artificial Intelligence so that the ultimate motive appears to be self-expression -- even at the agent's own expense in case he is not individualistic.
 
