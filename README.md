@@ -28,7 +28,7 @@ Another goal is to implement a model of the spatial world into Four Mountains. T
 
 A more long-term goal is to make computer-controlled characters behave in a way that resembles natural behavior about as much as playing "Guitar Hero" resembles actually playing the guitar. This is enough to make a human able to intuitively understand how the computer-controlled characters feel and how they should be approached.
 
-Four Mountains might add unprecedented depth to computer games as computer-controlled characters are generally only able to move in a controlled manner, to fire weapons and perform other actions that require no social skill and to perform prescripted events. It also provides an alternative, innovative model for magic that would differ from the traditional concept in which spells are usually like firearms except that they can't be stolen and mana points are like ammunition.
+Four Mountains might add unprecedented depth to computer games as computer-controlled characters are generally only able to move in a controlled manner, to fire weapons and perform other actions that require no social skill and to perform prescripted events. It also provides an alternative, innovative model for magic that would differ from the traditional concept in which spells are usually like firearms except that they are immaterial and mana points are like ammunition.
 
 Some more technical current goals include:
 
