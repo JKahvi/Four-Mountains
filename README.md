@@ -22,7 +22,7 @@ Unexpectedly, this research produced *the Grid* that behaves like a Cartesian co
 Current Goals
 =============
 
-As soon as the Four Mountains core works, one goal is to write several Artificial Intelligences based on the Analytic Metaphysics of Quality and to write a statistical comparison tool for evaluating which strategies, and which combinations of strategies (on different agents) work best.
+As soon as the Four Mountains core works one goal is to write several Artificial Intelligences based on the Analytic Metaphysics of Quality and to write a statistical comparison tool for evaluating which strategies, and which combinations of strategies (on different agents) work best.
 
 Another goal is to implement a model of the spatial world into Four Mountains. This would allow computer-controlled characters in a virtual environment to spontaneously express emotions, form friendships, have arguments, specialize in different roles, form a heterarchy, increase or reduce the social authority of each other, split into subgroups according to friendship instead of plan and so on. What kind of friendships are sought after can be affected by situational factors. Such as, if a computer-controlled character wanted to have fun, they might seek the company of "party people" characters, and if they wanted to learn things they might seek the company of characters who have intellectual authority.
 
