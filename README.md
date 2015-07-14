@@ -32,8 +32,8 @@ Four Mountains might add unprecedented depth to computer games, as computer-cont
 
 Some more technical current goals include:
 
-- Coordinates should be able to be real numbers instead of integers.
 - The application should work real-time instead of turn-based only.
+- Perform experiment with coordinates that are real numbers instead of integers.
 
 
 
