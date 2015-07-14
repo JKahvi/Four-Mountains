@@ -30,6 +30,11 @@ A more long-term goal is to make computer-controlled characters behave in a way 
 
 Four Mountains might add unprecedented depth to computer games, as computer-controlled characters are generally only able to move in a controlled manner, to fire weapons and perform other actions that require no social skill and to perform prescripted events. It also provides an alternative, innovative model for magic that would differ from the traditional concept in which spells are usually like firearms except that they can't be stolen and mana points are like ammunition.
 
+Some more technical current goals include:
+
+- Coordinates should be able to be real numbers instead of integers.
+- The application should work real-time instead of turn-based only.
+
 
 
 Future Goals
@@ -50,7 +55,7 @@ Markover is available at http://a.moq.fi. This application only works on Firefox
 How it Works
 ============
 
-Four Mountains is intended to recognize prescipted and/or heuristically detected activity options, push them into an array and to sort the array according to various criteria. These criteria are the core of the Artificial Intelligence aspect of the model. The criteria could be thought to form the personality of each agent.
+Four Mountains is intended to recognize prescipted and/or heuristically detected activity options, push them into an array, to sort the array according to various criteria and to perform any of the actions that it has deemed best. These criteria are the core of the Artificial Intelligence aspect of the model. The criteria could be thought to form the personality of each agent.
 
 Since the behavior of the agents is consistent with their personality, Four Mountains facilitates a motive-based Artificial Intelligence so that the ultimate motive appears to be self-expression -- even at the agent's own expense in case he is highly altruistic.
 
