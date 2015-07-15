@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 238</title>
+		<title>Four Mountains beta 242</title>
 		<style>
 			body{
 				height:100%;
@@ -2032,32 +2032,39 @@ function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
 	
 function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
 	if(!((typeof mode) === "object")) {
-		var mode = s.Basic; }  // if you change default mode you need to change it also here
+		var mode = s.Basic; }  // if you change default mode you need to change it also here, or rewrite this part
 	var hidden = false;
 	var fill = 0;
 	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean"))) {
 		hidden = true;}
+	var cancel = false;
 	if (hidden) {
 		var name = prompt("Name","");
+		if (!name) { cancel = true; }}
+	if (hidden && (!(cancel))) {
 		var isBot = confirm("Click OK for bot, Cancel for human.");}
-	var oldGroups = copyGroups(mode.groups);
-	mode.persons.push(new Person(name, isBot, mode.persons.length));
-	for (var i = 0; i < mode.persons.length; i++) {
-		fill = mode.persons.length - mode.persons[i].bens.length;
-		for (var j = 0; j < fill; j++) {
-			mode.persons[i].bens.push(relVal(0,0));}}
-	addGroups(mode, oldGroups, mode.persons);
-	if(hidden) {
-		$( "#gridContainer" ).empty();
-		if(!(mode.pause)) {
-			drawGrid(mode.grid, mode.persons, mode.personInTurn); }
-		else {
-			drawGrid(mode.grid, mode.persons, false); }}
-	if(s.initDone) {
-		$( "#personTable" ).empty();
-		drawPersonList(false); 
-		$( "#groupTable" ).empty();
-		drawGroupList(false); }}
+	if (!cancel) {
+		var oldGroups = copyGroups(mode.groups);
+		mode.persons.push(new Person(name, isBot, mode.persons.length));
+		for (var i = 0; i < mode.persons.length; i++) {
+			fill = mode.persons.length - mode.persons[i].bens.length;
+			for (var j = 0; j < fill; j++) {
+				mode.persons[i].bens.push(relVal(0,0));}}
+		addGroups(mode, oldGroups, mode.persons);
+		if(hidden) {  // BUG adding a person causes error message flood to console before new turn has been completed. messages come upon hover
+			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
+			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
+			$( "#gridContainer" ).empty();
+			if(!(mode.pause)) {
+				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
+			else {
+				drawGrid(mode.grid, mode.persons, false); }}
+		if(s.initDone) {
+			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
+			$( "#personTable" ).empty();
+			drawPersonList(false); 
+			$( "#groupTable" ).empty();
+			drawGroupList(false); }}}
 
 
 
