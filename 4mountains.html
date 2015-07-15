@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 250</title>
+		<title>Four Mountains beta 254</title>
 		<style>
 			body{
 				height:100%;
@@ -2215,27 +2215,24 @@ function devFunc() { if(s.Basic.maxDebug) {console.log("DEVFUNC"); }
 	
 	
 function autoPlay() {
-	if (s.Basic.autoBotTurn === -1) {
-		var speed = parseInt(prompt("Speed in milliseconds",s.Basic.autoBotTurnDefault));
-			if ((typeof speed) === "number") {
-				if ( speed >= 0 ) {
-					console.log(speed);
-					s.Basic.autoBotTurn = speed;
-					s.Basic.autoBotTurnDefault = speed;
-					updateButton("autoPlay", "Autoplay: On"); }
-				else { alert("Not a positive number"); }}
-			else { alert("Not a number"); }
-		if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot === true)) {
-			startGame();
-			startGame();}}
-	else if (s.Basic.autoBotTurn >= 0) {
+	if (s.Basic.autoBotTurn >= 0) {
 		if((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
 			s.Basic.turn = s.Basic.turn--;
 			clearInterval(s.Basic.moveAttempt); }
-		s.Basic.autoBotTurn = -1;
+		s.Basic.autoBotTurn = -2;
 		updateButton("autoPlay", "Autoplay: Off");
 		if ((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
-			updateButton("startGame", "Continue (Enter)"); }}}
+			updateButton("startGame", "Continue (Enter)"); }}
+	if (s.Basic.autoBotTurn === -1) {
+		var speed = parseInt(prompt("Delay between bot turns in milliseconds:",s.Basic.autoBotTurnDefault));
+		if ( speed >= 0 ) {
+			s.Basic.autoBotTurn = speed;
+			s.Basic.autoBotTurnDefault = speed;
+			updateButton("autoPlay", "Autoplay: On"); }
+			if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot === true)) {
+				startGame();
+				startGame();}}
+	if (s.Basic.autoBotTurn === -2) { s.Basic.autoBotTurn = -1 }}
 
 
 
