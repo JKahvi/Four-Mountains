@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 227</title>
+		<title>Four Mountains beta 230</title>
 		<style>
 			body{
 				height:100%;
@@ -30,7 +30,7 @@
 				padding: 4px;}
 			table{
 				border-spacing: 0px;
-				text-align:center;
+				text-align:left;
 				border-right: 1px solid #ccc;
 				border-bottom: 1px solid #ccc;}
 			td{
@@ -41,17 +41,41 @@
 			#personTable{
 				font-size: 16px; }
 			.outlineInc {
+				position:relative;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				padding-left:1px;
+				padding-right:3px;
+				padding-bottom:1px;
+				margin-top:-1px;
+				margin-left:2px;
+				display:inline-block;
+				background-color: #8f8;
 				color: #00BB00;
    				-webkit-text-fill-color: lime; /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: green;
-   				font-weight: bold; }
+   				font-weight: bold;
+   				float: right; }
    			.outlineDec {
+   				position:relative;
+   				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				padding-left:1px;
+				padding-right:3px;
+				padding-bottom:1px;
+				margin-top:-1px;
+				margin-left:2px;
+				display:inline-block;
+   				background-color: #f88;
 				color: red;
    				/*-webkit-text-fill-color: white;*/ /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: maroon;
-   				font-weight: bold; }
+   				font-weight: bold;
+   				float: right; }
 		</style>
 		<script src="MARKOVER%20beta_files/jquery-2.js"></script>
 		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
@@ -1446,22 +1470,23 @@ function updatePersonList(diffs, hover) {
 	
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		id = table.rows[i].cells[0];
-		name = table.rows[i].cells[1];
-		X = table.rows[i].cells[2];
-		Y = table.rows[i].cells[3];
-		spacer3 = table.rows[i].cells[4];
-		mor = table.rows[i].cells[5];
-		tot = table.rows[i].cells[6];
-		diams = table.rows[i].cells[7];
-		hearts = table.rows[i].cells[8];
-		spades = table.rows[i].cells[9];
-		clubs = table.rows[i].cells[10];
-		spacer1 = table.rows[i].cells[11];
-		left = table.rows[i].cells[12];
-		right = table.rows[i].cells[13];
-		up = table.rows[i].cells[14];
-		down = table.rows[i].cells[15];
-		spacer2 = table.rows[i].cells[16];
+		bot = table.rows[i].cells[1];
+		name = table.rows[i].cells[2];
+		X = table.rows[i].cells[3];
+		Y = table.rows[i].cells[4];
+		spacer3 = table.rows[i].cells[5];
+		mor = table.rows[i].cells[6];
+		tot = table.rows[i].cells[7];
+		diams = table.rows[i].cells[8];
+		hearts = table.rows[i].cells[9];
+		spades = table.rows[i].cells[10];
+		clubs = table.rows[i].cells[11];
+		spacer1 = table.rows[i].cells[12];
+		left = table.rows[i].cells[13];
+		right = table.rows[i].cells[14];
+		up = table.rows[i].cells[15];
+		down = table.rows[i].cells[16];
+		spacer2 = table.rows[i].cells[17];
 		
 		id.innerHTML = s.Basic.persons[i - 1].id;
 		name.innerHTML = s.Basic.persons[i - 1].name;
@@ -1491,7 +1516,7 @@ function updatePersonList(diffs, hover) {
 			mor.style.backgroundColor = "#fff";
 			mor.style.color = "#000"; }
 
-		if (!(diffs && hover)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
+		if (!(diffs)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
 		else { tot.innerHTML = reportValDiff(necStaVal(s.Basic.persons[i - 1].val), necStaVal(diffs[i - 1].val)); }
 		if (necStaVal(s.Basic.persons[i - 1].val) < 0) { 
 			tot.style.backgroundColor = "#000";
@@ -1500,22 +1525,22 @@ function updatePersonList(diffs, hover) {
 			tot.style.backgroundColor = "#fff";
 			tot.style.color = "#000"; }
 
-		if (!(diffs && hover)) {diams.innerHTML = s.Basic.persons[i - 1].val.obj;}
+		if (!(diffs)) {diams.innerHTML = s.Basic.persons[i - 1].val.obj;}
 		else { diams.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.obj, diffs[i - 1].val.obj); }
 		if (s.Basic.persons[i - 1].val.obj < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
 		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
 
-		if (!(diffs && hover)) {hearts.innerHTML = s.Basic.persons[i - 1].val.sub;}
+		if (!(diffs)) {hearts.innerHTML = s.Basic.persons[i - 1].val.sub;}
 		else { hearts.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.sub, diffs[i - 1].val.sub); }
 		if (s.Basic.persons[i - 1].val.sub < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
 		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
 
-		if (!(diffs && hover)) {spades.innerHTML = s.Basic.persons[i - 1].val.nor;}
+		if (!(diffs)) {spades.innerHTML = s.Basic.persons[i - 1].val.nor;}
 		else { spades.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.nor, diffs[i - 1].val.nor); }
 		if (s.Basic.persons[i - 1].val.nor < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
 		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
 
-		if (!(diffs && hover)) {clubs.innerHTML = s.Basic.persons[i - 1].val.mys;}
+		if (!(diffs)) {clubs.innerHTML = s.Basic.persons[i - 1].val.mys;}
 		else { clubs.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.mys, diffs[i - 1].val.mys); }
 		if (s.Basic.persons[i - 1].val.mys < 0) { diams.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
@@ -1525,13 +1550,13 @@ function updatePersonList(diffs, hover) {
 		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
 		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
 		
-		for (var j = 17; j < s.Basic.persons[i - 1].bens.length + 17; j++) {
+		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
 			bens = table.rows[i].cells[j];
-			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 17], limit);
+			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			if (!(diffs && hover)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 17]) + "</div>"; }
-			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + reportValDiff(necStaVal(s.Basic.persons[i - 1].bens[j - 17]), necStaVal(diffs[i - 1].bens[j - 17])) + "</div>"; }}}}
+			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
+			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(necStaVal(s.Basic.persons[i - 1].bens[j - 18]), necStaVal(diffs[i - 1].bens[j - 18])) + "</div>"; }}}}
 			
 			
 
@@ -1540,6 +1565,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	var table = document.getElementById("personTable");
 	var row;
 	var id = "";
+	var bot;
 	var name;
 	var X;
 	var Y;
@@ -1562,26 +1588,29 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	
 	row = table.insertRow(0);
 	id = row.insertCell(0);
-	name = row.insertCell(1);
-	X = row.insertCell(2);
-	Y = row.insertCell(3);
-	spacer3 = row.insertCell(4);
-	mor = row.insertCell(5);
-	tot = row.insertCell(6);
-	diams = row.insertCell(7);
-	hearts = row.insertCell(8);
-	spades = row.insertCell(9);
-	clubs = row.insertCell(10);
-	spacer1 = row.insertCell(11);
-	left = row.insertCell(12);
-	right = row.insertCell(13);
-	up = row.insertCell(14);
-	down = row.insertCell(15);
-	spacer2 = row.insertCell(16);
-	//bens = row.insertCell(17);
+	bot = row.insertCell(1);
+	name = row.insertCell(2);
+	X = row.insertCell(3);
+	Y = row.insertCell(4);
+	spacer3 = row.insertCell(5);
+	mor = row.insertCell(6);
+	tot = row.insertCell(7);
+	diams = row.insertCell(8);
+	hearts = row.insertCell(9);
+	spades = row.insertCell(10);
+	clubs = row.insertCell(11);
+	spacer1 = row.insertCell(12);
+	left = row.insertCell(13);
+	right = row.insertCell(14);
+	up = row.insertCell(15);
+	down = row.insertCell(16);
+	spacer2 = row.insertCell(17);
+	//bens = row.insertCell(18);
 	
 	id.innerHTML = "id";
 	id.style.backgroundColor = "#ccc";
+	bot.innerHTML = "bot";
+	bot.style.backgroundColor = "#ccc";
 	name.innerHTML = "name";
 	name.style.backgroundColor = "#ccc";
 	X.innerHTML = "X";
@@ -1617,39 +1646,41 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	//bens.innerHTML = "<div style='overflow:visible; position:absolute; margin-top: -9px;'>bens</div>";
 	
 	for (var i = 0; i < s.Basic.persons.length; i++) {
-		bens = row.insertCell(i + 17);
+		bens = row.insertCell(i + 18);
 		bens.innerHTML = s.Basic.persons[i].id;
 		bens.style.backgroundColor = "#ccc"; }
 	
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		row = table.insertRow(i);
 		id = row.insertCell(0);
-		name = row.insertCell(1);
-		X = row.insertCell(2);
-		Y = row.insertCell(3);
-		spacer3 = row.insertCell(4);
+		bot = row.insertCell(1);
+		name = row.insertCell(2);
+		X = row.insertCell(3);
+		Y = row.insertCell(4);
+		spacer3 = row.insertCell(5);
 		spacer3.style.backgroundColor = "#ccc";
-		mor = row.insertCell(5);
-		tot = row.insertCell(6);
-		diams = row.insertCell(7);
+		mor = row.insertCell(6);
+		tot = row.insertCell(7);
+		diams = row.insertCell(8);
 		diams.style.backgroundColor = "#FFBBBD";
-		hearts = row.insertCell(8);
+		hearts = row.insertCell(9);
 		hearts.style.backgroundColor = "#FFBBEE";
-		spades = row.insertCell(9);
+		spades = row.insertCell(10);
 		spades.style.backgroundColor = "#FFDDBC";
-		clubs = row.insertCell(10);
+		clubs = row.insertCell(11);
 		clubs.style.backgroundColor = "#FFFEBC";
-		spacer1 = row.insertCell(11);
+		spacer1 = row.insertCell(12);
 		spacer1.style.backgroundColor = "#ccc";
-		left = row.insertCell(12);
-		right = row.insertCell(13);
-		up = row.insertCell(14);
-		down = row.insertCell(15);
-		spacer2 = row.insertCell(16);
+		left = row.insertCell(13);
+		right = row.insertCell(14);
+		up = row.insertCell(15);
+		down = row.insertCell(16);
+		spacer2 = row.insertCell(17);
 		spacer2.style.backgroundColor = "#ccc";
-		//bens = row.insertCell(17);
+		//bens = row.insertCell(18);
 	
 		id.innerHTML = s.Basic.persons[i - 1].id;
+		bot.innerHTML = s.Basic.persons[i -1].bot;
 		name.innerHTML = s.Basic.persons[i - 1].name;
 		X.innerHTML = s.Basic.persons[i - 1].X;
 		Y.innerHTML = s.Basic.persons[i - 1].Y;
@@ -1702,12 +1733,12 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 			bens = row.insertCell(j);
 			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 15] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 15]) + "</div>"; }}}*/
 			
-		for (var j = 17; j < s.Basic.persons[i - 1].bens.length + 17; j++) {
+		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
 			bens = row.insertCell(j);
-			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 17], limit);
+			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 17]) + "</div>"; }}}
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
 
 			
 			
