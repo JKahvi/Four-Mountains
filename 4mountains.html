@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 216</title>
+		<title>Four Mountains beta 219</title>
 		<style>
 			body{
 				height:100%;
@@ -38,6 +38,20 @@
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
 				border-left: 1px solid #ccc;}
+			#personTable{
+				font-size: 16px; }
+			.outlineInc {
+				color: #00BB00;
+   				-webkit-text-fill-color: lime; /* Will override color (regardless of order) */
+   				-webkit-text-stroke-width: 1px;
+   				-webkit-text-stroke-color: green;
+   				font-weight: bold; }
+   			.outlineDec {
+				color: red;
+   				/*-webkit-text-fill-color: white;*/ /* Will override color (regardless of order) */
+   				-webkit-text-stroke-width: 1px;
+   				-webkit-text-stroke-color: maroon;
+   				font-weight: bold; }
 		</style>
 		<script src="MARKOVER%20beta_files/jquery-2.js"></script>
 		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
@@ -720,7 +734,7 @@ function calcAllGroupVals(mode, groups) {
 			
 
 
-function addGroups(mode, oldGroups) { if(s.Basic.maxDebug) {console.log("ADDGROUPS"); } // this function is still inefficient because copygroups function called by newperson used to be written wrongly
+function addGroups(mode, oldGroups) { if(s.Basic.maxDebug) {console.log("ADDGROUPS"); } // this function is still inefficient because copygroups function called by newperson used to be written wrongly (still is?)
 	var debug = 0;
 
 	if (debug === 1) { console.log("oldGroupIds:"); }
@@ -877,7 +891,7 @@ function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
 
 
 
-function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); }
+function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr RelVal is already taken
 	var output = val.obj + val.nor + val.sub + val.mys;
 	return output;}
 
@@ -1140,15 +1154,6 @@ function getLevelName(slot, metaphysics) {
 		if(slot.Y > 0) { ret = metaphysics.mys[lev] }
 		else if(slot.Y < 0) { ret = metaphysics.sub[lev] }}
 	return ret.name; }
-	
-/*	var lev; = Math.min(Math.abs(slot.X), Math.abs(slot.Y)) - 1;
-	if (slot.X > 0) {
-		if(slot.Y > 0) { ret = metaphysics.nor[slot.Y - 1] }
-		else if(slot.Y < 0) { ret = metaphysics.obj[-(slot.Y + 1)] }}
-	else if (slot.X < 0) {
-		if(slot.Y > 0) { ret = metaphysics.mys[slot.Y - 1] }
-		else if(slot.Y < 0) { ret = metaphysics.sub[-(slot.Y + 1)] }}
-	return ret.name; }*/
 
 
 
@@ -1426,6 +1431,7 @@ function updatePersonList(diffs, hover) {
 	var table = document.getElementById("personTable");
 	var limit = getBenLimit(s.Basic.persons);
 	var buffer;
+	var buffer2;
 	
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		id = table.rows[i].cells[0];
@@ -1450,10 +1456,19 @@ function updatePersonList(diffs, hover) {
 		name.innerHTML = s.Basic.persons[i - 1].name;
 		
 		if (!hover) { X.innerHTML = s.Basic.persons[i - 1].X; }
-		else { X.innerHTML = /*s.Basic.persons[i - 1].X + "&#8680;" +*/ diffs[i - 1].X; }
-		
+		else {
+			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
+			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
+			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
+
 		if (!hover) { Y.innerHTML = s.Basic.persons[i - 1].Y; }
-		else { Y.innerHTML = /*s.Basic.persons[i - 1].Y + "&#8680;" +*/ diffs[i - 1].Y; }
+		else {
+			if (Math.abs(s.Basic.persons[i - 1].Y) === Math.abs(diffs[i - 1].Y)) { X.innerHTML = diffs[i - 1].Y; }
+			else if ( Math.abs(s.Basic.persons[i - 1].Y) < Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].Y + "</span>"; } /*00bb00*/
+			else if ( Math.abs(s.Basic.persons[i - 1].Y) > Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].Y + "</span>"; }}
+		
+		/*if (!hover) { Y.innerHTML = s.Basic.persons[i - 1].Y; }
+		else { Y.innerHTML = diffs[i - 1].Y; }*/ /*s.Basic.persons[i - 1].Y + "&#8680;" +*/
 		
 		//buffer = Math.round(s.Basic.persons[i - 1].dec);
 		buffer = Math.round(calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
@@ -1465,6 +1480,8 @@ function updatePersonList(diffs, hover) {
 			mor.style.backgroundColor = "#fff";
 			mor.style.color = "#000"; }
 		
+
+		/*
 		buffer = necStaVal(s.Basic.persons[i - 1].val);
 		tot.innerHTML = buffer;
 		if (buffer < 0) { 
@@ -1473,6 +1490,24 @@ function updatePersonList(diffs, hover) {
 		else {
 			tot.style.backgroundColor = "#fff";
 			tot.style.color = "#000"; }
+*/
+
+		buffer = necStaVal(s.Basic.persons[i - 1].val);
+		buffer2 = necStaVal(sumVal(diffs[i - 1].val, s.Basic.persons[i - 1].val));
+		tot.innerHTML = buffer;
+		if (!hover) { tot.innerHTML = buffer; }
+		else {
+			if (buffer === buffer2) { tot.innerHTML = buffer; }
+			else if (buffer < buffer2) { tot.innerHTML = buffer2 + " <span class='outlineInc'; '>+" + necStaVal(diffs[i - 1].val) + "</span>"; } /*00bb00*/
+			else if (buffer > buffer2) { tot.innerHTML = buffer2 + " <span class='outlineDec'; '>" + necStaVal(diffs[i - 1].val) + "</span>"; }}
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+
+
 
 		buffer = s.Basic.persons[i - 1].val.obj;
 		diams.innerHTML = buffer;
