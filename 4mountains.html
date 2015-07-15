@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 254</title>
+		<title>Four Mountains beta 255</title>
 		<style>
 			body{
 				height:100%;
@@ -2112,7 +2112,7 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 					mode.groups[i].ids[j]--; }}}
 		//console.log(mode.personInTurn);
 		$( "#gridContainer" ).empty();
-		if(!(mode.pause)) {
+		if((!(mode.pause)) || ((mode.pause) && (mode.autoBotTurn >= 0))) {
 			drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 		else {
 			drawGrid(mode.grid, mode.persons, false); }
@@ -2437,7 +2437,7 @@ function init() {
 
 
 
-//deleting person in turn causes bug sometimes
+//deleting person in turn causes bug sometimes BUG FIXED proly
 //upon create new person grid becomes too colorful
 
 
