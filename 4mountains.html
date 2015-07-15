@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 230</title>
+		<title>Four Mountains beta 231</title>
 		<style>
 			body{
 				height:100%;
@@ -86,32 +86,6 @@
 var s = {
 	initDone: false,
 	mode: false };
-
-
-
-/*var states = {
-	mode: "BasicMode",
-	persons: [],
-	groups: [],
-	res: 9,
-	metaphysics: false,
-	nonrelScale: "exp-2",
-	grid: [],
-	slots: [],
-	playing: false,
-	personInTurn: false,
-	turn: 0,
-	autoBotTurn: 20, //-1 for none
-	autoBotTurnDefault: 3000,
-	logInfoBox: false,
-	disableAutoContinueOnHumanTurn: true,
-	pause: false,
-	moveAttempt: false,
-	simultaneousTurns: false,
-	maxDebug: false,
-	strategies: [],
-	revertingXp: true,
-	initDone: false };*/
 	
 	
 	
@@ -337,7 +311,7 @@ function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
 		
 function setDefaultInfoBox(mode, message) { mode.defaultInfoBox = message; }
 
-function defaultHover() { //BUG this does not always change
+function defaultHover() {
 	drawInfoBox(s.mode.defaultInfoBox);
 	updatePersonList(false, false);	}
 		
@@ -363,7 +337,6 @@ function changeTurn() { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
 			else {
 				clearInterval(s.Basic.moveAttempt);
-				//drawGrid( s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
 		else { //pause is on
 			clearInterval(s.Basic.moveAttempt);
@@ -372,7 +345,6 @@ function changeTurn() { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 			else { //no reason to pause on human turn
 				s.Basic.pause = false;}}}
 	else {
-		//drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
 		if(s.Basic.personInTurn.bot === false) {
 			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
 		else {
@@ -432,10 +404,6 @@ function getNecStaVals(arr) {  if(s.Basic.maxDebug) {console.log("GETNECSTAVALS"
 // ==============
 	
 
-		
-
-	
-	
 	
 function Strategy(id, name, pref, depth, rule) {
 	this.id = id;
@@ -730,15 +698,7 @@ function calcAllGroupBens(groups) {
 		for(var j = 0; j < groups[i].bens.length; j++) {
 			groups[i].bens[j] = newBens[i][j]; }}
 	return groups; }
-	
-	
-	
-/*function calcValByIds(ids1, ids2) {
-	var output = relVal(0,0);
-	for(var i = 0; i < ids1.length; i++) {
-		for(var j = 0; j < ids2.length; j++) {
-			output = sumVal(output, s.Basic.persons[ids1[i]].val); }}
-	return output; }*/
+
 	
 	
 function personIsMemberOfGroup(person, group) {
@@ -747,7 +707,6 @@ function personIsMemberOfGroup(person, group) {
 		if(person.id === group.ids[i]) { ret = true; }}
 	return ret; }
 		
-	
 	
 	
 function calcAllGroupVals(mode, groups) {
@@ -1560,7 +1519,6 @@ function updatePersonList(diffs, hover) {
 			
 			
 
-//myTable.rows[0].cells[1].innerHTML = 'Hello';
 function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
 	var table = document.getElementById("personTable");
 	var row;
@@ -1605,7 +1563,6 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	up = row.insertCell(15);
 	down = row.insertCell(16);
 	spacer2 = row.insertCell(17);
-	//bens = row.insertCell(18);
 	
 	id.innerHTML = "id";
 	id.style.backgroundColor = "#ccc";
@@ -1643,7 +1600,6 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	down.style.backgroundColor = "#ccc";
 	spacer2.innerHTML = "&nbsp;";
 	spacer2.style.backgroundColor = "#ccc";
-	//bens.innerHTML = "<div style='overflow:visible; position:absolute; margin-top: -9px;'>bens</div>";
 	
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		bens = row.insertCell(i + 18);
@@ -1728,10 +1684,6 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		right.innerHTML = s.Basic.persons[i - 1].xp.rat;
 		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
 		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
-	
-		/*for (var j = 15; j < s.Basic.persons[i - 1].bens.length + 15; j++) {
-			bens = row.insertCell(j);
-			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 15] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 15]) + "</div>"; }}}*/
 			
 		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
 			bens = row.insertCell(j);
@@ -1747,7 +1699,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		*/
 
 
-//myTable.rows[0].cells[1].innerHTML = 'Hello';
+
 function updateGroupList(diffs) { if(s.Basic.maxDebug) {console.log("UPDATEGROUPLIST"); }
 	var table = document.getElementById("groupTable");
 	var limit = getBenLimit(s.Basic.groups);
@@ -2157,18 +2109,18 @@ function groupBensHover(id1, id2) { //group.ids is person id array, but these id
 	dispIds1 = drawIds(s.Basic.groups[id1]);
 	dispIds2 = drawIds(s.Basic.groups[id2]);
 	drawInfoBox("The group of " + dispIds2 + " has treated the group of " + dispIds1 + " with a decency of " + dispValDecency(s.Basic.groups[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.groups[id1].bens[id2]) + " by giving " + s.Basic.groups[id1].bens[id2].obj + " &diams;, " + s.Basic.groups[id1].bens[id2].sub + " &hearts;, " + s.Basic.groups[id1].bens[id2].nor + " &spades;, " + s.Basic.groups[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.groups[id1].bens[id2].gno + " gno, " + s.Basic.groups[id1].bens[id2].rat + " rat, " + s.Basic.groups[id1].bens[id2].abs + " abs, " + s.Basic.groups[id1].bens[id2].tan + " tan"); }
+
+
+
+function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}
 	
-function startGameHover() {
-	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}
+function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human..");}
 	
-function newPersonHover() {
-	drawInfoBox("Click here to create a new person, either bot or human..");}
+function delPersonHover() { drawInfoBox("Deletes a person.");}
 	
-function delPersonHover() {
-	drawInfoBox("Deletes a person.");}
-	
-function autoPlayHover() {
-	drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
+function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
+
+function restartHover() { drawInfoBox("Starts a new game and erases the old one.") }
 	
 
 		
@@ -2390,18 +2342,32 @@ function initSpatialModeDisplay() {
 	$ ( "#container" ).empty();
 	$( "#container" ).append("<canvas id='plane' width='500' height='500'></canvas><canvas id='space' width='500' height='500'></canvas><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='groupList'></div><table id='groupTable'></table>");
 	drawModeSelector("SpatialMode"); }
-		
-		
-/*
-function initBasicModeDisplay() {
-	$( "#container" ).empty();
-	$( "#container").append("<canvas id='plane' width='600' height='600'></canvas><canvas id='space' width='600' height='600'></canvas><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='groupList'></div><table id='groupTable'></table>"); }
-	
-	*/
 	
 	
 	
 function restart() {
+	s.initDone = false;
+	s.mode.initDone = false;
+	init(); }
+
+	/*
+	var modeName = s.mode.name;
+	var keys = _.keys(s.mode);
+	for (var i = 0; i < keys.length; i++) {
+		console.log(s.mode.keys[i]);
+		s.mode.keys[i] = false; }}*/
+
+	/*s.mode.initDone = false;
+	if(s.mode.name === "BasicMode") {
+		BasicMode();*/
+		/*$( "#gridContainer" ).empty();
+		drawGrid(s.Basic.grid, s.Basic.persons, false);
+		$( "#personTable" ).empty();
+		drawPersonList();
+		$( "#groupTable" ).empty();
+		drawGroupList();*/ 
+
+	/*
 	for(var i = 0; i < s.Basic.persons.length; i++) {
 		s.Basic.persons[i].X = 0;
 		s.Basic.persons[i].Y = 0;
@@ -2424,7 +2390,7 @@ function restart() {
 	$( "#personTable" ).empty();
 	drawPersonList();
 	$( "#groupTable" ).empty();
-	drawGroupList(); }
+	drawGroupList(); }*/
 	
 /*
 var s.Basic = {
