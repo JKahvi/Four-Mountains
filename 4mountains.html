@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 255</title>
+		<title>Four Mountains beta 259</title>
 		<style>
 			body{
 				height:100%;
@@ -2060,10 +2060,11 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
 			$( "#gridContainer" ).empty();
-			if(!(mode.pause)) {
+			if(mode.playing) {
 				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 			else {
 				drawGrid(mode.grid, mode.persons, false); }}
+			//drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 		if(s.initDone) {
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
 			$( "#personTable" ).empty();
@@ -2160,7 +2161,7 @@ function restartHover() { drawInfoBox("Starts a new game and erases the old one.
 	
 
 		
-function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); }
+function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
 	var next = nextPerson(s.Basic.personInTurn);
 	
 	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
@@ -2180,18 +2181,18 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); }
 		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}
 		
 	else if(s.Basic.playing === false) {
-		// var starter = prompt("Starting player number",((getNumberOfPerson(s.Basic.personInTurn)) + 1));
-		var starter = 1;
-		if (starter > 0 && starter <= s.Basic.persons.length) {
+		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
+		var starter = 0;
+		if (starter >= 0 && starter < s.Basic.persons.length) {
 			s.Basic.playing = true;
 			if (s.Basic.autoBotTurn === -1) {
 				updateButton("startGame", "Play (Enter)"); }
 			reportTurn();
-			s.Basic.personInTurn = s.Basic.persons[starter - 1];
+			s.Basic.personInTurn = s.Basic.persons[starter];
 			if (s.Basic.personInTurn.bot === true) { move(false, false, false); }
 			else {
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
-				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}}
+				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}} 
 
 						
 			
@@ -2438,7 +2439,7 @@ function init() {
 
 
 //deleting person in turn causes bug sometimes BUG FIXED proly
-//upon create new person grid becomes too colorful
+//upon create new person grid becomes too colorful BUG FIXED proly
 
 
 
