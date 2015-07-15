@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 219</title>
+		<title>Four Mountains beta 227</title>
 		<style>
 			body{
 				height:100%;
@@ -32,7 +32,7 @@
 				border-spacing: 0px;
 				text-align:center;
 				border-right: 1px solid #ccc;
-				border-bottom: 1px solid #ccc; }
+				border-bottom: 1px solid #ccc;}
 			td{
 				padding-left: 2px;
 				padding-right: 2px;
@@ -1425,6 +1425,17 @@ function calcDecency(value) {
 	
 function dispValDecency(value) {
 	return Math.round(calcDecency(value) * 100) / 100; }
+
+
+
+function reportValDiff(oldVal, diff) {
+	var ret;
+	var newVal = oldVal + diff;
+	if (oldVal === newVal) {ret = oldVal }
+	else if (oldVal < newVal) {ret = newVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
+	else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}
+	return ret; }
+
 	
 	
 function updatePersonList(diffs, hover) {
@@ -1479,54 +1490,34 @@ function updatePersonList(diffs, hover) {
 		else {
 			mor.style.backgroundColor = "#fff";
 			mor.style.color = "#000"; }
-		
 
-		/*
-		buffer = necStaVal(s.Basic.persons[i - 1].val);
-		tot.innerHTML = buffer;
-		if (buffer < 0) { 
-			tot.style.backgroundColor = "#000";
-			tot.style.color = "#fff"; }
-		else {
-			tot.style.backgroundColor = "#fff";
-			tot.style.color = "#000"; }
-*/
-
-		buffer = necStaVal(s.Basic.persons[i - 1].val);
-		buffer2 = necStaVal(sumVal(diffs[i - 1].val, s.Basic.persons[i - 1].val));
-		tot.innerHTML = buffer;
-		if (!hover) { tot.innerHTML = buffer; }
-		else {
-			if (buffer === buffer2) { tot.innerHTML = buffer; }
-			else if (buffer < buffer2) { tot.innerHTML = buffer2 + " <span class='outlineInc'; '>+" + necStaVal(diffs[i - 1].val) + "</span>"; } /*00bb00*/
-			else if (buffer > buffer2) { tot.innerHTML = buffer2 + " <span class='outlineDec'; '>" + necStaVal(diffs[i - 1].val) + "</span>"; }}
-		if (buffer < 0) { 
+		if (!(diffs && hover)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
+		else { tot.innerHTML = reportValDiff(necStaVal(s.Basic.persons[i - 1].val), necStaVal(diffs[i - 1].val)); }
+		if (necStaVal(s.Basic.persons[i - 1].val) < 0) { 
 			tot.style.backgroundColor = "#000";
 			tot.style.color = "#fff"; }
 		else {
 			tot.style.backgroundColor = "#fff";
 			tot.style.color = "#000"; }
 
-
-
-		buffer = s.Basic.persons[i - 1].val.obj;
-		diams.innerHTML = buffer;
-		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		if (!(diffs && hover)) {diams.innerHTML = s.Basic.persons[i - 1].val.obj;}
+		else { diams.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.obj, diffs[i - 1].val.obj); }
+		if (s.Basic.persons[i - 1].val.obj < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
 		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
-		
-		buffer = s.Basic.persons[i - 1].val.sub;
-		hearts.innerHTML = buffer;
-		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+
+		if (!(diffs && hover)) {hearts.innerHTML = s.Basic.persons[i - 1].val.sub;}
+		else { hearts.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.sub, diffs[i - 1].val.sub); }
+		if (s.Basic.persons[i - 1].val.sub < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
 		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
-		
-		buffer = s.Basic.persons[i - 1].val.nor;
-		spades.innerHTML = buffer;
-		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+
+		if (!(diffs && hover)) {spades.innerHTML = s.Basic.persons[i - 1].val.nor;}
+		else { spades.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.nor, diffs[i - 1].val.nor); }
+		if (s.Basic.persons[i - 1].val.nor < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
 		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
-		
-		buffer = s.Basic.persons[i - 1].val.mys;
-		clubs.innerHTML = buffer;
-		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+
+		if (!(diffs && hover)) {clubs.innerHTML = s.Basic.persons[i - 1].val.mys;}
+		else { clubs.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.mys, diffs[i - 1].val.mys); }
+		if (s.Basic.persons[i - 1].val.mys < 0) { diams.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
 		
 		left.innerHTML = s.Basic.persons[i - 1].xp.gno;
@@ -1539,7 +1530,8 @@ function updatePersonList(diffs, hover) {
 			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 17], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 17]) + "</div>"; }}}
+			if (!(diffs && hover)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 17]) + "</div>"; }
+			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 17] + ");'>" + reportValDiff(necStaVal(s.Basic.persons[i - 1].bens[j - 17]), necStaVal(diffs[i - 1].bens[j - 17])) + "</div>"; }}}}
 			
 			
 
