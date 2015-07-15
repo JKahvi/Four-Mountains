@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 248</title>
+		<title>Four Mountains beta 250</title>
 		<style>
 			body{
 				height:100%;
@@ -1608,13 +1608,13 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	mor.style.backgroundColor = "#ccc";
 	tot.innerHTML = "val";
 	tot.style.backgroundColor = "#ccc";
-	diams.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(0)'>&diams;</div>";
+	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(0)'>&diams;</div>";
 	diams.style.backgroundColor = "#FFBBBD";
-	hearts.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(1)'>&hearts;</div>";
+	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(1)'>&hearts;</div>";
 	hearts.style.backgroundColor = "#FFBBEE";
-	spades.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(2)'>&spades;</div>";
+	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(2)'>&spades;</div>";
 	spades.style.backgroundColor = "#FFDDBC";
-	clubs.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(3)'>&clubs;</div>";
+	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(3)'>&clubs;</div>";
 	clubs.style.backgroundColor = "#FFFEBC";
 	spacer1.innerHTML = "&nbsp;";
 	spacer1.style.backgroundColor = "#ccc";
@@ -1664,7 +1664,8 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		//bens = row.insertCell(18);
 	
 		id.innerHTML = s.Basic.persons[i - 1].id;
-		bot.innerHTML = s.Basic.persons[i -1].bot;
+		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
+		else { bot.innerHTML = "" }
 		name.innerHTML = s.Basic.persons[i - 1].name;
 		X.innerHTML = s.Basic.persons[i - 1].X;
 		Y.innerHTML = s.Basic.persons[i - 1].Y;
