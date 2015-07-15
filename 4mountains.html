@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 235</title>
+		<title>Four Mountains beta 238</title>
 		<style>
 			body{
 				height:100%;
@@ -1167,6 +1167,19 @@ function getSlotSymbol(slot) {
 	
 
 
+function describeQuadrant(name) {
+	switch (name) {
+	case 0 :
+		drawInfoBox("&diams; Objective quality is rational, tangible and external."); break;
+	case 1 :
+		drawInfoBox("&hearts; Subjective quality is gnostic (aka. associative), tangible and internal."); break;
+	case 2 :
+		drawInfoBox("&spades; Normative quality is rational, abstract and internal."); break;
+	case 3 :
+		drawInfoBox("&clubs; Mystical quality is gnostic (aka. associative), abstract and external."); break; }}
+
+
+
 function describeSlot(slot, metaphysics) {
 	var slotName = slot.name;
 	//console.log(slot.X + "," + slot.Y + "," + slotName);
@@ -1340,6 +1353,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 	var currentSlot;
 	var slotIsAvailable = false;
 	var currentSlotColor;
+	var slotGrade = 0;
 	for (var y = 0; y < res; y++) {
 		$("#gridContainer").append("<div onmouseout='defaultHover();'>");
 		for (var x = 0; x < res; x++) {
@@ -1352,7 +1366,10 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 					currentSlotColor = fadeUnavailableSlot(currentSlot);}}
 			else {
 				currentSlotColor = currentSlot.color;}
-			$("#gridContainer").append("<div onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + currentSlot.absVal + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
+			//if ((currentSlot.X === 0) || (currentSlot.Y === 0)) { slotGrade = "" }
+			//else { slotGrade = currentSlot.absVal }
+			slotGrade = currentSlot.absVal;
+			$("#gridContainer").append("<div onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
 		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>");}}
 	
 	
@@ -1587,13 +1604,13 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	mor.style.backgroundColor = "#ccc";
 	tot.innerHTML = "val";
 	tot.style.backgroundColor = "#ccc";
-	diams.innerHTML = "&diams;";
+	diams.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(0)'>&diams;</div>";
 	diams.style.backgroundColor = "#FFBBBD";
-	hearts.innerHTML = "&hearts;";
+	hearts.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(1)'>&hearts;</div>";
 	hearts.style.backgroundColor = "#FFBBEE";
-	spades.innerHTML = "&spades;";
+	spades.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(2)'>&spades;</div>";
 	spades.style.backgroundColor = "#FFDDBC";
-	clubs.innerHTML = "&clubs;";
+	clubs.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeQuadrant(3)'>&clubs;</div>";
 	clubs.style.backgroundColor = "#FFFEBC";
 	spacer1.innerHTML = "&nbsp;";
 	spacer1.style.backgroundColor = "#ccc";
@@ -2238,7 +2255,7 @@ function BasicMode() {
 				groups: [],
 				res: 9,
 				metaphysics: false,
-				nonrelScale: "exp-2",
+				nonrelScale: false,
 				grid: [],
 				slots: [],
 				playing: false,
@@ -2359,71 +2376,7 @@ function restart() {
 	s.mode.initDone = false;
 	init(); }
 
-	/*
-	var modeName = s.mode.name;
-	var keys = _.keys(s.mode);
-	for (var i = 0; i < keys.length; i++) {
-		console.log(s.mode.keys[i]);
-		s.mode.keys[i] = false; }}*/
 
-	/*s.mode.initDone = false;
-	if(s.mode.name === "BasicMode") {
-		BasicMode();*/
-		/*$( "#gridContainer" ).empty();
-		drawGrid(s.Basic.grid, s.Basic.persons, false);
-		$( "#personTable" ).empty();
-		drawPersonList();
-		$( "#groupTable" ).empty();
-		drawGroupList();*/ 
-
-	/*
-	for(var i = 0; i < s.Basic.persons.length; i++) {
-		s.Basic.persons[i].X = 0;
-		s.Basic.persons[i].Y = 0;
-		s.Basic.persons[i].visX = 0;
-		s.Basic.persons[i].visY = 0;
-		s.Basic.persons[i].val = relVal(0,0);
-		s.Basic.persons[i].xp = makeXp(0, 0, 0, 0);
-		for (var j = 0; j < s.Basic.persons[i].bens.length; j++) {
-			s.Basic.persons[i].bens[j] = relVal(0,0); }}
-	for(var i = 0; i < s.Basic.groups.length; i++) {
-		s.Basic.groups[i].val = relVal(0,0);
-		for (var j = 0; j < s.Basic.groups[i].bens.length; j++) {
-			s.Basic.groups[i].bens[j] = relVal(0,0); }}
-	s.Basic.playing = false;
-	s.Basic.personInTurn = s.Basic.persons[0];
-	s.Basic.turn = 0;
-	s.Basic.pause = false;
-	$( "#gridContainer" ).empty();
-	drawGrid(s.Basic.grid, s.Basic.persons, false);
-	$( "#personTable" ).empty();
-	drawPersonList();
-	$( "#groupTable" ).empty();
-	drawGroupList(); }*/
-	
-/*
-var s.Basic = {
-	mode: "BasicMode",
-	persons: [],
-	groups: [],
-	res: 9,
-	grid: [],
-	slots: [],
-	playing: false,
-	personInTurn: false,
-	turn: 0,
-	autoBotTurn: 20, //-1 for none
-	autoBotTurnDefault: 3000,
-	logInfoBox: false,
-	disableAutoContinueOnHumanTurn: true,
-	pause: false,
-	moveAttempt: false,
-	simultaneousTurns: false,
-	maxDebug: false,
-	strategies: [],
-	initDone: false};*/
-	
-	
 
 function drawModeSelector(mode) {
 	$( "#modeSelector" ).empty();
