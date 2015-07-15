@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 259</title>
+		<title>Four Mountains beta 261</title>
 		<style>
 			body{
 				height:100%;
@@ -1475,7 +1475,9 @@ function updatePersonList(diffs, hover) {
 		down = table.rows[i].cells[16];
 		spacer2 = table.rows[i].cells[17];
 		
-		id.innerHTML = s.Basic.persons[i - 1].id;
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
+		else { bot.innerHTML = "" }
 		name.innerHTML = s.Basic.persons[i - 1].name;
 		
 		if (!hover) { X.innerHTML = s.Basic.persons[i - 1].X; }
@@ -1596,11 +1598,11 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	id.style.backgroundColor = "#ccc";
 	bot.innerHTML = "bot";
 	bot.style.backgroundColor = "#ccc";
-	name.innerHTML = "name";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
 	name.style.backgroundColor = "#ccc";
-	X.innerHTML = "X";
+	X.innerHTML = "<div style='text-align:center;'>X</div>";
 	X.style.backgroundColor = "#ccc";
-	Y.innerHTML = "Y";
+	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
 	Y.style.backgroundColor = "#ccc";
 	spacer3.innerHTML = "&nbsp;";
 	spacer3.style.backgroundColor = "#ccc";
@@ -1663,7 +1665,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		spacer2.style.backgroundColor = "#ccc";
 		//bens = row.insertCell(18);
 	
-		id.innerHTML = s.Basic.persons[i - 1].id;
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
 		else { bot.innerHTML = "" }
 		name.innerHTML = s.Basic.persons[i - 1].name;
