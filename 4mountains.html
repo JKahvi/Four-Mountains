@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 291</title>
+		<title>Four Mountains beta 292</title>
 		<style>
 			body{
 				height:100%;
@@ -1311,7 +1311,15 @@ function describeQuality(name) {
 	case 4 :
 		drawInfoBox("The total <em>static value</em> of each person."); break;
 	case 5 :
-		drawInfoBox("Personal <em>decency</em> refers to how much more <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break; }}
+		drawInfoBox("Personal <em>decency</em> refers to how much more <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
+	case 6 :
+		drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 7 :
+		drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 8 :
+		drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
+	case 9 :
+		drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break;}}
 
 
 
@@ -1774,13 +1782,13 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	clubs.style.backgroundColor = "#FFFEBC";
 	spacer1.innerHTML = "&nbsp;";
 	spacer1.style.backgroundColor = "#ccc";
-	left.innerHTML = "&#9664;";
+	left.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(6)'>&#9664;</div>";
 	left.style.backgroundColor = "#ccc";
-	right.innerHTML = "&#9654;";
+	right.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(7)'>&#9654</div>";
 	right.style.backgroundColor = "#ccc";
-	up.innerHTML = "&#9650;";
+	up.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(8)'>&#9650;</div>";
 	up.style.backgroundColor = "#ccc";
-	down.innerHTML = "&#9660;";
+	down.innerHTML ="<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(9)'>&#9660;</div>"; 
 	down.style.backgroundColor = "#ccc";
 	spacer2.innerHTML = "&nbsp;";
 	spacer2.style.backgroundColor = "#ccc";
@@ -2450,7 +2458,7 @@ function drawModeSelector(mode) {
 	
 
 
-
+// idea: instead of moving on the grid player can also move in player list (Affects play order)
 	
 /*	
 <canvas id='plane' width=></div>
