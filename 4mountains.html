@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 261</title>
+		<title>Four Mountains beta 284</title>
 		<style>
 			body{
 				height:100%;
@@ -52,7 +52,7 @@
 				padding-right:3px;
 				padding-bottom:1px;
 				margin-top:-1px;
-				margin-left:2px;
+				margin-left:1px;
 				display:inline-block;
 				background-color: #8f8;
 				color: #00BB00;
@@ -71,7 +71,7 @@
 				padding-right:3px;
 				padding-bottom:1px;
 				margin-top:-1px;
-				margin-left:2px;
+				margin-left:1px;
 				display:inline-block;
    				background-color: #f88;
 				color: red;
@@ -289,6 +289,15 @@ function nextPerson(person) { if(s.Basic.maxDebug) {console.log("NEXTPERSON"); }
 		return s.Basic.persons[0];}
 	else if (id < (s.Basic.persons.length - 1)) {
 		return s.Basic.persons[id + 1]; }}
+
+
+
+function prevPerson(person) { if(s.Basic.maxDebug) {console.log("PREVPERSON"); }
+	var id = getNumberOfPerson(person);
+	if(id === 0) {
+		return s.Basic.persons[s.Basic.persons.length - 1];}
+	else if (id < (s.Basic.persons.length)) {
+		return s.Basic.persons[id - 1]; }}
 	
 	
 
@@ -317,7 +326,8 @@ function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
 		
 function setDefaultInfoBox(mode, message) { mode.defaultInfoBox = message; }
 
-function defaultHover() {
+function defaultHover() {//xyz
+	s.mode.slotHover = false;
 	drawInfoBox(s.mode.defaultInfoBox);
 	updatePersonList(s.mode.latestPersonsDiff, false);	}
 		
@@ -331,9 +341,12 @@ function reportTurn() { if(s.Basic.maxDebug) {console.log("REPORTTURN"); }
 		
 		
 		
-function changeTurn() { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
+function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	var debug = false;
 	s.Basic.personInTurn = nextPerson(s.Basic.personInTurn);
+	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+	updatePersonList(calcs.persons, false);
+	updateGroupList(calcs.groups);
 	var next = nextPerson(s.Basic.personInTurn);
 	reportTurn();
 	if(s.Basic.autoBotTurn >= 0) {
@@ -793,10 +806,11 @@ function move(X, Y, hover) { if(s.Basic.maxDebug) {console.log("MOVE"); }
 	var calcs = { persons : calcPersons(X, Y), groups : [] };
 	calcs.groups = calcGroups(X, Y, calcs.persons);
 	if (!hover) { makeMove(calcs.persons, calcs.groups); }
-	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
-	updatePersonList(calcs.persons, hover);
-	updateGroupList(calcs.groups);
-	if (!hover) { changeTurn(); }}
+	if (hover) {
+		drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+		updatePersonList(calcs.persons, hover);
+		updateGroupList(calcs.groups); }
+	if (!hover) { changeTurn(calcs); }}
 
 
 	
@@ -1352,14 +1366,14 @@ function slotHover(X, Y) {
 
 function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DRAWGRID"); }
 	var res = grid.length;
-	if(!(person === false)) {
-		$( "#gridContainer" ).empty();}
+	$( "#gridContainer" ).empty();
 	var currentSlot;
 	var slotIsAvailable = false;
 	var currentSlotColor;
 	var slotGrade = 0;
 	for (var y = 0; y < res; y++) {
-		$("#gridContainer").append("<div onmouseout='defaultHover();'>");
+		//$("#gridContainer").append("<div onmouseout='defaultHover();'>");
+		$("#gridContainer").append("<div>");
 		for (var x = 0; x < res; x++) {
 			currentSlot = findSlotPos(grid,x,y);
 			if(!(person === false)) {
@@ -1373,7 +1387,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 			//if ((currentSlot.X === 0) || (currentSlot.Y === 0)) { slotGrade = "" }
 			//else { slotGrade = currentSlot.absVal }
 			slotGrade = currentSlot.absVal;
-			$("#gridContainer").append("<div onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
+			$("#gridContainer").append("<div onmouseout='defaultHover()' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
 		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>");}}
 	
 	
@@ -1451,9 +1465,28 @@ function reportValDiff(oldVal, diff, hover) {
 	
 function updatePersonList(diffs, hover) {
 	var table = document.getElementById("personTable");
-	var limit = getBenLimit(s.Basic.persons);
+	var row;
+	var id = "";
+	var bot;
+	var name;
+	var X;
+	var Y;
+	var mor;
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var left;
+	var right;
+	var up;
+	var down;
+	var bens;
+	var spacer1;
+	var spacer2;
+	var spacer3;
 	var buffer;
-	var buffer2;
+	var limit = getBenLimit(s.Basic.persons);
 	
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		id = table.rows[i].cells[0];
@@ -1476,17 +1509,21 @@ function updatePersonList(diffs, hover) {
 		spacer2 = table.rows[i].cells[17];
 		
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
-		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
-		else { bot.innerHTML = "" }
-		name.innerHTML = s.Basic.persons[i - 1].name;
-		
-		if (!hover) { X.innerHTML = s.Basic.persons[i - 1].X; }
+
+		if(!hover) {
+			if (prevPerson(s.mode.personInTurn).id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
+		else {
+			if (s.mode.personInTurn.id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
+
+		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
 		else {
 			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
 			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
 			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
 
-		if (!hover) { Y.innerHTML = s.Basic.persons[i - 1].Y; }
+		if (!hover) { Y.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].Y + "</div>"; }
 		else {
 			if (Math.abs(s.Basic.persons[i - 1].Y) === Math.abs(diffs[i - 1].Y)) { X.innerHTML = diffs[i - 1].Y; }
 			else if ( Math.abs(s.Basic.persons[i - 1].Y) < Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].Y + "</span>"; } /*00bb00*/
@@ -1633,7 +1670,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		bens = row.insertCell(i + 18);
-		bens.innerHTML = s.Basic.persons[i].id;
+		bens.innerHTML = "<div style='text-align:center !important;'>" + s.Basic.persons[i].id + "</div>";
 		bens.style.backgroundColor = "#ccc"; }
 	
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
@@ -1873,7 +1910,6 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 			tot.style.backgroundColor = "#fff";
 			tot.style.color = "#000"; }
 		
-		
 		mor.innerHTML = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
 		tot.innerHTML = necStaVal(s.Basic.groups[i - 1].val);
 		
@@ -2039,7 +2075,7 @@ function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
 	
 function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
 	if(!((typeof mode) === "object")) {
-		var mode = s.Basic; }  // if you change default mode you need to change it also here, or rewrite this part
+		var mode = s.mode; }
 	var hidden = false;
 	var fill = 0;
 	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean"))) {
@@ -2061,7 +2097,6 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 		if(hidden) {  // BUG adding a person causes error message flood to console before new turn has been completed. messages come upon hover
 			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
-			$( "#gridContainer" ).empty();
 			if(mode.playing) {
 				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 			else {
@@ -2086,7 +2121,7 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 			mode.personInTurn = nextPerson(mode.personInTurn);
 			var turn = 1 + mode.turn;
 			var message = (turn + ". " + mode.personInTurn.name + "'s turn"); 
-			setDefaultInfoBox(mode, message);	} //xxx
+			setDefaultInfoBox(mode, message);	} //xxx reportturn
 		mode.persons.splice(id, 1);		
 		for(var i = 0; i < mode.persons.length; i++) {
 			mode.persons[i].bens.splice(id, 1); }			
@@ -2114,7 +2149,6 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 					mode.groups[i].persons[j].id--;
 					mode.groups[i].ids[j]--; }}}
 		//console.log(mode.personInTurn);
-		$( "#gridContainer" ).empty();
 		if((!(mode.pause)) || ((mode.pause) && (mode.autoBotTurn >= 0))) {
 			drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 		else {
@@ -2182,10 +2216,10 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 	else if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
 		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}
 		
-	else if(s.Basic.playing === false) {
+	else if(s.Basic.playing === false) { // has untested mods
 		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
 		var starter = 0;
-		if (starter >= 0 && starter < s.Basic.persons.length) {
+		if ((starter >= 0) && (starter < s.Basic.persons.length)) {
 			s.Basic.playing = true;
 			if (s.Basic.autoBotTurn === -1) {
 				updateButton("startGame", "Play (Enter)"); }
