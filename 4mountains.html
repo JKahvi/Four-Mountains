@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 289</title>
+		<title>Four Mountains beta 291</title>
 		<style>
 			body{
 				height:100%;
@@ -1298,16 +1298,20 @@ function getSlotSymbol(slot) {
 	
 
 
-function describeQuadrant(name) {
+function describeQuality(name) {
 	switch (name) {
 	case 0 :
-		drawInfoBox("&diams; Objective quality is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
+		drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
 	case 1 :
-		drawInfoBox("&hearts; Subjective quality is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
+		drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
 	case 2 :
-		drawInfoBox("&spades; Normative quality is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
+		drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
 	case 3 :
-		drawInfoBox("&clubs; Mystical quality is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break; }}
+		drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
+	case 4 :
+		drawInfoBox("The total <em>static value</em> of each person."); break;
+	case 5 :
+		drawInfoBox("Personal <em>decency</em> refers to how much more <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break; }}
 
 
 
@@ -1756,17 +1760,17 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	Y.style.backgroundColor = "#ccc";
 	spacer3.innerHTML = "&nbsp;";
 	spacer3.style.backgroundColor = "#ccc";
-	mor.innerHTML = "dec";
+	mor.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
 	mor.style.backgroundColor = "#ccc";
-	tot.innerHTML = "val";
+	tot.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(4)'>val</div>";
 	tot.style.backgroundColor = "#ccc";
-	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(0)'>&diams;</div>";
+	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(0)'>&diams;</div>";
 	diams.style.backgroundColor = "#FFBBBD";
-	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(1)'>&hearts;</div>";
+	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(1)'>&hearts;</div>";
 	hearts.style.backgroundColor = "#FFBBEE";
-	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(2)'>&spades;</div>";
+	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(2)'>&spades;</div>";
 	spades.style.backgroundColor = "#FFDDBC";
-	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuadrant(3)'>&clubs;</div>";
+	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(3)'>&clubs;</div>";
 	clubs.style.backgroundColor = "#FFFEBC";
 	spacer1.innerHTML = "&nbsp;";
 	spacer1.style.backgroundColor = "#ccc";
