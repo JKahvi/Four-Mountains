@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 284</title>
+		<title>Four Mountains beta 288</title>
 		<style>
 			body{
 				height:100%;
@@ -85,6 +85,12 @@
 		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
 		<script>
 		
+
+
+var m = {
+
+}
+
 
 		
 var s = {
@@ -1700,12 +1706,15 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		down = row.insertCell(16);
 		spacer2 = row.insertCell(17);
 		spacer2.style.backgroundColor = "#ccc";
-		//bens = row.insertCell(18);
 	
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+
 		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
 		else { bot.innerHTML = "" }
-		name.innerHTML = s.Basic.persons[i - 1].name;
+
+		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+		else { name.innerHTML = s.Basic.persons[i - 1].name; }
+
 		X.innerHTML = s.Basic.persons[i - 1].X;
 		Y.innerHTML = s.Basic.persons[i - 1].Y;
 		
@@ -2334,6 +2343,7 @@ function BasicMode() {
 			drawGrid(s.Basic.grid, s.Basic.persons, false);
 			createStrategies(s.Basic); }
 		s.mode = s.Basic;
+		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
 		drawInfoBox(false);
 		drawPersonList(false);
 		drawButton("startGame");
