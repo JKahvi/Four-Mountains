@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 288</title>
+		<title>Four Mountains beta 289</title>
 		<style>
 			body{
 				height:100%;
@@ -84,18 +84,125 @@
 		<script src="MARKOVER%20beta_files/jquery-2.js"></script>
 		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
 		<script>
-		
-
-
-var m = {
-
-}
 
 
 		
 var s = {
 	initDone: false,
 	mode: false };
+
+
+
+function BasicMode() {
+	if(!(s.mode.name === "BasicMode")) {
+		initBasicModeDisplay();
+		if(!s.Basic.initDone) {
+			s.Basic = {
+				name: "BasicMode",
+				persons: [],
+				groups: [],
+				res: 9,
+				metaphysics: false,
+				nonrelScale: false,
+				grid: [],
+				slots: [],
+				playing: false,
+				personInTurn: false,
+				turn: 0,
+				autoBotTurn: -1, //-1 for none
+				autoBotTurnDefault: 3000,
+				logInfoBox: false,
+				disableAutoContinueOnHumanTurn: true,
+				pause: false,
+				moveAttempt: false,
+				simultaneousTurns: false,
+				maxDebug: false,
+				strategies: [],
+				revertingXp: true,
+				defaultInfoBox: "",
+				slotHover: false,
+				latestPersonsDiff: false,
+				latestGroupsDiff: false,
+				initDone: false };
+			newPerson(s.Basic,"Rotta",true);
+			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
+			s.Basic.personInTurn = s.Basic.persons[0];
+			newPerson(s.Basic,"Siiseli",true);
+			newPerson(s.Basic,"Kaniini",true);
+			//newPerson(s.Basic,"Zippomiäs",true);
+			newPerson(s.Basic,"Länsigootti",true);
+			createMetaphysics(s.Basic, s.Basic.res);
+			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
+			drawGrid(s.Basic.grid, s.Basic.persons, false);
+			createStrategies(s.Basic); }
+		s.mode = s.Basic;
+		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
+		drawInfoBox(false);
+		drawPersonList(false);
+		drawButton("startGame");
+		drawButton("autoPlay");
+		drawButton("newPerson");
+		drawButton("delPerson");
+		drawButton("restart");
+		drawButton("devFunc");
+		drawGroupList(false);
+		s.mode.initDone = true; }}
+
+
+
+function stratComMode() {
+	s.mode = "stratComMode";
+	drawModeSelector("stratComMode"); }
+
+
+	
+function SpatialMode() {
+	if(!(s.mode.name === "SpatialMode")) {
+		initSpatialModeDisplay();
+		if(!s.Spatial.initDone) {
+			s.Spatial = {
+				name: "SpatialMode",
+				persons: [],
+				groups: [],
+				res: 9,
+				metaphysics: false,
+				nonrelScale: "exp-2",
+				grid: [],
+				slots: [],
+				playing: false,
+				personInTurn: false,
+				turn: 0,
+				autoBotTurn: -1, //-1 for none
+				autoBotTurnDefault: 3000,
+				logInfoBox: false,
+				disableAutoContinueOnHumanTurn: true,
+				pause: false,
+				moveAttempt: false,
+				simultaneousTurns: false,
+				maxDebug: false,
+				strategies: [],
+				revertingXp: true,
+				defaultInfoBox: "",
+				initDone: false };
+			newPerson(s.Spatial,"Rotta",true);
+			//s.Spatial.persons[0].xp = makeXp(2, 2, 2, 2);
+			s.Spatial.personInTurn = s.Spatial.persons[0];
+			newPerson(s.Spatial,"Siiseli",true);
+			newPerson(s.Spatial,"Kaniini",true);
+			newPerson(s.Spatial,"Zippomiäs",true);
+			newPerson(s.Spatial,"Länsigootti",true);
+			createMetaphysics(s.Spatial, s.Spatial.res); //xxx
+			createGrid(s.Spatial, s.Spatial.res, s.Spatial.persons);
+			createStrategies(s.Spatial); }
+		s.mode = s.Spatial;
+		drawInfoBox(false);
+		drawButton("startGame");
+		drawButton("autoPlay");
+		drawButton("newPerson");
+		drawButton("delPerson");
+		drawButton("restart");
+		drawButton("devFunc");
+		s.mode.initDone = true; }}
 	
 	
 	
@@ -2297,126 +2404,12 @@ function getMode(name) {
 		case "SpatialMode" : mode = s.Spatial; break; }
 	return mode; }
 	
-
-
-
-function BasicMode() {
-	if(!(s.mode.name === "BasicMode")) {
-		initBasicModeDisplay();
-		if(!s.Basic.initDone) {
-			s.Basic = {
-				name: "BasicMode",
-				persons: [],
-				groups: [],
-				res: 9,
-				metaphysics: false,
-				nonrelScale: false,
-				grid: [],
-				slots: [],
-				playing: false,
-				personInTurn: false,
-				turn: 0,
-				autoBotTurn: -1, //-1 for none
-				autoBotTurnDefault: 3000,
-				logInfoBox: false,
-				disableAutoContinueOnHumanTurn: true,
-				pause: false,
-				moveAttempt: false,
-				simultaneousTurns: false,
-				maxDebug: false,
-				strategies: [],
-				revertingXp: true,
-				defaultInfoBox: "",
-				slotHover: false,
-				latestPersonsDiff: false,
-				latestGroupsDiff: false,
-				initDone: false };
-			newPerson(s.Basic,"Rotta",true);
-			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
-			s.Basic.personInTurn = s.Basic.persons[0];
-			newPerson(s.Basic,"Siiseli",true);
-			newPerson(s.Basic,"Kaniini",true);
-			//newPerson(s.Basic,"Zippomiäs",true);
-			newPerson(s.Basic,"Länsigootti",true);
-			createMetaphysics(s.Basic, s.Basic.res);
-			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
-			drawGrid(s.Basic.grid, s.Basic.persons, false);
-			createStrategies(s.Basic); }
-		s.mode = s.Basic;
-		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
-		drawInfoBox(false);
-		drawPersonList(false);
-		drawButton("startGame");
-		drawButton("autoPlay");
-		drawButton("newPerson");
-		drawButton("delPerson");
-		drawButton("restart");
-		drawButton("devFunc");
-		drawGroupList(false);
-		s.mode.initDone = true; }}
-
 		
 
 function initBasicModeDisplay() {
 	$( "#container" ).empty();
 	$( "#container").append("<div id='gridContainer'></div><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='options'></div><div id='groupList'></div><table id='groupTable'></table>");
 	drawModeSelector("BasicMode"); }
-	
-	
-	
-function stratComMode() {
-	s.mode = "stratComMode";
-	drawModeSelector("stratComMode"); }
-
-
-	
-function SpatialMode() {
-	if(!(s.mode.name === "SpatialMode")) {
-		initSpatialModeDisplay();
-		if(!s.Spatial.initDone) {
-			s.Spatial = {
-				name: "SpatialMode",
-				persons: [],
-				groups: [],
-				res: 9,
-				metaphysics: false,
-				nonrelScale: "exp-2",
-				grid: [],
-				slots: [],
-				playing: false,
-				personInTurn: false,
-				turn: 0,
-				autoBotTurn: -1, //-1 for none
-				autoBotTurnDefault: 3000,
-				logInfoBox: false,
-				disableAutoContinueOnHumanTurn: true,
-				pause: false,
-				moveAttempt: false,
-				simultaneousTurns: false,
-				maxDebug: false,
-				strategies: [],
-				revertingXp: true,
-				defaultInfoBox: "",
-				initDone: false };
-			newPerson(s.Spatial,"Rotta",true);
-			//s.Spatial.persons[0].xp = makeXp(2, 2, 2, 2);
-			s.Spatial.personInTurn = s.Spatial.persons[0];
-			newPerson(s.Spatial,"Siiseli",true);
-			newPerson(s.Spatial,"Kaniini",true);
-			newPerson(s.Spatial,"Zippomiäs",true);
-			newPerson(s.Spatial,"Länsigootti",true);
-			createMetaphysics(s.Spatial, s.Spatial.res); //xxx
-			createGrid(s.Spatial, s.Spatial.res, s.Spatial.persons);
-			createStrategies(s.Spatial); }
-		s.mode = s.Spatial;
-		drawInfoBox(false);
-		drawButton("startGame");
-		drawButton("autoPlay");
-		drawButton("newPerson");
-		drawButton("delPerson");
-		drawButton("restart");
-		drawButton("devFunc");
-		s.mode.initDone = true; }}
 		
 
 		
