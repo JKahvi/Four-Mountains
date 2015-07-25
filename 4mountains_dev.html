@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title>Four Mountains beta 304</title>
+		<style>
+			body{
+				height:100%;
+				margin:0px;
+				font-family:verdana;
+				font-size:13px;
+				}
+			.wrapper{
+				height:100%;}
+			#container{
+				padding-top: 10px;
+				padding-left: 6px;}
+			.amoqButton{
+				display:block;
+				padding: 5px;
+				text-align:center;
+				float:left;}
+			#infoBox{
+				display:block;
+				height: 25px;
+				background-color:black;
+				color:red;
+				width: 100%;
+				overflow: hidden;}
+			#infoBoxText{
+				padding: 4px;}
+			table{
+				border-spacing: 0px;
+				text-align:left;
+				border-right: 1px solid #ccc;
+				border-bottom: 1px solid #ccc;}
+			td{
+				padding-left: 2px;
+				padding-right: 2px;
+				border-top: 1px solid #ccc;
+				border-left: 1px solid #ccc;}
+			#personTable{
+				font-size: 16px; }
+			#personTable td{
+				height: 21px; }
+			.outlineInc {
+				border: 1px solid green;
+				position:relative;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				padding-left:1px;
+				padding-right:3px;
+				padding-bottom:1px;
+				margin-top:-1px;
+				margin-left:1px;
+				display:inline-block;
+				background-color: #8f8;
+				color: #00BB00;
+   				-webkit-text-fill-color: lime; /* Will override color (regardless of order) */
+   				-webkit-text-stroke-width: 1px;
+   				-webkit-text-stroke-color: green;
+   				font-weight: bold;
+   				float: right; }
+   			.outlineDec {
+   				border: 1px solid maroon;
+   				position:relative;
+   				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				border-radius: 10px;
+				padding-left:1px;
+				padding-right:3px;
+				padding-bottom:1px;
+				margin-top:-1px;
+				margin-left:1px;
+				display:inline-block;
+   				background-color: #f88;
+				color: red;
+   				/*-webkit-text-fill-color: white;*/ /* Will override color (regardless of order) */
+   				-webkit-text-stroke-width: 1px;
+   				-webkit-text-stroke-color: maroon;
+   				font-weight: bold;
+   				float: right; }
+		</style>
+		<script src="MARKOVER%20beta_files/jquery-2.js"></script>
+		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
+		<script>
+
+
+
+// piirtofunktioita on kiva tehdä, ne ei oo niin mielenkiintosen näköisiä
+// engine funktiot on vaikea tehdä ja niistä on ylpeä
+// jotkut käyttöliittymän veemäisyydet ovat ihania tehdä kun tajuaa miten monimutkainen joku yksinkertainen asia on. esim. changeTurn
+// newPersonin (sis. addGroups alifunktioineen) ja delPersonin tekemistä ei ole tapana muistella
+// relValin tekeminen oli helppoa ja se on kaunis
+
+
+
+// TO DO
+// -----
+//
+// Metaphor-X ja Metaphor-Y ja Metaphor-diag
+// Toimintalogiikka: pätee kaikkiin pelaajiin jotka ovat siirtävän pelaajan xp:llä
+// Toimintaehto: siirtävän pelaajan xp:n tulee sisältää myös ruutu, johon siirretään (rohkaisee symmetriaan)
+
+
+
+// ==================
+// ENGINE STUFF BEGIN
+// ==================
+
+
+
+var s = {
+	initDone: false,
+	mode: false };
+
+
+
+function BasicMode() {
+	if(!(s.mode.name === "BasicMode")) {
+		initBasicModeDisplay();
+		if(!s.Basic.initDone) {
+			s.Basic = {
+				name: "BasicMode",
+				persons: [],
+				groups: [],
+				res: 9,
+				metaphysics: false,
+				nonrelScale: false,
+				grid: [],
+				slots: [],
+				playing: false,
+				personInTurn: false,
+				turn: 0,
+				autoBotTurn: -1, //-1 for none
+				autoBotTurnDefault: 3000,
+				logInfoBox: false,
+				disableAutoContinueOnHumanTurn: true,
+				pause: false,
+				moveAttempt: false,
+				simultaneousTurns: false,
+				maxDebug: false,
+				strategies: [],
+				revertingXp: true,
+				defaultInfoBox: "",
+				slotHover: false,
+				latestPersonsDiff: false,
+				latestGroupsDiff: false,
+				initDone: false };
+			newPerson(s.Basic,"Rotta",true);
+			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
+			s.Basic.personInTurn = s.Basic.persons[0];
+			newPerson(s.Basic,"Siiseli",true);
+			newPerson(s.Basic,"Kaniini",true);
+			//newPerson(s.Basic,"Zippomiäs",true);
+			newPerson(s.Basic,"Länsigootti",true);
+			createMetaphysics(s.Basic, s.Basic.res);
+			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
+			drawGrid(s.Basic.grid, s.Basic.persons, false);
+			createStrategies(s.Basic); }
+		s.mode = s.Basic;
+		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
+		drawInfoBox(false);
+		drawPersonList(false);
+		drawButton("startGame");
+		drawButton("autoPlay");
+		drawButton("newPerson");
+		drawButton("delPerson");
+		drawButton("restart");
+		drawButton("devFunc");
+		drawGroupList(false);
+		s.mode.initDone = true; }}
+
+
+
+function stratComMode() {
+	s.mode = "stratComMode";
+	drawModeSelector("stratComMode"); }
+
+
+	
+function SpatialMode() {
+	if(!(s.mode.name === "SpatialMode")) {
+		initSpatialModeDisplay();
+		if(!s.Spatial.initDone) {
+			s.Spatial = {
+				name: "SpatialMode",
+				persons: [],
+				groups: [],
+				res: 9,
+				metaphysics: false,
+				nonrelScale: "exp-2",
+				grid: [],
+				slots: [],
+				playing: false,
+				personInTurn: false,
+				turn: 0,
+				autoBotTurn: -1, //-1 for none
+				autoBotTurnDefault: 3000,
+				logInfoBox: false,
+				disableAutoContinueOnHumanTurn: true,
+				pause: false,
+				moveAttempt: false,
+				simultaneousTurns: false,
+				maxDebug: false,
+				strategies: [],
+				revertingXp: true,
+				defaultInfoBox: "",
+				initDone: false };
+			newPerson(s.Spatial,"Rotta",true);
+			//s.Spatial.persons[0].xp = makeXp(2, 2, 2, 2);
+			s.Spatial.personInTurn = s.Spatial.persons[0];
+			newPerson(s.Spatial,"Siiseli",true);
+			newPerson(s.Spatial,"Kaniini",true);
+			newPerson(s.Spatial,"Zippomiäs",true);
+			newPerson(s.Spatial,"Länsigootti",true);
+			createMetaphysics(s.Spatial, s.Spatial.res); //yyy
+			createGrid(s.Spatial, s.Spatial.res, s.Spatial.persons);
+			createStrategies(s.Spatial); }
+		s.mode = s.Spatial;
+		drawInfoBox(false);
+		drawButton("startGame");
+		drawButton("autoPlay");
+		drawButton("newPerson");
+		drawButton("delPerson");
+		drawButton("restart");
+		drawButton("devFunc");
+		s.mode.initDone = true; }}
+	
+	
+	
+function devStates() { if(s.Basic.maxDebug) {console.log("DEVSTATES:"); }
+	console.log("Pause: " + s.Basic.pause);
+}
+
+
+
+function getPersonIds(persons) { if(s.Basic.maxDebug) {console.log("GETPERSONIDS"); }
+	var ids = [];
+	for(var i = 0; i < persons.length; i++) {
+		ids.push(persons[i].id); }
+	return ids; }
+
+
+
+function move(X, Y, hover) { if(s.Basic.maxDebug) {console.log("MOVE"); }
+	if (!hover) { s.Basic.turn++; }
+	if ((X === false) && (Y === false)) { // these params are false if current player is bot
+		var botMove = ai();
+		X = botMove.X;
+		Y = botMove.Y;}
+	var calcs = { persons : calcPersons(X, Y), groups : [] };
+	calcs.groups = calcGroups(X, Y, calcs.persons);
+	if (!hover) { makeMove(calcs.persons, calcs.groups); }
+	if (hover) {
+		drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+		updatePersonList(calcs.persons, hover);
+		updateGroupList(calcs.groups); }
+	if (!hover) { changeTurn(calcs); }}
+		
+		
+		
+function makeXp(left, right, up, down) { if(s.Basic.maxDebug) {console.log("MAKEXP"); }
+	var output;
+	output = new Val(0, up, down, right, 0, 0, left, 0, 0);
+	return output;}
+		
+		
+
+function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("VAL"); }
+	this.Dyn = Dyn;
+	this.abs = abs;
+	this.tan = tan;
+	this.rat = rat;
+	this.nor = nor;
+	this.obj = obj;
+	this.gno = gno;
+	this.mys = mys;
+	this.sub = sub;}
+
+
+		
+function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
+	if (Math.abs(X) >= Math.abs(Y)) {
+		var intrinsic = Math.abs(X - (X - Y));}
+	else {
+		var intrinsic = Math.abs(X) - Math.abs(Y);}
+	if (Math.abs(X) === 0) {
+		intrinsic = -intrinsic;}		
+	if (Math.abs(Y) === 0) {
+		intrinsic = Math.abs(X);}
+	if (s.Basic.nonrelScale === "exp") {
+		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
+			intrinsic = Math.pow(2,intrinsic); }}
+	if (s.Basic.nonrelScale === "exp-1") {
+		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
+			intrinsic = Math.floor(Math.pow(2,intrinsic - 1)); }}
+	if (s.Basic.nonrelScale === "exp-2") {
+		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
+			intrinsic = Math.abs(Math.floor(Math.pow(2,intrinsic - 2))); }}
+	return intrinsic;}
+	
+	
+
+function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
+	var a = absVal(X,Y);
+	var relativized;
+	if		(X === 0 && Y === 0) {  //Dyn
+		relativized = new Val(a,0,0,0,0,0,0,0,0);}
+	else if (X === 0 && Y > 0) {  //abs
+		relativized = new Val(0,Y,0,0,0,0,0,0,0);}
+	else if (X === 0 && Y < 0) {  //tan
+		relativized = new Val(0,0,-Y,0,0,0,0,0,0);}
+	else if (X > 0 && Y === 0) {  //rat
+		relativized = new Val(0,0,0,X,0,0,0,0,0);}
+	else if (X > 0 && Y > 0) {  //nor
+		relativized = new Val(0,Y,0,X,a,0,0,0,0);}
+	else if (X > 0 && Y < 0) {  //obj
+		relativized = new Val(0,0,-Y,X,0,a,0,0,0);}
+	else if (X < 0 && Y === 0) {  //gno
+		relativized = new Val(0,0,0,0,0,0,-X,0,0);}
+	else if (X < 0 && Y > 0) {  //mys
+		relativized = new Val(0,Y,0,0,0,0,-X,a,0);}	
+	else if (X < 0 && Y < 0) {  //sub
+		relativized = new Val(0,0,-Y,0,0,0,-X,0,a);}
+	return relativized;}
+
+
+
+function nullVal(val) {
+	if((val.Dyn === 0) && (val.abs === 0) && (val.tan === 0) && (val.rat === 0) && (val.nor === 0) && (val.obj === 0) && (val.gno === 0) && (val.mys === 0) && (val.sub === 0)) { return true; }
+	else { return false; }}
+
+
+
+function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
+	var output = a.Dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
+	return output;}
+
+
+
+function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr relVal is already taken
+	var output = val.obj + val.nor + val.sub + val.mys;
+	return output;}
+
+	
+	
+function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
+	var c = new Val(
+		a.Dyn + b.Dyn,
+		a.abs + b.abs,
+		a.tan + b.tan,
+		a.rat + b.rat,
+		a.nor + b.nor,
+		a.obj + b.obj,
+		a.gno + b.gno,
+		a.mys + b.mys,
+		a.sub + b.sub);		
+	return c;}
+
+	
+
+/*
+a                ->           b
+a:n arvo        a+b:n arvo    b:n arvo
+*/
+	
+
+
+/*
+02:43 <?> Death -3
+02:45 <kahvi> ai TOI numero
+02:46 <kahvi> se numero indikoi sitä kuinka paljon plussaa tai miinusta tohon ruutuun menemisestä seuraa menijälle
+02:47 <kahvi> plussat tai miinukset rekisteröidään s.Basic.persons[i].val -kohtaan
+02:47 <kahvi> mutta tämän kohdan arvo ei ole luku vaan Val-objekti
+02:47 <kahvi> on vielä kirjoittamatta funktio joka summaa kaksi Val-objektia
+02:47 <kahvi> se on kyllä helppo kirjoittaa, voin kirjoittaa kohta
+02:47 <kahvi> Val-objektin "itseisarvo" saadaan totVal-funktiolla
+02:48 <kahvi> Val-objektit ovat siis vähän kuin lukuja, mutta kun luvun merkki on vain joko +, - tai 0 (3 eri vaihtoehtoa, jotka ovat toisensa poissulkevia) niin Val-objektissa on 9 eri vaihtoehtoa jotka eivät ole toisensa poissulkevia
+02:58 <kahvi> joo tossa on: http://a.moq.fi/test8.htm
+02:58 <kahvi> sumVal
+03:01 <kahvi> Val-objektilla on toinenkin "itseisarvo" joka saadaan absVal-funktiolla niin että absVal-funktioon syötetään X- ja Y-koordinaatit
+03:01 <kahvi> totVal eroaa absVal:sta sillä tavalla että totVal:iin syötetään Val-objekti kun taas absVal:iin syötetään koordinaatit
+03:06 <kahvi> s.Basic.persons[i].val -kohdan lisäksi ruutuun menemisestä seuraavat plussat tai miinukset rekisteröidään s.Basic.persons[i].bens[j] -kohtaan niin että j on pelaajan numero, jonka siirron seurauksena pelaaja nro. i päätyi tähän ruutuun.
+03:06 <kahvi> i === j jos kyseessä on pelaaja joka teki siirron vuorollaan
+03:07 <kahvi> "ben" on lyhenne sanasta "benefactor", hyväntekijä
+03:09 <kahvi> s.Basic.persons[i].bens on array Val-objekteja
+03:10 <kahvi> jotka ovat siis samassa järjestyksessä kuin s.Basic.persons -arrayn elementit, vaikka tätä ei ole kirjoitettu mihinkään eksplisiittisesti
+*nyt on kirjoitettu eksplisiittisesti koska id:t lisätty
+*/
+
+
+
+function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
+	this.id = s.Basic.persons.length;
+	this.name = name;
+	this.bot = bot;
+	this.X = 0;
+	this.Y = 0;
+	this.visX = 0;
+	this.visY = 0;
+	this.val = relVal(0,0);
+	this.valNR = relVal(0,0);
+	this.dec = 0;
+	this.bens = [relVal(0,0)];
+	this.xp = new Val(0,1,1,1,0,0,1,0,0);
+	this.strategies = [mode.strategies[0]]; }
+	
+	
+	
+function Role(id, name, bot, X, Y, visX, visY, val, valNR, dec, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
+	this.id = id;
+	this.name = name;
+	this.bot = bot;
+	this.X = X;
+	this.Y = Y;
+	this.visX = visX;  // deprecated, should replace visualization with Markover-style solution
+	this.visY = visY;  // deprecated, should replace visualization with Markover-style solution
+	this.val = val;
+	this.valNR = valNR;
+	this.dec = dec;
+	this.bens = bens;
+	this.xp = xp;
+	this.strategies = strategies; }
+	
+	
+	
+function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
+	if(!((typeof mode) === "object")) {
+		var mode = s.mode; }
+	var hidden = false;
+	var fill = 0;
+	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean"))) {
+		hidden = true;}
+	var cancel = false;
+	if (hidden) {
+		var name = prompt("Name","");
+		if (!name) { cancel = true; }}
+	if (hidden && (!(cancel))) {
+		var isBot = confirm("Click OK for bot, Cancel for human.");}
+	if (!cancel) {
+		var oldGroups = copyGroups(mode.groups);
+		mode.persons.push(new Person(name, isBot, mode.persons.length));
+		for (var i = 0; i < mode.persons.length; i++) {
+			fill = mode.persons.length - mode.persons[i].bens.length;
+			for (var j = 0; j < fill; j++) {
+				mode.persons[i].bens.push(relVal(0,0));}}
+		addGroups(mode, oldGroups, mode.persons);
+		if(hidden) {  // BUG adding a person causes error message flood to console before new turn has been completed. messages come upon hover
+			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
+			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
+			if(mode.playing) {
+				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
+			else {
+				drawGrid(mode.grid, mode.persons, false); }}
+			//drawGrid(mode.grid, mode.persons, mode.personInTurn); }
+		if(s.initDone) {
+			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
+			$( "#personTable" ).empty();
+			drawPersonList(false); 
+			$( "#groupTable" ).empty();
+			drawGroupList(false); }}}
+
+
+
+function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
+	var mode = s.mode;
+	var id = parseInt(prompt("Delete person by id:",""));
+	var delArr = [];
+	var delArrCopy;
+	if((id > -1) && (id < mode.persons.length)) {
+		if(mode.personInTurn.id === id) {
+			mode.personInTurn = nextPerson(mode.personInTurn);
+			var turn = 1 + mode.turn;
+			var message = (turn + ". " + mode.personInTurn.name + "'s turn"); 
+			setDefaultInfoBox(mode, message);	} //yyy reportturn
+		mode.persons.splice(id, 1);		
+		for(var i = 0; i < mode.persons.length; i++) {
+			mode.persons[i].bens.splice(id, 1); }			
+		for(var i = 0; i < mode.groups.length; i++) {
+			if(contains(mode.groups[i].ids, id)) {
+				mode.groups.splice(i, 1);
+				delArr.push(true);
+				i--; }
+			else{
+				delArr.push(false); }}		
+		for(var i = 0; i < mode.groups.length; i++) {
+			for(var j = 0; j < mode.groups[i].bens.length; j++) {
+				if(delArr[j]) {
+					mode.groups[i].bens[j] = false; }}}					
+		for(var i = 0; i < mode.groups.length; i++) {
+			for(var j = 0; j < mode.groups[i].bens.length; j++) {
+				if(!(mode.groups[i].bens[j])) {
+					mode.groups[i].bens.splice(j, 1);
+					j--; }}}					
+		for(var i = id; i < mode.persons.length; i++) {
+			mode.persons[i].id--; }			
+		for(var i = 0; i < mode.groups.length; i++) {
+			for(var j = 0; j < mode.groups[i].persons.length; j++) {
+				if(mode.groups[i].persons[j].id > id) {
+					mode.groups[i].persons[j].id--;
+					mode.groups[i].ids[j]--; }}}
+		//console.log(mode.personInTurn);
+		if((!(mode.pause)) || ((mode.pause) && (mode.autoBotTurn >= 0))) {
+			drawGrid(mode.grid, mode.persons, mode.personInTurn); }
+		else {
+			drawGrid(mode.grid, mode.persons, false); }
+		if(s.initDone) {
+			$( "#personTable" ).empty();
+			drawPersonList(false);
+			$( "#groupTable" ).empty();
+			drawGroupList(false); }}}
+		
+
+	
+function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
+	var next = nextPerson(s.Basic.personInTurn);
+	
+	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
+		s.Basic.pause = false;
+		move(false, false, false);}
+		
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === true)) {
+		s.Basic.pause = false;
+		move(false, false, false);}
+		
+	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === false)) {
+		s.Basic.pause = true;
+		clearInterval(s.Basic.moveAttempt);
+		updateButton("startGame", "Continue (Enter)");}
+
+	else if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
+		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}
+		
+	else if(s.Basic.playing === false) { // has untested mods
+		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
+		var starter = 0;
+		if ((starter >= 0) && (starter < s.Basic.persons.length)) {
+			s.Basic.playing = true;
+			if (s.Basic.autoBotTurn === -1) {
+				updateButton("startGame", "Play (Enter)"); }
+			reportTurn();
+			s.Basic.personInTurn = s.Basic.persons[starter];
+			if (s.Basic.personInTurn.bot === true) { move(false, false, false); }
+			else {
+				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
+				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}}
+
+
+		
+function devVal(val) {  if(s.Basic.maxDebug) {console.log("DEVVAL"); }
+	var a;
+	a = "obj: " + val.obj + ", sub: " + val.sub + ", nor: " + val.nor + ", mys: " + val.mys;
+	return a;}
+		
+		
+		
+function devFunc() { if(s.Basic.maxDebug) {console.log("DEVFUNC"); }
+	console.log("Not in use.");
+}
+
+
+
+function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPAREVAL:"); } //unused
+	var DynDiff = guestVal.Dyn - hostVal.Dyn;
+	var absDiff = guestVal.abs - hostVal.abs;
+	var tanDiff = guestVal.tan - hostVal.tan;
+	var ratDiff = guestVal.rat - hostVal.rat;
+	var norDiff = guestVal.nor - hostVal.nor;
+	var objDiff = guestVal.obj - hostVal.obj;
+	var gnoDiff = guestVal.gno - hostVal.gno;
+	var mysDiff = guestVal.mys - hostVal.mys;
+	var subDiff = guestVal.sub - hostVal.sub;
+	var valDiff = new Val(DynDiff, absDiff, tanDiff, ratDiff, norDiff, objDiff, gnoDiff, mysDiff, subDiff);
+	return valDiff;}
+
+	
+	
+function autoPlay() {
+	if (s.Basic.autoBotTurn >= 0) {
+		if((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
+			s.Basic.turn = s.Basic.turn--;
+			clearInterval(s.Basic.moveAttempt); }
+		s.Basic.autoBotTurn = -2;
+		updateButton("autoPlay", "Autoplay: Off");
+		if ((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
+			updateButton("startGame", "Continue (Enter)"); }}
+	if (s.Basic.autoBotTurn === -1) {
+		var speed = parseInt(prompt("Delay between bot turns in milliseconds:",s.Basic.autoBotTurnDefault));
+		if ( speed >= 0 ) {
+			s.Basic.autoBotTurn = speed;
+			s.Basic.autoBotTurnDefault = speed;
+			updateButton("autoPlay", "Autoplay: On"); }
+			if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot === true)) {
+				startGame();
+				startGame();}}
+	if (s.Basic.autoBotTurn === -2) { s.Basic.autoBotTurn = -1 }}
+	
+	
+	
+function restart() {
+	s.initDone = false;
+	s.mode.initDone = false;
+	init(); }
+
+
+
+function findSlotPos(grid,x,y) { if(s.Basic.maxDebug) {console.log("FINDSLOTPOS:"); }
+	var a = grid[y];
+	var b = a[x];
+	return b;}
+
+
+
+function findSlot(X,Y) { if(s.Basic.maxDebug) {console.log("FINDSLOT:"); }
+	var res = Math.floor(s.Basic.grid.length / 2);
+	return findSlotPos(s.Basic.grid, X + res, res - Y);}
+	
+	
+
+function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAVAILABLE:"); }
+	var maxX = person.xp.rat;
+	var minX = -person.xp.gno;
+	var maxY = person.xp.abs;
+	var minY = -person.xp.tan;
+	if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
+	else { return false; }}
+
+
+	
+function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHECK:"); }
+	var xp2 = makeXp(0, 0, 0, 0);
+	if(!s.Basic.revertingXp) {
+		if ((X === 0) || (Y === 0)) {
+			if		((X > 0) && (X > xp.rat)) { xp2.rat = X - xp.rat; }
+			else if ((X < 0) && (X < -xp.gno)) { xp2.gno = -(X + xp.gno); }
+			else if ((Y > 0) && (Y > xp.abs)) { xp2.abs = Y - xp.abs; }
+			else if ((Y < 0) && (Y < -xp.tan)) { xp2.tan = -(Y + xp.tan); }}}
+	else if(s.Basic.revertingXp) {
+		if (((X === 0) || (Y === 0)) && !((X === 0) && (Y === 0))) {
+			if (X > 0) { xp2.rat = X - xp.rat; }
+			else if (X < 0) { xp2.gno = -(X + xp.gno); }
+			else if (Y > 0) { xp2.abs = Y - xp.abs; }
+			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
+	return xp2;}
+
+	
+
+function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
+	var buffer;
+	for (var i = 0; i < persons.length; i++) {
+		var buffer = [];
+		for (var j = 0; j < persons.length; j++) {
+			buffer.push(necStaVal(persons[i].bens[j]));}
+		console.log(buffer);}}
+		
+
+
+/*function calcDecDiff(person, valDiff) {
+	var newPerson = sumVal(person.val, valDiff); //xyz
+	return - calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
+
+-(s.Basic.persons[i].dec - calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);*/
+
+		
+		
+function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); }
+	var debug = false;
+	if (!(debug === false)) { console.log("CALCPERSONS on turn " + s.Basic.turn + " (" + s.Basic.personInTurn.name + ")"); }
+	var personsDiff = [];
+	var newX = 0;
+	var newY = 0;
+	var newVisX = 0;
+	var newVisY = 0;
+	var valDiff;
+	var valNRDiff;
+	var decDiff;
+	var bensDiff = [];
+	var levelUp;
+	var currBen;
+	var stratsDiff = mode.strategies[0];
+	var buffer;
+	
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		if (s.Basic.personInTurn === s.Basic.persons[i]) {
+			newX = X;
+			newY = Y;}
+		else {
+			newX = s.Basic.persons[i].X + X;
+			newY = s.Basic.persons[i].Y + Y;}
+		if (!((newX === 0) || (newY === 0))) {
+			newVisX = s.Basic.persons[i].X + X;
+			newVisY = s.Basic.persons[i].Y + Y; }
+		if (!((newX === 0) || (newY === 0))) {
+			valDiff = relVal(newX, newY);
+			valNRDiff = relVal(0, 0); }
+		else {
+			valDiff = relVal(0, 0);
+			valNRDiff = relVal(newX, newY);}
+		//decDiff = calcDecDiff(s.Basic.persons[i], valDiff);
+		//new attr: eth (only own moves affect)
+		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
+		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, valNRDiff, decDiff, bensDiff, levelUp));}
+	
+	for (var i = 0; i < personsDiff.length; i++) {
+		buffer = [];		
+		for (var j = 0; j < personsDiff.length; j++) {
+			if (!(j === getNumberOfPerson(s.Basic.personInTurn))) {
+				buffer.push(relVal(0, 0));}
+			else {
+				buffer.push(personsDiff[i].val);}}
+			personsDiff[i].bens = buffer;}						
+		
+	if (!(debug === false)) {
+		var dev;
+		if (debug === "val") {
+			for (var i = 0; i < s.Basic.persons.length; i++) {
+				dev = devVal(personsDiff[i].val);
+				console.log(i + ". " + dev);}}
+		else if (debug === "bens") {
+			devBens(personsDiff);}
+		else if (debug === "levelup") {
+			for (var i = 0; i < s.Basic.persons.length; i++) {
+				console.log(personsDiff[i].xp);}}}
+			
+	return personsDiff;}
+
+
+
+function makeMove(personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console.log("MAKEMOVE"); }
+	s.mode.latestPersonsDiff = personsDiff;
+	s.mode.latestGroupsDiff = groupsDiff;
+	var buffer;
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		s.Basic.persons[i].X = personsDiff[i].X;
+		s.Basic.persons[i].Y = personsDiff[i].Y;
+		s.Basic.persons[i].visX = personsDiff[i].visX;
+		s.Basic.persons[i].visY = personsDiff[i].visY;
+		//s.Basic.persons[i].dec = s.Basic.persons[i].dec + personsDiff[i].dec;
+		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
+		s.Basic.persons[i].valNR = sumVal(s.Basic.persons[i].valNR, personsDiff[i].valNR);
+		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
+		buffer = [];
+		for (var j = 0; j < s.Basic.persons.length; j++) {
+			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j]));}
+		s.Basic.persons[i].bens = buffer;}
+	
+	for (var i = 0; i < s.Basic.groups.length; i++) {
+		s.Basic.groups[i].val = sumVal(s.Basic.groups[i].val, groupsDiff[i].val);
+		s.Basic.groups[i].bens = sumBens(s.Basic.groups[i].bens, groupsDiff[i].bens); }}
+
+
+
+function getNumberOfPerson(person) { if(s.Basic.maxDebug) {console.log("GETNUMBEROFPERSON"); }
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		if (person === s.Basic.persons[i]) {
+			return i;}}}
+			
+			
+			
+function nextPerson(person) { if(s.Basic.maxDebug) {console.log("NEXTPERSON"); }
+	var id = getNumberOfPerson(person);
+	if(id === (s.Basic.persons.length - 1)) {
+		return s.Basic.persons[0];}
+	else if (id < (s.Basic.persons.length - 1)) {
+		return s.Basic.persons[id + 1]; }}
+
+
+
+function prevPerson(person) { if(s.Basic.maxDebug) {console.log("PREVPERSON"); }
+	var id = getNumberOfPerson(person);
+	if(id === 0) {
+		return s.Basic.persons[s.Basic.persons.length - 1];}
+	else if (id < (s.Basic.persons.length)) {
+		return s.Basic.persons[id - 1]; }}
+
+
+
+function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
+	var debug = false;
+	s.Basic.personInTurn = nextPerson(s.Basic.personInTurn);
+	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+	updatePersonList(calcs.persons, false);
+	updateGroupList(calcs.groups);
+	var next = nextPerson(s.Basic.personInTurn);
+	reportTurn();
+	if(s.Basic.autoBotTurn >= 0) {
+		if(s.Basic.pause === false) {
+			if(s.Basic.personInTurn.bot === true) {
+				updateButton("startGame", "Pause (Enter)");
+				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
+			else {
+				clearInterval(s.Basic.moveAttempt);
+				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
+		else { //pause is on
+			clearInterval(s.Basic.moveAttempt);
+			if(s.Basic.personInTurn.bot === true) {
+				updateButton("startGame", "Continue (Enter)");}
+			else { //no reason to pause on human turn
+				s.Basic.pause = false;}}}
+	else {
+		if(s.Basic.personInTurn.bot === false) {
+			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
+		else {
+			updateButton("startGame", "Continue (Enter)");}}
+		
+	if(debug === true) {
+		devStates();}}
+
+	
+
+function availableSlot(slot, person) { if(s.Basic.maxDebug) {console.log("AVAILABLESLOT"); }
+	var X = slot.X;
+	var Y = slot.Y;
+	var available = (slotAvailable(X, Y, person))
+	if (available === true) { return true; }
+	else { return false; }}
+
+
+	
+function availableSlots(person) { if(s.Basic.maxDebug) {console.log("AVAILABLESLOTS"); }
+	var available;
+	var slots = [];
+	for (var i = 0; i < s.Basic.slots.length; i++) {
+		available = availableSlot(s.Basic.slots[i], person);
+		if (available === true) {
+			slots.push(s.Basic.slots[i]);}}
+	return slots;}
+
+
+
+function getNames(arr) { if(s.Basic.maxDebug) {console.log("GETNAMES"); }
+	var names = [];
+	for (var i = 0; i < arr.length; i++) {
+		names.push(arr[i].name);}
+	return names;}
+
+	
+
+function getAbsVals(arr) { if(s.Basic.maxDebug) {console.log("GETABSVALS"); }
+	var absVals = [];
+	for (var i = 0; i < arr.length; i++) {
+		absVals.push(arr[i].absVal);}
+	return absVals;}
+
+	
+	
+function getNecStaVals(arr) {  if(s.Basic.maxDebug) {console.log("GETNECSTAVALS"); }
+	var necStaVals = [];
+	for (var i = 0; i < arr.length; i++) {
+		necStaVals.push(arr[i].necStaVal);}
+	return necStaVals;}
+
+
+
+function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
+	if (s.Basic.pause === false) {
+		clearInterval(s.Basic.moveAttempt);
+		move (X, Y, false); }}
+
+
+
+// ================
+// ENGINE STUFF END
+// ================
+
+
+
+// ==============
+// UI STUFF BEGIN
+// ==============
+
+
+
+window.addEventListener("keydown", checkKeyPressed, false);
+function checkKeyPressed(e) { if(s.Basic.maxDebug) {console.log("CHECKKEYPRESSED"); }
+    if (e.keyCode == "13") {
+        startGame();}}
+	
+	
+
+function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
+	var res = Math.sqrt(slots.length);
+	var grid = [];
+	var buffer;	
+	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
+	for (var i = 0; i < slots.length; i = i + res) {
+		buffer = slots.slice(i, i + res);
+		buffer = buffer.sort(function(a,b) { return parseFloat(a.X) - parseFloat(b.X) } );
+		grid.push(buffer);}
+	return grid;}
+	
+	
+
+function startButtonLabel() {  if(s.Basic.maxDebug) {console.log("STARTBUTTONLABEL"); }
+	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
+		return "Continue (Enter)";}
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true)) {
+		return "Pause (Enter)";}
+	else if(s.Basic.playing === false) {
+		return "Start (Enter)";}}
+
+
+
+function updateButton(id, buttonText) { if(s.Basic.maxDebug) {console.log("UPDATEBUTTON"); }
+	$( "#" + id ).empty();
+	$( "#" + id).append("<div onmouseover='" + id + "Hover();' onmouseout='defaultHover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>"); }
+
+
+		
+function setDefaultInfoBox(mode, message) { mode.defaultInfoBox = message; }
+
+function defaultHover() {
+	s.mode.slotHover = false;
+	drawInfoBox(s.mode.defaultInfoBox);
+	updatePersonList(s.mode.latestPersonsDiff, false);	}
+		
+	
+	
+function reportTurn() { if(s.Basic.maxDebug) {console.log("REPORTTURN"); }
+	var turn = 1 + s.Basic.turn;
+	var message = (turn + ". " + s.Basic.personInTurn.name + "'s turn");
+	setDefaultInfoBox(s.mode, message);
+	drawInfoBox(message); }
+
+
+
+function Slot(name,X,Y,color,textColor,alt) { if(s.Basic.maxDebug) {console.log("SLOT"); }
+	this.name = name;
+	this.X = X;
+	this.Y = Y;
+	this.color = color;
+	this.textColor = textColor;
+	this.alt = alt;
+	this.absVal = absVal(X,Y);
+	this.necStaVal = necStaVal(relVal(X,Y));}
+
+
+
+function slotClick(X,Y) { if(s.Basic.maxDebug) {console.log("SLOTCLICK"); }
+	var available = slotAvailable(X, Y, s.Basic.personInTurn);
+	if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (available === true)) {
+		move(X,Y,false);}}
+
+	
+
+function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CREATEGRID"); }
+	switch(res) {
+	case 5 :
+		var r5x0y0 = new Slot("Nothing",	 0,  0);
+		var r5x0y1 = new Slot("Vulgar",		 0,  1);
+		var r5x0y2 = new Slot("Holy",		 0,  2);
+		var r5x0yn1 = new Slot("Naive",		 0, -1);
+		var r5x0yn2 = new Slot("Extreme",	 0, -2);
+
+		var r5x1y0 = new Slot("Novice",		 1,  0);
+		var r5x1y1 = new Slot("It",			 1,  1);
+		var r5x1y2 = new Slot("Madness",	 1,  2);
+		var r5x1yn1 = new Slot("Ego",		 1, -1);
+		var r5x1yn2 = new Slot("Death",	 	 1, -2);
+
+		var r5x2y0 = new Slot("Ruler",		 2,  0);
+		var r5x2y1 = new Slot("Why?",		 2,  1);
+		var r5x2y2 = new Slot("Wisdom",		 2,  2);
+		var r5x2yn1 = new Slot("How?",		 2, -1);
+		var r5x2yn2 = new Slot("Success",	 2, -2);
+
+		var r5xn1y0 = new Slot("Plain",		-1,  0);
+		var r5xn1y1 = new Slot("We",		-1,  1);
+		var r5xn1y2 = new Slot("Ugly",		-1,  2);
+		var r5xn1yn1 = new Slot("Us",		-1, -1);
+		var r5xn1yn2 = new Slot("Pain",		-1, -2);
+
+		var r5xn2y0 = new Slot("Champion",	-2,  0);
+		var r5xn2y1 = new Slot("Who?",		-2,  1);
+		var r5xn2y2 = new Slot("Esthetic",	-2,  2);
+		var r5xn2yn1 = new Slot("What?",	-2, -1);
+		var r5xn2yn2 = new Slot("Pleasure",	-2, -2);
+
+		var slots = [
+		r5x0y0, r5x0y1, r5x0y2, r5x0yn1, r5x0yn2,
+		r5x1y0, r5x1y1, r5x1y2, r5x1yn1, r5x1yn2,
+		r5x2y0, r5x2y1, r5x2y2, r5x2yn1, r5x2yn2,
+		r5xn1y0, r5xn1y1, r5xn1y2, r5xn1yn1, r5xn1yn2,
+		r5xn2y0, r5xn2y1, r5xn2y2, r5xn2yn1, r5xn2yn2];		
+		break;
+		
+	case 9 :
+		var r9x0y0 = new Slot("Nothing", 		 0,  0, "FFFFFF", "000", false);
+		var r9x0y1 = new Slot("Vulgar", 		 0,  1, "AAAAAA", "000", false);
+		var r9x0y2 = new Slot("Refined", 		 0,  2, "BBBBBB", "000", false);
+		var r9x0y3 = new Slot("Reverent", 		 0,  3, "CCCCCC", "000", false);
+		var r9x0y4 = new Slot("Holy", 			 0,  4, "DDDDDD", "000", false);
+		var r9x0yn1 = new Slot("Naive", 		 0, -1, "AAAAAA", "000", false);
+		var r9x0yn2 = new Slot("Mature", 		 0, -2, "BBBBBB", "000", false);
+		var r9x0yn3 = new Slot("Noble", 		 0, -3, "CCCCCC", "000", false);
+		var r9x0yn4 = new Slot("Extreme",	  	 0, -4, "DDDDDD", "000", false);
+
+		var r9x1y0 = new Slot("Novice", 		 1,  0, "999999", "FFF", false);
+		var r9x1y1 = new Slot("It", 			 1,  1, "FFDDBC", "000", "syntactic");
+		var r9x1y2 = new Slot("Always", 		 1,  2, "B9CDFF", "000", "redundant");
+		var r9x1y3 = new Slot("Never", 			 1,  3, "2555BE", "FFF", "erroneous");
+		var r9x1y4 = new Slot("Mad", 			 1,  4, "00257F", "FFF", "delusional");
+		var r9x1yn1 = new Slot("Ego", 			 1, -1, "FFBBBD", "000", "inorganic");
+		var r9x1yn2 = new Slot("Pain", 			 1, -2, "BAFFFF", "000", "weak");
+		var r9x1yn3 = new Slot("Shame", 		 1, -3, "5ABFBF", "FFF", "disruptive");
+		var r9x1yn4 = new Slot("Death", 		 1, -4, "1C8080", "FFF", "disastrous");
+
+		var r9x2y0 = new Slot("Adept", 			 2,  0, "666666", "FFF", false);
+		var r9x2y1 = new Slot("Think",			 2,  1, "C68C5E", "000", "parsing");
+		var r9x2y2 = new Slot("Purpose", 		 2,  2, "FFBB7C", "000", "semantic");
+		var r9x2y3 = new Slot("Doubt", 			 2,  3, "769EFF", "000", "jumping to conclusions");
+		var r9x2y4 = new Slot("Must", 			 2,  4, "0034BE", "FFF", "obsessing");
+		var r9x2yn1 = new Slot("Need", 			 2, -1, "C68C8D", "000", "sustaining");
+		var r9x2yn2 = new Slot("Life", 			 2, -2, "FF797D", "000", "biological");
+		var r9x2yn3 = new Slot("Poverty",		 2, -3, "75FFFF", "000", "feral");
+		var r9x2yn4 = new Slot("Decline",		 2, -4, "24BFBF", "FFF", "failing");
+
+		var r9x3y0 = new Slot("Master", 		 3,  0, "333333", "FFF", false);
+		var r9x3y1 = new Slot("Choice",			 3,  1, "874F23", "FFF", "recursive");
+		var r9x3y2 = new Slot("Reason", 		 3,  2, "C97430", "000", "proving");
+		var r9x3y3 = new Slot("Understand",		 3,  3, "FF993D", "000", "metatheoretic");
+		var r9x3y4 = new Slot("Lie", 			 3,  4, "0043FF", "000", "confusing");
+		var r9x3yn1 = new Slot("Tool", 			 3, -1, "845F5F", "FFF", "infrastructural");
+		var r9x3yn2 = new Slot("Belong", 		 3, -2, "CC5B5F", "000", "working");
+		var r9x3yn3 = new Slot("Honor", 		 3, -3, "FF303F", "000", "social");
+		var r9x3yn4 = new Slot("Bondage",		 3, -4, "2EFFFF", "000", "oppressive");
+
+		var r9x4y0 = new Slot("Ruler", 			 4,  0, "000000", "FFF", false);
+		var r9x4y1 = new Slot("Why?",			 4,  1, "462300", "FFF", "structural");
+		var r9x4y2 = new Slot("Would", 			 4,  2, "883F00", "FFF", "functional");
+		var r9x4y3 = new Slot("Truth", 			 4,  3, "CC5B00", "000", "generalizing");
+		var r9x4y4 = new Slot("Wisdom",			 4,  4, "FF7700", "000", "analogic");
+		var r9x4yn1 = new Slot("How?", 			 4, -1, "443233", "FFF", "media");
+		var r9x4yn2 = new Slot("Should", 		 4, -2, "883F41", "FFF", "cognition");
+		var r9x4yn3 = new Slot("Right", 		 4, -3, "CF2731", "000", "research");
+		var r9x4yn4 = new Slot("Success",		 4, -4, "FF0000", "000", "intellectual");
+
+		var r9xn1y0 = new Slot("Plain", 		-1,  0, "999999", "FFF", false);
+		var r9xn1y1 = new Slot("We", 			-1,  1, "FFFEBC", "000", "coincidential");
+		var r9xn1y2 = new Slot("Lust", 			-1,  2, "C87CFF", "000", "harmful");
+		var r9xn1y3 = new Slot("Hostile",		-1,  3, "7F30BF", "FFF", "damaging");
+		var r9xn1y4 = new Slot("Violate",		-1,  4, "48007E", "FFF", "degrading");
+		var r9xn1yn1 = new Slot("Us", 			-1, -1, "FFBBEE", "000", "believing");
+		var r9xn1yn2 = new Slot("Sad", 			-1, -2, "BAFFCC", "000", "frivolous");
+		var r9xn1yn3 = new Slot("Pretend", 		-1, -3, "5ABF73", "FFF", "deceptive");
+		var r9xn1yn4 = new Slot("Dysphoria",	-1, -4, "1C8035", "FFF", "dysphoric");
+
+		var r9xn2y0 = new Slot("Fancy", 		-2,  0, "666666", "FFF", false);
+		var r9xn2y1 = new Slot("Want",			-2,  1, "BDBD5D", "000", "active");
+		var r9xn2y2 = new Slot("Harmony", 		-2,  2, "FFFE7A", "000", "cultural");
+		var r9xn2y3 = new Slot("Boredom",		-2,  3, "AB3DFE", "000", "corruptive");
+		var r9xn2y4 = new Slot("Regret", 		-2,  4, "8900BD", "FFF", "ignoring");
+		var r9xn2yn1 = new Slot("Hope", 		-2, -1, "C68CB1", "000", "expecting");
+		var r9xn2yn2 = new Slot("Love", 		-2, -2, "FF78DE", "000", "considerative");
+		var r9xn2yn3 = new Slot("Burden",		-2, -3, "75FF98", "000", "arbitrary");
+		var r9xn2yn4 = new Slot("Despair",		-2, -4, "24BF4B", "FFF", "desperation");
+
+		var r9xn3y0 = new Slot("Charming",		-3,  0, "333333", "FFF", false);
+		var r9xn3y1 = new Slot("Friend",		-3,  1, "7D7E21", "FFF", "passive");
+		var r9xn3y2 = new Slot("Yay!", 			-3,  2, "BDBD2D", "000", "celebrating");
+		var r9xn3y3 = new Slot("Free", 			-3,  3, "FFFE39", "000", "liberating");
+		var r9xn3y4 = new Slot("Mess",			-3,  4, "8900FE", "000", "chaotic");
+		var r9xn3yn1 = new Slot("Share", 		-3, -1, "845F77", "FFF", "cooperating");
+		var r9xn3yn2 = new Slot("Possess",		-3, -2, "CC5CA5", "000", "stylistic");
+		var r9xn3yn3 = new Slot("Happy", 		-3, -3, "FF30CF", "000", "calculating");
+		var r9xn3yn4 = new Slot("Shock", 		-3, -4, "2EFF62", "000", "hurrying");
+
+		var r9xn4y0 = new Slot("Champion",		-4,  0, "000000", "FFF", false);
+		var r9xn4y1 = new Slot("Who?",			-4,  1, "424100", "FFF", "innocent");
+		var r9xn4y2 = new Slot("Can", 			-4,  2, "7D7E00", "FFF", "ritualistic");
+		var r9xn4y3 = new Slot("Magical",		-4,  3, "BDBD00", "000", false);
+		var r9xn4y4 = new Slot("Esthetic",		-4,  4, "FFFE00", "000", false);
+		var r9xn4yn1 = new Slot("What?", 		-4, -1, "44323E", "FFF", "obvious");
+		var r9xn4yn2 = new Slot("Be", 			-4, -2, "883F6F", "FFF", "customary");
+		var r9xn4yn3 = new Slot("Fun", 			-4, -3, "CF2799", "000", "recreational");
+		var r9xn4yn4 = new Slot("Epiphany", 	-4, -4, "FF00BF", "000", "euphoria");
+
+		var slots = [
+		r9x0y0, r9x0y1, r9x0y2, r9x0y3, r9x0y4, r9x0yn1, r9x0yn2, r9x0yn3, r9x0yn4,
+		r9x1y0, r9x1y1, r9x1y2, r9x1y3, r9x1y4, r9x1yn1, r9x1yn2, r9x1yn3, r9x1yn4,
+		r9x2y0, r9x2y1, r9x2y2, r9x2y3, r9x2y4, r9x2yn1, r9x2yn2, r9x2yn3, r9x2yn4,
+		r9x3y0, r9x3y1, r9x3y2, r9x3y3, r9x3y4, r9x3yn1, r9x3yn2, r9x3yn3, r9x3yn4,
+		r9x4y0, r9x4y1, r9x4y2, r9x4y3, r9x4y4, r9x4yn1, r9x4yn2, r9x4yn3, r9x4yn4,
+		r9xn1y0, r9xn1y1, r9xn1y2, r9xn1y3, r9xn1y4, r9xn1yn1, r9xn1yn2, r9xn1yn3, r9xn1yn4,
+		r9xn2y0, r9xn2y1, r9xn2y2, r9xn2y3, r9xn2y4, r9xn2yn1, r9xn2yn2, r9xn2yn3, r9xn2yn4,
+		r9xn3y0, r9xn3y1, r9xn3y2, r9xn3y3, r9xn3y4, r9xn3yn1, r9xn3yn2, r9xn3yn3, r9xn3yn4,
+		r9xn4y0, r9xn4y1, r9xn4y2, r9xn4y3, r9xn4y4, r9xn4yn1, r9xn4yn2, r9xn4yn3, r9xn4yn4];
+		break;
+		
+	default :
+		console.log("createGrid does not support this resolution.");}
+
+	mode.slots = slots;
+	mode.grid = makeSlotGrid(slots); }
+
+
+
+function Level(name,X,Y,rank) { if(s.Basic.maxDebug) {console.log("LEVEL"); }
+	this.name = name;
+	this.X = X;
+	this.Y = Y;
+	this.rank = rank; }
+	
+	
+	
+function Cluster(name,Y,number) { if(s.Basic.maxDebug) {console.log("CLUSTER"); }
+	this.name = name;
+	this.Y = Y;
+	this.number = number; }
+
+
+
+function describeDecency(slot) {
+	var ret = "";
+	if (Math.abs(slot.X) === Math.abs(slot.Y)) { ret = "excellent" }
+	else if (Math.abs(slot.X) < Math.abs(slot.Y)) { ret = "bad" }
+	else if (Math.abs(slot.X) > Math.abs(slot.Y)) { ret = "decent" }
+	return ret; }
+
+
+	
+function getClusterName(slot, metaphysics) {
+	var halfRes = metaphysics.nor.length - 1;
+	var ret;
+	if (slot.X > 0) {
+		if (slot.Y > 0) { ret = metaphysics.abs[slot.Y - 1] }
+		else if (slot.Y < 0) { ret = metaphysics.tan[-(slot.Y + 1)] }}
+	else if (slot.X < 0) {
+		if (slot.Y > 0) { ret = metaphysics.abs[halfRes - (slot.Y - 1)] }
+		else if (slot.Y < 0) { ret = metaphysics.tan[halfRes + (slot.Y + 1)] }}
+	return ret.name; }
+	
+	
+
+function getLevelName(slot, metaphysics) {
+	var ret;
+	var lev = Math.min(Math.abs(slot.X), Math.abs(slot.Y)) - 1;
+	if (slot.X > 0) {
+		if(slot.Y > 0) { ret = metaphysics.nor[lev] }
+		else if(slot.Y < 0) { ret = metaphysics.obj[lev] }}
+	else if (slot.X < 0) {
+		if(slot.Y > 0) { ret = metaphysics.mys[lev] }
+		else if(slot.Y < 0) { ret = metaphysics.sub[lev] }}
+	return ret.name; }
+
+
+
+function getPotentialSlot(slot) {
+	var ret = false;
+	if (!(Math.abs(slot.X) === Math.abs(slot.Y))) {
+		if (slot.X > 0) { 
+			if (slot.Y > 0) { ret = findSlot(slot.X, slot.X) }
+			else if (slot.Y < 0) { ret = findSlot(slot.X, -(slot.X)) }}
+		else if (slot.X < 0) {
+			if (slot.Y > 0) { ret = findSlot(slot.X, -(slot.X)) }
+			else if (slot.Y < 0) { ret = findSlot (slot.X, slot.X) }}}
+	return ret; }
+
+	
+	
+function getSlotSymbol(slot) {
+	var ret;
+	if (slot.X < 0) {
+		if (slot.Y < 0) { ret = "&hearts;" }
+		else if (slot.Y > 0) { ret = "&clubs;" }}
+	else if (slot.X > 0) {
+		if (slot.Y < 0) { ret = "&diams;" }
+		else if (slot.Y > 0) { ret = "&spades;" }}
+	return ret; }
+	
+
+
+function describeQuality(id) {
+	switch (id) {
+	case 0 :
+		drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
+	case 1 :
+		drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
+	case 2 :
+		drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
+	case 3 :
+		drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
+	case 4 :
+		drawInfoBox("The total <em>static value</em> of each person."); break;
+	case 5 :
+		drawInfoBox("Personal <em>decency</em> refers to how much more relativized <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
+	case 6 :
+		drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 7 :
+		drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 8 :
+		drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
+	case 9 :
+		drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break;}}
+
+
+
+function describeSlot(slot, metaphysics) {
+	var slotName = slot.name;
+	//console.log(slot.X + "," + slot.Y + "," + slotName);
+	if ((slot.X < 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized gnostic slot."); }
+	else if ((slot.X > 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized rational slot."); }
+	else if (slot.X === 0) {
+		if (slot.Y < 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized tangible slot."); }
+		else if (slot.Y > 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized abstract slot."); }
+		else if (slot.Y === 0) { drawInfoBox("<em>" + slotName + "</em> is the name of the origin of this Cartesian coordinate system."); }}
+	else {
+		var slotSymbol = getSlotSymbol(slot);
+		var dec = describeDecency(slot);
+		var cluster = getClusterName(slot, metaphysics);
+		var level = getLevelName(slot, metaphysics);
+		var potential = getPotentialSlot(slot);
+		if (slot.alt) { slotName = slotName + "</em> (aka. \"" + slot.alt + "\")<em>"; }
+		if (potential) {
+			var potentialName = potential.name;
+			if (potential.alt) { potentialName = potential.name + "</em> (aka. \"" + potential.alt + "\")<em>"; }
+			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is a " + dec + " slot that is romantically/actually " + cluster + ", classically " + level + " and potentially <em>" + potentialName + "</em>."); }
+		else {
+			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is an " + dec + " slot that is romantically " + cluster + " and classically " + level + "."); }}}
+
+
+
+function createMetaphysics(mode, res) {
+	var metaphysics = { nor : [], obj : [], mys : [], sub : [], tan : [], abs : [] };
+	switch(res) {
+	case 9 :
+		var r9l1nor = new Level("Syntactic", 1, 1, 1);
+		var r9l2nor = new Level("Semantic", 1, 1, 2);
+		var r9l3nor = new Level("Metatheoretic", 1, 1, 3);
+		var r9l4nor = new Level("Analogic", 1, 1, 4);
+		
+		var r9l1obj = new Level("Inorganic", 1, -1, 1);
+		var r9l2obj = new Level("Biological", 1, -1, 2);
+		var r9l3obj = new Level("Social", 1, -1, 3);
+		var r9l4obj = new Level("Intellectual", 1, -1, 4);
+		
+		var r9l1mys = new Level("Coincidental", -1, 1, 1);
+		var r9l2mys = new Level("Cultural", -1, 1, 2);
+		var r9l3mys = new Level("Freedom", -1, 1, 3);
+		var r9l4mys = new Level("Aesthetic", -1, 1, 4);
+		
+		var r9l1sub = new Level("Believing", -1, -1, 1);
+		var r9l2sub = new Level("Considering", -1, -1, 2);
+		var r9l3sub = new Level("Calculating", -1, -1, 3);
+		var r9l4sub = new Level("Epiphanic", -1, -1, 4);
+		
+		var r9c1abs = new Cluster("Harmony", 1, 1);
+		var r9c2abs = new Cluster("Significance", 1, 2);
+		var r9c3abs = new Cluster("Awareness", 1, 3);
+		var r9c4abs = new Cluster("Unity", 1, 4);
+		
+		var r9c1tan = new Cluster("Sense-data", -1, 1);
+		var r9c2tan = new Cluster("Lower Needs", -1, 2);
+		var r9c3tan = new Cluster("Higher Needs", -1, 3);
+		var r9c4tan = new Cluster("Deliberation", -1, 4);
+		
+		metaphysics.nor = [r9l1nor, r9l2nor, r9l3nor, r9l4nor];
+		metaphysics.obj = [r9l1obj, r9l2obj, r9l3obj, r9l4obj];
+		metaphysics.mys = [r9l1mys, r9l2mys, r9l3mys, r9l4mys];
+		metaphysics.sub = [r9l1sub, r9l2sub, r9l3sub, r9l4sub];
+		metaphysics.abs = [r9c1abs, r9c2abs, r9c3abs, r9c4abs];
+		metaphysics.tan = [r9c1tan, r9c2tan, r9c3tan, r9c4tan];
+		break;
+		
+	default :
+		console.log("createMetaphysics does not support this resolution."); }
+		
+	mode.metaphysics = metaphysics; }
+	
+	
+	
+function personsInSlot(slot, persons) {  if(s.Basic.maxDebug) {console.log("PERSONSINSLOT"); }
+	var population = [];
+	for (var i = 0; i < persons.length; i++) {
+		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
+			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 2px 3px; font-size: 13px; margin-right: 2px; margin-top: -2px;'><strong>" + (i /*+ 1*/) + "</strong></div>";}}
+	if(population.length === 0) {
+		population = "&nbsp;";}
+	return population;}
+	
+	
+	
+function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPERSONS"); }
+	var a = personsInSlot(slot, persons);
+	return a;}
+	
+
+
+function hexToRgb(hex) {  if(s.Basic.maxDebug) {console.log("HEXTORGB"); }
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+
+
+function rgbToHex(r, g, b) { if(s.Basic.maxDebug) {console.log("RGBTOHEX"); }
+    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+	
+
+function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
+	var hex = ("#" + slot.color);
+	var r = hexToRgb(hex).r;
+	var g = hexToRgb(hex).g;
+	var b = hexToRgb(hex).b;
+	var avg = Math.floor((r + b + g) / 3);
+	hex = rgbToHex(avg, avg, avg);
+	return hex;}
+
+	
+
+function slotHover(X, Y) {
+	var slot = findSlot(X, Y);
+	s.mode.slotHover = slot;
+	describeSlot(slot, s.Basic.metaphysics);
+	if ((s.mode.playing) && slotAvailable(X, Y, s.mode.personInTurn )) { move(X, Y, true); }
+	else {updatePersonList(s.mode.latestPersonsDiff,false); }}
+
+
+
+function drawInfoBox(text) {  if(s.Basic.maxDebug) {console.log("DRAWINFOBOX"); }
+	if (text === false) { // text === false upon init
+		if (s.Basic.logInfoBox === true) {
+			text = "Any message displayed here is also written in the console. You can access the console by F12.";}
+		else {
+			text = "Welcome";}}
+	$( "#infoBox" ).empty();
+	$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	if(s.Basic.logInfoBox === true) {
+		console.log(text);}}
+
+
+
+function bensHover(id1, id2) {
+	drawInfoBox(s.Basic.persons[id2].name + " (" + id2 + ") has treated " + s.Basic.persons[id1].name + " (" + id1 + ") with a decency of " + dispValDecency(s.Basic.persons[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.persons[id1].bens[id2]) + " by giving " + s.Basic.persons[id1].bens[id2].obj + " &diams;, " + s.Basic.persons[id1].bens[id2].sub + " &hearts;, " + s.Basic.persons[id1].bens[id2].nor + " &spades;, " + s.Basic.persons[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.persons[id1].bens[id2].gno + " gno, " + s.Basic.persons[id1].bens[id2].rat + " rat, " + s.Basic.persons[id1].bens[id2].abs + " abs, " + s.Basic.persons[id1].bens[id2].tan + " tan"); }
+	
+function groupBensHover(id1, id2) { //group.ids is person id array, but these id are number in list... so far
+	//console.log(id1 + " " + id2); }
+	dispIds1 = drawIds(s.Basic.groups[id1]);
+	dispIds2 = drawIds(s.Basic.groups[id2]);
+	drawInfoBox("The group of " + dispIds2 + " has treated the group of " + dispIds1 + " with a decency of " + dispValDecency(s.Basic.groups[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.groups[id1].bens[id2]) + " by giving " + s.Basic.groups[id1].bens[id2].obj + " &diams;, " + s.Basic.groups[id1].bens[id2].sub + " &hearts;, " + s.Basic.groups[id1].bens[id2].nor + " &spades;, " + s.Basic.groups[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.groups[id1].bens[id2].gno + " gno, " + s.Basic.groups[id1].bens[id2].rat + " rat, " + s.Basic.groups[id1].bens[id2].abs + " abs, " + s.Basic.groups[id1].bens[id2].tan + " tan"); }
+
+
+
+function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}	
+function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human..");}	
+function delPersonHover() { drawInfoBox("Deletes a person.");}	
+function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
+function restartHover() { drawInfoBox("Starts a new game and erases the old one.") }
+function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
+function stratComModeHover() { drawInfoBox("stratCom is a statistical comparison tool for strategic analysis."); }
+function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
+	
+		
+
+function initBasicModeDisplay() {
+	$( "#container" ).empty();
+	$( "#container").append("<div id='gridContainer'></div><div id='ruleTable'></div><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='options'></div><div id='groupList'></div><table id='groupTable'></table>");
+	drawModeSelector("BasicMode"); }
+		
+
+		
+function initSpatialModeDisplay() {
+	$ ( "#container" ).empty();
+	$( "#container" ).append("<canvas id='plane' width='500' height='500'></canvas><canvas id='space' width='500' height='500'></canvas><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='groupList'></div><table id='groupTable'></table>");
+	drawModeSelector("SpatialMode"); }
+
+
+
+function remLast4(str) { return str.slice(0, str.length - 4); }
+function drawModeSelector(mode) {
+	$( "#modeSelector" ).empty();
+	var ids = ["BasicMode", "stratComMode", "SpatialMode"];
+	var modes = [];
+	for(var i = 0; i < ids.length; i++) {
+		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'>" + remLast4(ids[i]) + "</input>"); }
+	for(var i = 0; i < ids.length; i++) {
+		modes.push(document.getElementById(ids[i])); }
+	for(var i = 0; i < modes.length; i++) {
+		modes[i].setAttribute("type", "radio");
+		if (mode === ids[i]) { document.getElementById(ids[i]).checked = true; }
+		else { document.getElementById(ids[i]).checked = false; }}}
+	
+	
+/*function drawOptions(mode) {
+	$( "#options" ).empty();*/
+	
+
+
+// idea: instead of moving on the grid player can also move in player list (Affects play order)
+	
+/*	
+<canvas id='plane' width=></div>
+<div style='clear:both; height:0px;'>&nbsp;</div>
+<table id='personTable'></table>
+<button id='startGame' class='amoqButton'></button>
+<button id='autoPlay' class='amoqButton'></button>
+<button id='newPerson' class='amoqButton'></button>
+<button id='delPerson' class='amoqButton'></button>
+<button id='restart' class='amoqButton'></button>
+<div style='clear:both; height:0px;'>&nbsp;</div>
+<div id='groupList'></div>
+<table id='groupTable'></table>*/
+
+
+
+function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DRAWGRID"); }
+	var res = grid.length;
+	$( "#gridContainer" ).empty();
+	var currentSlot;
+	var slotIsAvailable = false;
+	var currentSlotColor;
+	var slotGrade = 0;
+	for (var y = 0; y < res; y++) {
+		//$("#gridContainer").append("<div onmouseout='defaultHover();'>");
+		$("#gridContainer").append("<div>");
+		for (var x = 0; x < res; x++) {
+			currentSlot = findSlotPos(grid,x,y);
+			if(!(person === false)) {
+				slotIsAvailable = slotAvailable(currentSlot.X, currentSlot.Y, person);
+				if(slotIsAvailable === true) {
+					currentSlotColor = currentSlot.color;}
+				else {
+					currentSlotColor = fadeUnavailableSlot(currentSlot);}}
+			else {
+				currentSlotColor = currentSlot.color;}
+			//if ((currentSlot.X === 0) || (currentSlot.Y === 0)) { slotGrade = "" }
+			//else { slotGrade = currentSlot.absVal }
+			slotGrade = currentSlot.absVal;
+			$("#gridContainer").append("<div onmouseout='defaultHover()' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
+		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>");}}
+	
+	
+	
+function drawIds(group) { if(s.Basic.maxDebug) {console.log("DRAWIDS"); }
+	var output = "";
+	for (var i = 0; i < group.persons.length; i++) {
+		output = output + group.persons[i].id; }
+	return output; }
+	
+
+
+function calcPersonMor(agent) {  //probably shouldn't be here
+	var mor = 0;
+	var X = Math.abs(agent.visX);
+	var Y = Math.abs(agent.visY);
+	if (X > Y) { mor = 1 / (X / Y); }
+	if (Y > X) {mor = -(1 / (Y / X)); }
+	return mor; }
+	
+	
+	
+function calcGroupMor(agent) { //this probably shouldn't be here, it should be calculated along with groups stuff
+	var mor = 0;
+	var cla = 0;
+	var rom = 0;
+	cla = agent.val.rat + agent.val.gno;
+	rom = agent.val.abs + agent.val.tan;
+	if (cla > rom) {mor = 1 / (cla / rom); }
+	if (rom > cla) {mor = -(1 / (rom / cla)); }
+	return mor; }
+	
+	
+	
+/*function calcGroupMor(group) {
+	var ret = 0;
+	for (var i = 0; i < group.persons.length; i++) {
+		ret = ret
+		
+	}*/
+	
+	
+	
+function calcDecency(value) { //probably shouldn't be here
+	var mor = 0;
+	var cla = 0;
+	var rom = 0;
+	cla = value.rat + value.gno;
+	rom = value.abs + value.tan;
+	if (cla > rom) {mor = 1 / (cla / rom); }
+	if (rom > cla) {mor = -(1 / (rom / cla)); }
+	return mor; }
+	
+	
+	
+function dispValDecency(value) {
+	return Math.round(calcDecency(value) * 100) / 100; }
+
+
+
+function reportValDiff(oldVal, diff, hover) {
+	var ret;
+	var newVal = oldVal + diff;
+	if(!hover) {
+		if (oldVal === newVal) {ret = oldVal }
+		else if (oldVal < newVal) {ret = oldVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
+		else if (oldVal > newVal) {ret = oldVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
+	else{
+		if (oldVal === newVal) {ret = oldVal }
+		else if (oldVal < newVal) {ret = newVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
+		else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
+	return ret; }
+
+	
+	
+function updatePersonList(diffs, hover) {
+	var table = document.getElementById("personTable");
+	var row;
+	var id = "";
+	var bot;
+	var name;
+	var X;
+	var Y;
+	var mor;
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var left;
+	var right;
+	var up;
+	var down;
+	var bens;
+	var spacer1;
+	var spacer2;
+	var spacer3;
+	var buffer;
+	var limit = getBenLimit(s.Basic.persons);
+	
+	for (var i = 1; i <= s.Basic.persons.length; i++) {
+		id = table.rows[i].cells[0];
+		bot = table.rows[i].cells[1];
+		name = table.rows[i].cells[2];
+		X = table.rows[i].cells[3];
+		Y = table.rows[i].cells[4];
+		spacer3 = table.rows[i].cells[5];
+		mor = table.rows[i].cells[6];
+		tot = table.rows[i].cells[7];
+		diams = table.rows[i].cells[8];
+		hearts = table.rows[i].cells[9];
+		spades = table.rows[i].cells[10];
+		clubs = table.rows[i].cells[11];
+		spacer1 = table.rows[i].cells[12];
+		left = table.rows[i].cells[13];
+		right = table.rows[i].cells[14];
+		up = table.rows[i].cells[15];
+		down = table.rows[i].cells[16];
+		spacer2 = table.rows[i].cells[17];
+		
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+
+		if(!hover) {
+			if (prevPerson(s.mode.personInTurn).id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
+		else {
+			if (s.mode.personInTurn.id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
+
+		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
+		else {
+			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
+			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
+			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
+
+		if (!hover) { Y.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].Y + "</div>"; }
+		else {
+			if (Math.abs(s.Basic.persons[i - 1].Y) === Math.abs(diffs[i - 1].Y)) { X.innerHTML = diffs[i - 1].Y; }
+			else if ( Math.abs(s.Basic.persons[i - 1].Y) < Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].Y + "</span>"; } /*00bb00*/
+			else if ( Math.abs(s.Basic.persons[i - 1].Y) > Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].Y + "</span>"; }}
+		
+		/*if (!hover) { Y.innerHTML = s.Basic.persons[i - 1].Y; }
+		else { Y.innerHTML = diffs[i - 1].Y; }*/ /*s.Basic.persons[i - 1].Y + "&#8680;" +*/
+		
+		//buffer = Math.round(s.Basic.persons[i - 1].dec);
+		buffer = Math.round(calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
+		mor.innerHTML = buffer;		
+		if (buffer < 0) { 
+			mor.style.backgroundColor = "#000";
+			mor.style.color = "#fff"; }
+		else {
+			mor.style.backgroundColor = "#fff";
+			mor.style.color = "#000"; }
+
+		if (!(diffs)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
+		else { tot.innerHTML = reportValDiff(necStaVal(s.Basic.persons[i - 1].val), necStaVal(diffs[i - 1].val), hover); }
+		if (necStaVal(s.Basic.persons[i - 1].val) < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+
+		if (!(diffs)) {diams.innerHTML = s.Basic.persons[i - 1].val.obj;}
+		else { diams.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.obj, diffs[i - 1].val.obj, hover); }
+		if (s.Basic.persons[i - 1].val.obj < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+
+		if (!(diffs)) {hearts.innerHTML = s.Basic.persons[i - 1].val.sub;}
+		else { hearts.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.sub, diffs[i - 1].val.sub, hover); }
+		if (s.Basic.persons[i - 1].val.sub < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+
+		if (!(diffs)) {spades.innerHTML = s.Basic.persons[i - 1].val.nor;}
+		else { spades.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.nor, diffs[i - 1].val.nor, hover); }
+		if (s.Basic.persons[i - 1].val.nor < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+
+		if (!(diffs)) {clubs.innerHTML = s.Basic.persons[i - 1].val.mys;}
+		else { clubs.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.mys, diffs[i - 1].val.mys, hover); }
+		if (s.Basic.persons[i - 1].val.mys < 0) { diams.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+		
+		left.innerHTML = s.Basic.persons[i - 1].xp.gno;
+		right.innerHTML = s.Basic.persons[i - 1].xp.rat;
+		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
+		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
+		
+		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
+			bens = table.rows[i].cells[j];
+			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
+			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(necStaVal(s.Basic.persons[i - 1].bens[j - 18]), necStaVal(diffs[i - 1].bens[j - 18])) + "</div>"; }}}}
+
+
+
+function nullVals(arr){
+	var ret = true;
+	for (var i = 0; i < arr.length; i++) {
+		if(!(nullVal(arr[i].val))) {
+			ret = false; }}
+	return ret; }
+
+
+
+function calcStrategyRows() {
+	var ret = 1;
+	for (var i = 0; i < mode.strategies.length; i++) {
+		for (var j = 0; j < mode.strategies[i].vals.length; j++) {
+			if (!(nullVal(strategies[i].vals[j]))) {
+				ret++;
+				break; }}}
+	return ret;	}
+
+
+
+function makePersonStratArr() {
+	
+}
+
+
+
+function drawStrategyList(diffs) {
+	var table = document.getElementById("ruleTable");
+	var row;
+	var person;
+	var strategy;
+	var colCounter = 0;
+	var rowCounter = calcStrategyRows();
+	var personStratArr = makePersonStratArr();
+
+	row = table.insertRow(0);
+	for(var i = 0; i < mode.strategies.length; i++) {
+		if(!(nullVals(mode.strategies[i].vals))) {
+			strategy = row.insertCell(colCounter);
+			strategy.innerHTML = mode.strategies[i].name;
+			colCounter++; }}
+
+	for(var i = 1; i < rowCounter.length; i++) {
+
+	}
+
+
+
+		//xxx
+		strategy.innerHTML
+	}
+
+
+	for(var i = 0; i < mode.persons.length; i++) {
+		person = row.insertCell(i);	
+		person.innerHTML = mode.persons[i].id + " " + mode.persons[i].name; }
+
+	for(var i = 1; i <= mode.strategies.length; i++) {
+		row = table.insertRow(i);
+		for(var j = 0; j < mode.persons.length; j++) {
+			strategy = row.insertCell(j);
+			strategy.innerHTML = //xxx
+		}
+	}
+
+}
+			
+
+function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
+	var table = document.getElementById("personTable");
+	var row;
+	var id = "";
+	var bot;
+	var name;
+	var X;
+	var Y;
+	var mor;
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var left;
+	var right;
+	var up;
+	var down;
+	var bens;
+	var spacer1;
+	var spacer2;
+	var spacer3;
+	var buffer;
+	var limit = getBenLimit(s.Basic.persons);
+	
+	row = table.insertRow(0);
+	id = row.insertCell(0);
+	bot = row.insertCell(1);
+	name = row.insertCell(2);
+	X = row.insertCell(3);
+	Y = row.insertCell(4);
+	spacer3 = row.insertCell(5);
+	mor = row.insertCell(6);
+	tot = row.insertCell(7);
+	diams = row.insertCell(8);
+	hearts = row.insertCell(9);
+	spades = row.insertCell(10);
+	clubs = row.insertCell(11);
+	spacer1 = row.insertCell(12);
+	left = row.insertCell(13);
+	right = row.insertCell(14);
+	up = row.insertCell(15);
+	down = row.insertCell(16);
+	spacer2 = row.insertCell(17);
+	
+	id.innerHTML = "id";
+	id.style.backgroundColor = "#ccc";
+	bot.innerHTML = "bot";
+	bot.style.backgroundColor = "#ccc";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
+	name.style.backgroundColor = "#ccc";
+	X.innerHTML = "<div style='text-align:center;'>X</div>";
+	X.style.backgroundColor = "#ccc";
+	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
+	Y.style.backgroundColor = "#ccc";
+	spacer3.innerHTML = "&nbsp;";
+	spacer3.style.backgroundColor = "#ccc";
+	mor.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
+	mor.style.backgroundColor = "#ccc";
+	tot.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(4)'>val</div>";
+	tot.style.backgroundColor = "#ccc";
+	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(0)'>&diams;</div>";
+	diams.style.backgroundColor = "#FFBBBD";
+	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(1)'>&hearts;</div>";
+	hearts.style.backgroundColor = "#FFBBEE";
+	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(2)'>&spades;</div>";
+	spades.style.backgroundColor = "#FFDDBC";
+	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(3)'>&clubs;</div>";
+	clubs.style.backgroundColor = "#FFFEBC";
+	spacer1.innerHTML = "&nbsp;";
+	spacer1.style.backgroundColor = "#ccc";
+	left.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(6)'>&#9664;</div>";
+	left.style.backgroundColor = "#ccc";
+	right.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(7)'>&#9654</div>";
+	right.style.backgroundColor = "#ccc";
+	up.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(8)'>&#9650;</div>";
+	up.style.backgroundColor = "#ccc";
+	down.innerHTML ="<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(9)'>&#9660;</div>"; 
+	down.style.backgroundColor = "#ccc";
+	spacer2.innerHTML = "&nbsp;";
+	spacer2.style.backgroundColor = "#ccc";
+	
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		bens = row.insertCell(i + 18);
+		bens.innerHTML = "<div style='text-align:center !important;'>" + s.Basic.persons[i].id + "</div>";
+		bens.style.backgroundColor = "#ccc"; }
+	
+	for (var i = 1; i <= s.Basic.persons.length; i++) {
+		row = table.insertRow(i);
+		id = row.insertCell(0);
+		bot = row.insertCell(1);
+		name = row.insertCell(2);
+		X = row.insertCell(3);
+		Y = row.insertCell(4);
+		spacer3 = row.insertCell(5);
+		spacer3.style.backgroundColor = "#ccc";
+		mor = row.insertCell(6);
+		tot = row.insertCell(7);
+		diams = row.insertCell(8);
+		diams.style.backgroundColor = "#FFBBBD";
+		hearts = row.insertCell(9);
+		hearts.style.backgroundColor = "#FFBBEE";
+		spades = row.insertCell(10);
+		spades.style.backgroundColor = "#FFDDBC";
+		clubs = row.insertCell(11);
+		clubs.style.backgroundColor = "#FFFEBC";
+		spacer1 = row.insertCell(12);
+		spacer1.style.backgroundColor = "#ccc";
+		left = row.insertCell(13);
+		right = row.insertCell(14);
+		up = row.insertCell(15);
+		down = row.insertCell(16);
+		spacer2 = row.insertCell(17);
+		spacer2.style.backgroundColor = "#ccc";
+	
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+
+		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
+		else { bot.innerHTML = "" }
+
+		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+		else { name.innerHTML = s.Basic.persons[i - 1].name; }
+
+		X.innerHTML = s.Basic.persons[i - 1].X;
+		Y.innerHTML = s.Basic.persons[i - 1].Y;
+		
+		//buffer = Math.round(s.Basic.persons[i - 1].dec);
+		buffer = Math.round(calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
+		mor.innerHTML = buffer;
+		if (buffer < 0) { 
+			mor.style.backgroundColor = "#000";
+			mor.style.color = "#fff"; }
+		else {
+			mor.style.backgroundColor = "#fff";
+			mor.style.color = "#000"; }
+		
+		buffer = necStaVal(s.Basic.persons[i - 1].val);
+		tot.innerHTML = buffer;
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+	
+		buffer = s.Basic.persons[i - 1].val.obj;
+		diams.innerHTML = buffer;
+		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+		
+		buffer = s.Basic.persons[i - 1].val.sub;
+		hearts.innerHTML = buffer;
+		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+		
+		buffer = s.Basic.persons[i - 1].val.nor;
+		spades.innerHTML = buffer;
+		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+		
+		buffer = s.Basic.persons[i - 1].val.mys;
+		clubs.innerHTML = buffer;
+		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+		
+		left.innerHTML = s.Basic.persons[i - 1].xp.gno;
+		right.innerHTML = s.Basic.persons[i - 1].xp.rat;
+		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
+		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
+			
+		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
+			bens = row.insertCell(j);
+			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
+
+			
+			
+/*function colorPersonVal(val) {
+	if (necStaVal(val) < 0) {
+		*/
+
+
+
+function updateGroupList(diffs) { if(s.Basic.maxDebug) {console.log("UPDATEGROUPLIST"); }
+	var table = document.getElementById("groupTable");
+	var limit = getBenLimit(s.Basic.groups);
+
+	for (var i = 1; i <= s.Basic.groups.length; i++) {	
+		ids = table.rows[i].cells[0];
+		mor = table.rows[i].cells[1];
+		tot = table.rows[i].cells[2];
+		diams = table.rows[i].cells[3];
+		hearts = table.rows[i].cells[4];
+		spades = table.rows[i].cells[5];
+		clubs = table.rows[i].cells[6];
+		
+		ids.innerHTML = "<div style='text-align:right !important'>" + drawIds(s.Basic.groups[i - 1]) + "</div>";
+		
+		buffer = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
+		mor.innerHTML = buffer;		
+		if (buffer < 0) { 
+			mor.style.backgroundColor = "#000";
+			mor.style.color = "#fff"; }
+		else {
+			mor.style.backgroundColor = "#fff";
+			mor.style.color = "#000"; }
+		
+		buffer = necStaVal(s.Basic.groups[i - 1].val);
+		tot.innerHTML = buffer;
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+		
+		buffer = s.Basic.groups[i - 1].val.obj;
+		diams.innerHTML = buffer;
+		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.sub;
+		hearts.innerHTML = buffer;
+		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.nor;
+		spades.innerHTML = buffer;
+		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.mys;
+		clubs.innerHTML = buffer;
+		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+		
+		for (var j = 7; j < s.Basic.groups[i - 1].bens.length + 7; j++) {
+			bens = table.rows[i].cells[j];
+			colors = colorBenTableCell(s.Basic.groups[i - 1].bens[j - 7], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + necStaVal(s.Basic.groups[i - 1].bens[j - 7]) + "</div>"; }}}
+
+		
+
+
+function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST"); }
+	var table = document.getElementById("groupTable");
+	var row;
+	var ids = "";
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var bens;
+	var colors;
+	var limit = getBenLimit(s.Basic.groups);
+	//var scale = makeScale(limit);
+	
+	row = table.insertRow(0);
+	ids = row.insertCell(0);
+	mor = row.insertCell(1);
+	tot = row.insertCell(2);
+	diams = row.insertCell(3);
+	diams.style.backgroundColor = "#FFBBBD";
+	hearts = row.insertCell(4);
+	hearts.style.backgroundColor = "#FFBBEE";
+	spades = row.insertCell(5);
+	spades.style.backgroundColor = "#FFDDBC";
+	clubs = row.insertCell(6);
+	clubs.style.backgroundColor = "#FFFEBC";
+	//bens = row.insertCell(7);
+	
+	ids.innerHTML = "pop";
+	ids.style.backgroundColor = "#ccc";
+	mor.innerHTML = "dec";
+	mor.style.backgroundColor = "#ccc";
+	tot.innerHTML = "val";
+	tot.style.backgroundColor = "#ccc";
+	diams.innerHTML = "&diams;";
+	hearts.innerHTML = "&hearts;";
+	spades.innerHTML = "&spades;";
+	clubs.innerHTML = "&clubs;";
+	//bens.innerHTML = "<div style='overflow:visible; position:absolute; margin-top: -9px;'>bens</div>";
+	
+	for (var i = 0; i < s.Basic.groups.length; i++) {
+		bens = row.insertCell(i + 7);
+		bens.innerHTML = drawIds(s.Basic.groups[i]);
+		bens.style.backgroundColor = "#ccc"; }
+	
+	for (var i = 1; i <= s.Basic.groups.length; i++) {
+		row = table.insertRow(i);
+		ids = row.insertCell(0);
+		mor = row.insertCell(1);
+		tot = row.insertCell(2);
+		diams = row.insertCell(3);
+		diams.style.backgroundColor = "#FFBBBD";
+		hearts = row.insertCell(4);
+		hearts.style.backgroundColor = "#FFBBEE";
+		spades = row.insertCell(5);
+		spades.style.backgroundColor = "#FFDDBC";
+		clubs = row.insertCell(6);
+		clubs.style.backgroundColor = "#FFFEBC";
+		
+		ids.innerHTML = "<div style='text-align:right !important'>" + drawIds(s.Basic.groups[i - 1]) + "</div>";
+		
+		buffer = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
+		mor.innerHTML = buffer;		
+		if (buffer < 0) { 
+			mor.style.backgroundColor = "#000";
+			mor.style.color = "#fff"; }
+		else {
+			mor.style.backgroundColor = "#fff";
+			mor.style.color = "#000"; }
+		
+		buffer = necStaVal(s.Basic.groups[i - 1].val);
+		tot.innerHTML = buffer;
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+		
+		mor.innerHTML = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
+		tot.innerHTML = necStaVal(s.Basic.groups[i - 1].val);
+		
+		buffer = s.Basic.groups[i - 1].val.obj;
+		diams.innerHTML = buffer;
+		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.sub;
+		hearts.innerHTML = buffer;
+		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.nor;
+		spades.innerHTML = buffer;
+		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+		
+		buffer = s.Basic.groups[i - 1].val.mys;
+		clubs.innerHTML = buffer;
+		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+		
+		for (var j = 7; j < s.Basic.groups[i - 1].bens.length + 7; j++) {
+			bens = row.insertCell(j);
+			colors = colorBenTableCell(s.Basic.groups[i - 1].bens[j - 7], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + necStaVal(s.Basic.groups[i - 1].bens[j - 7]) + "</div>"; }}}
+
+
+
+//function colorQuadrantTableCell (
+			
+			
+
+function getBenLimit(context) {
+	var X = [];
+	var Y = [];
+	var curr;
+	for(var i = 0; i < context.length; i++) {
+		for(var j = 0; j < context.length; j++) {
+			curr = context[i].bens[j];
+			X.push(Math.max(curr.gno), (curr.rat));
+			Y.push(Math.max(curr.abs), (curr.tan));}}
+	X.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
+	Y.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
+	var limit = {X : X[0], Y : Y[0]};
+	return limit; }
+	
+	
+
+function findColorsByXY(X, Y) {
+	var colors = {bg : "", text : ""};
+	var slot = findSlot(X, Y);
+	colors.bg = slot.color;
+	colors.text = slot.textColor;
+	return colors; }
+	
+	
+	
+function colorBenTableCell(val, limit) {
+	var normalize = false;
+	var colors = {bg : "fff", text : "000"};
+	var X = val.rat - val.gno;
+	var Y = val.abs - val.tan;
+	var absX = Math.abs(X);
+	var absY = Math.abs(Y);
+	var ratio = (Math.min(absX, absY) / Math.max(absX, absY));
+	
+	if (!normalize) {
+		X = (X / limit.X) * (s.Basic.res / 2);
+		Y = (Y / limit.Y) * (s.Basic.res / 2);
+		if (X < 0) { X = Math.ceil(X) }
+		if (X > 0) { X = Math.floor(X) }
+		if (Y < 0) { Y = Math.ceil(Y) }
+		if (Y > 0) { Y = Math.floor(Y) }}
+	else {
+		if(X < Y) {
+			X = smaller;
+			Y = limit; }
+		else {
+			Y = smaller;
+			X = limit; }
+		X = (X / limit) * (s.Basic.res / 2);
+		Y = (Y / limit) * (s.Basic.res / 2);
+		if (X < 0) { X = Math.ceil(X) }
+		if (X > 0) { X = Math.floor(X) }
+		if (Y < 0) { Y = Math.ceil(Y) }
+		if (Y > 0) { Y = Math.floor(Y) }}
+		
+	
+	
+	/*
+		X = val.rat - val.gno;
+		Y = val.abs - val.tan;
+		absX = Math.abs(X);
+		absY = Math.abs(Y);
+		if (!(absX === 0) && (absY === 0)) { prop = (Math.min(absX, absY) / Math.max(absX, absY)); }
+		if (absX < absY) {
+			absY = absY * (Math.floor(limit) / absY);
+			absX = absY * prop;}
+		else {
+			absX = absX * (Math.floor(limit) / absX);
+			absY = absX * prop; }
+		if (X < 0) { X = Math.ceil(-absX) }
+		if (X > 0) { X = Math.floor(absX) }
+		if (Y < 0) { Y = Math.ceil(-absY) }
+		if (Y > 0) { Y = Math.floor(absY) }}
+	console.log("X " + X + " Y " + Y);*/
+	/*
+		X = val.rat - val.gno;
+		Y = val.abs - val.tan;
+		diffXY = X - Y;
+		
+		X = X / limit;
+		Y = Y / limit;
+		diffXY = diffXY / limit;
+		
+		X = X * (s.Basic.res / 2);
+		Y = Y * (s.Basic.res / 2);
+		diffXY = diffXY * (s.Basic.res / 2);
+		
+		console.log(diffXY);*/
+		
+		//X = X / (1 / limit);
+		//Y = Y / (1 / limit);
+		//X = X * (s.Basic.res / 2);
+		//Y = Y * (s.Basic.res / 2);
+		
+		//X = ((val.rat - val.gno) / limit) * (s.Basic.res / 2);
+		//Y = ((val.abs - val.tan) / limit) * (s.Basic.res / 2);
+
+	
+	/*if (normalize) {
+		var magn = Math.abs(X) + Math.abs(Y);
+		
+		}*/
+	//console.log("X: " + X + ", Y: " + Y);
+	if(s.Basic.initDone) { return findColorsByXY(X, Y); }
+	else { return colors; }}
+	
+
+
+function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
+	var buttonText;
+	switch(id) {
+		case "newPerson" : { buttonText = "New Person"; break; }
+		case "delPerson" : { buttonText = "Del Person"; break; }
+		case "startGame" : { buttonText = "Play (Enter)"; break; }
+		case "restart" : { buttonText = "Restart"; break; }
+		case "autoPlay" : {
+			if (s.Basic.autoBotTurn === -1) { buttonText = "Autoplay: Off"; }
+			else { buttonText = "Autoplay: On"; }
+			break;}
+		case "devFunc" : { buttonText = "dev"; break; }}
+	$("#" + id).append("<div onmouseout='defaultHover();' onmouseover='" + id + "Hover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>");}
+
+
+
+// ============
+// UI STUFF END
+// ============
+
+
+
+// ==============
+// AI STUFF BEGIN
+// ==============
+
+
+
+function nullValForEachPerson(persons) {
+	var arr = [];
+	for (var i = 0; i < persons.length; i++) {
+		arr.push(relVal(0,0);)}
+	return arr; }
+
+function getStrategyNameById(id) {
+	for (var i = 0; i < mode.strategies.length; i++) {
+		if (mode.strategies[i].id === id) {
+			return mode.strategies[i].name;	}}}
+
+function getStrategyRuleById(id) {
+	for (var i = 0; i < mode.strategies.length; i++) {
+		if (mode.strategies[i].id === id) {
+			return mode.strategies[i].rule;	}}}
+
+function Strategy(id, name, vals, rule) {
+	this.id = id;
+	if (!name) { this.name = getStrategyNameById(id); }
+	else { this.name = name; }
+	if (!vals) { this.vals = nullValForEachPerson(mode.persons); }
+	else { this.vals = vals; }
+	if (!rule) { this.rule = getStrategyRuleById(id);}
+	else { this.rule = rule; }}
+	
+	
+
+/*function findAllGroupsOfPerson(person) {
+	var memberships = [];
+	for(var i = 0; i < s.Basic.groups.length; i++) {
+		if(contains(s.Basic.groups.ids, person.id)) {
+			memberships.push(s.Basic.groups[i]); }}
+	return memberships; }
+
+
+	
+function groupNecStaVal(val) {
+	var groups = findAllGroupsOfPerson(s.Basic.personInTurn);
+	var output = 0;
+	for (var i = 0; i < groups.length; i++) {
+		for (var j = 0; j < groups.persons.length; j++) {
+			//yyy
+			console.log("moi");
+}}}*/
+
+
+
+function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
+	var moves = availableSlots(s.Basic.personInTurn);
+	moves = _.shuffle(moves);	
+	//moves = moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } );	
+	moves = moves.sort(s.Basic.strategies[0].rule);
+	return moves[0]; }
+	
+
+
+function createStrategies() {
+	s.Basic.strategies.push(new Strategy ("N", "naiveR", mode.persons, relVal(0,0), function(a,b) {
+		return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } ));
+		
+	s.Basic.strategies.push(new Strategy ("Nn", "naiveNR", mode.persons, relVal(0,0), function(a,b) {
+		return parseFloat(b.totVal) - parseFloat(a.totVal) } ));
+		
+	s.Basic.strategies.push(new Strategy ("i", "individualistic", mode.persons, relVal(0,0), function(a,b) {
+		var aCalcs = calcPersons(a.X, a.Y);
+		var bCalcs = calcPersons(b.X, b.Y);
+		aCalcs = aCalcs.sort(function(a,b) { return parseFloat(b.val.necStaVal) - parseFloat(a.val.necStaVal)});
+		bCalcs = bCalcs.sort(function(a,b) { return parseFloat(b.val.necStaVal) - parseFloat(a.val.necStaVal)});
+		return Math.max(parseFloat(aCalcs[0].val.necStaVal) - parseFloat(bCalcs[0].val.necStaVal)) } ));
+		
+		
+	/*s.Basic.strategies.push(new Strategy ("c", "collectivist", 0, 0, function(a,b) {
+		return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } ));*/
+	//s.Basic.strategies.push(new Strategy ("c", "cooperative", 0, 0, 
+}
+
+
+
+// ============
+// AI STUFF END
+// ============
+
+	
+	
+// =================
+// GROUP STUFF BEGIN
+// =================
+
+
+
+// group stuff is used by Move and they get personscalcs as input
+// group stuff is also supposed to be used when creating or delling new persons
+	
+	
+	
+function powerSetOf(arrFull) {  if(s.Basic.maxDebug) {console.log("POWERSETOF"); }
+  var ret = [], fullLen = arrFull.length, last = fullLen - 1;
+  function get(arrPrefix, start, lenToFind) {
+    for(lenToFind--; start < fullLen; start++)
+      if(!lenToFind)
+        ret.push(arrPrefix.concat([arrFull[start]]));
+      else if(start < last)
+        get(arrPrefix.concat([arrFull[start]]), start + 1, lenToFind);
+  }
+  for(var lenToFind = fullLen; lenToFind > 0; lenToFind--)
+    get([], 0, lenToFind);
+	
+	var buffer = [];
+	for(var i = 0; i < ret.length; i++) {
+		if(ret[i].length > 1) {
+			buffer.push(ret[i]); }}
+	
+  return buffer;//.concat([[]]);
+}
+
+
+
+function Group(persons) {
+	this.ids = personListToIds(persons);
+	this.persons = persons;
+	this.val = relVal(0,0);
+	this.bens = []; }
+	
+	
+	
+function GroupRole(ids,persons,val,bens) { // i would have merged this function with Groups if I had known how at the time
+	this.ids = ids;
+	this.persons = persons;
+	this.val = val;
+	this.bens = bens; }
+
+
+	
+function contains(a, obj) {
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+function sumValArr(persons) {
+	var val = relVal(0,0);
+	for(var i = 0; i < persons.length; i++) {
+		val = sumVal(val,persons[i].val); }
+	return val; }
+	
+	
+
+function calcGroupBens(groups) {
+	var activeGroups = [];
+	for(var i = 0; i < groups.length; i++) {
+		if(contains(s.Basic.groups[i].ids, s.Basic.personInTurn.id)) {
+			activeGroups.push(groups[i]); }}
+	for(var i = 0; i < groups.length; i++) {
+		for(var j = 0; j < groups.length; j++) {
+			if(contains(activeGroups, groups[j])) {
+				groups[i].bens[j] = groups[i].val;}
+			else {
+				groups[i].bens[j] = relVal(0,0); }}}
+	return groups; }
+
+
+
+function calcGroups(X, Y, personsDiffs) {
+	var pertinentDiffs;
+	var valDiff;
+	var groupsDiff = [];
+	for(var i = 0; i < s.Basic.groups.length; i++) {
+		pertinentDiffs = [];
+		for(var j = 0; j < personsDiffs.length; j++) {
+			if(contains(s.Basic.groups[i].ids, j)) {
+				pertinentDiffs.push(personsDiffs[j]); }}
+		groupsDiff.push(new Group(pertinentDiffs));
+		groupsDiff[i].val = sumValArr(pertinentDiffs);}
+	groupsDiff = calcGroupBens(groupsDiff);
+	return groupsDiff; }
+
+
+
+function sumBens(b1, b2) {
+	var output = [];
+	for (var i = 0; i < b1.length; i++) {
+		output.push(sumVal(b1[i], b2[i])); }
+	return output; }
+
+
+
+function personListToIds(personList) {
+	var ids = [];
+	for(var i = 0; i < personList.length; i++) {
+		ids.push(personList[i].id); }
+	return ids; }
+
+
+
+function personListsToIds(personLists) { if(s.Basic.maxDebug) {console.log("PERSONLISTSTOIDS"); }
+	var output = [];
+	var buffer;
+	for(var i = 0; i < personLists.length; i++) {
+		buffer = [];
+		for(var j = 0; j < personLists[j].length; j++) {
+			buffer.push(personLists[i][j].id);}
+		output.push(buffer); }
+	return output; }
+	
+	
+	
+function copyGroups(groups) { if(s.Basic.maxDebug) {console.log("COPYGROUPS"); }  
+	var copy = [];
+	if(typeof groups === "array") {
+		for (var i = 0; i < groups.length; i++) {
+			copy.push(new GroupRole(groups[i].ids, groups[i].persons, groups[i].val, groups[i].bens)); }}
+	//console.log("copygroups");
+	//console.log(groups);
+	return copy; }
+	
+	
+/*function GroupRole(ids,persons,val,bens) {
+	this.ids = ids;
+	this.persons = persons;
+	this.val = val;
+	this.bens = bens; }*/
+	
+	
+	
+function groupsMembersToIdLists (groups) {
+	var output = [];
+	var buffer;
+	for (var i = 0; i < groups.length; i++) {
+		buffer = [];
+		for (var j = 0; j < groups[i].persons.length; j++) {
+			buffer.push(groups[i].persons[j].id);}
+		output.push(buffer); }
+	return output; }
+
+	
+	
+function personListsToGroupIdLists(personLists) {
+	var groups = [];
+	for (var i = 0; i < personLists.length; i++) {
+		groups.push(new Group(personLists[i])); }
+	groups = groupsMembersToIdLists(groups);
+	return groups; }
+	
+	
+
+function copyPersonById(id) {
+	var copy;
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		if(id === s.Basic.persons[i].id) {
+			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].valNR, s.Basic.persons[i].dec, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
+	return copy; }
+	
+	
+	
+function makeGroupFromIds(ids) {
+	var persons = [];
+	for (var i = 0; i < ids.length; i++) {
+		persons.push(copyPersonById(ids[i])); }
+	var group = new Group(persons);
+	return group; }
+
+
+	
+function makeGroupsFromIdLists(idLists) {
+	var groups = [];
+	for (var i = 0; i < idLists.length; i++) {
+		groups.push(makeGroupFromIds(idLists[i])); }
+	return groups; }
+
+
+
+function addGroupBens(groups) { // i think the else never happens
+	for (var i = 0; i < groups.length; i++) {
+		if(groups[i].bens.length === 0) {
+			for (var j = 0; j < groups.length; j++) {
+				groups[i].bens.push(relVal(0,0)); }}
+		else {
+			groups[i].bens.splice(i, 0, relVal(1,1)); }}
+	return groups; }
+	
+	
+
+function calcBensByIds(ids1, ids2) {
+	var output = relVal(0,0);
+	for(var i = 0; i < ids1.length; i++) {
+		for(var j = 0; j < ids2.length; j++) {
+			output = sumVal(output, s.Basic.persons[ids1[i]].bens[ids2[j]]); }}
+	return output; }
+
+
+
+function calcAllGroupBens(groups) {
+	var idsList = [];
+	var newBens = [];
+	var buffer;
+	for(var i = 0; i < groups.length; i++) {
+		idsList.push(groups[i].ids); }
+	for(var i = 0; i < idsList.length; i++) {
+		buffer = [];
+		for(var j = 0; j < idsList.length; j++) {
+			buffer.push(calcBensByIds(idsList[i], idsList[j]));}
+		newBens.push(buffer); }
+	for(var i = 0; i < groups.length; i++) {
+		for(var j = 0; j < groups[i].bens.length; j++) {
+			groups[i].bens[j] = newBens[i][j]; }}
+	return groups; }
+
+	
+	
+function personIsMemberOfGroup(person, group) {
+	var ret = false;
+	for(var i = 0; i < group.ids.length; i++) {
+		if(person.id === group.ids[i]) { ret = true; }}
+	return ret; }
+		
+	
+	
+function calcAllGroupVals(mode, groups) {
+	for(var i = 0; i < mode.persons.length; i++) {
+		for(var j = 0; j < groups.length; j++) {
+			if (personIsMemberOfGroup(mode.persons[i], groups[j])) {
+				groups[j].val = sumVal(groups[j].val, mode.persons[i].val); }}}}
+			
+
+
+function addGroups(mode, oldGroups) { if(s.Basic.maxDebug) {console.log("ADDGROUPS"); } // this function is still inefficient because copygroups function called by newperson used to be written wrongly (still is?)
+	var debug = 0;
+
+	if (debug === 1) { console.log("oldGroupIds:"); }
+	var oldGroupIds = groupsMembersToIdLists(oldGroups); 
+	if (debug === 1) { console.log(oldGroupIds); }
+	
+	if (debug === 1) { console.log("newGroupIds:"); }
+	var newGroupIds = personListsToGroupIdLists(powerSetOf(s.Basic.persons));
+	if (debug === 1) { console.log(newGroupIds); }
+	
+	if (debug === 1) { console.log("idsDiff:"); }
+	var idsDiff = _.difference(newGroupIds, oldGroupIds);
+	if (debug === 1) { console.log(idsDiff); }
+	
+	if (debug === 1) { console.log("newGroups"); }
+	var newGroups = makeGroupsFromIdLists(idsDiff);
+	if (debug === 1) { console.log(newGroups); }
+	
+	if (debug === 1) { console.log("oldAndNewGroups:"); }
+	var oldAndNewGroups = oldGroups.concat(newGroups);
+	if (debug === 1) { console.log(oldAndNewGroups); }
+	
+	if (debug === 2) { console.log("addBens:"); }	
+	oldAndNewGroups = addGroupBens(oldAndNewGroups);
+	if (debug === 2) { console.log(oldAndNewGroups); }
+	
+	if (debug === 2) { console.log("calcAllBens:"); }	
+	oldAndNewGroups = calcAllGroupBens(oldAndNewGroups);
+	if (debug === 2) { console.log(oldAndNewGroups); }
+	
+	if (debug === 3) { console.log("calcAllGroupVals:"); }	
+	calcAllGroupVals(mode, oldAndNewGroups);
+	if (debug === 3) { console.log(oldAndNewGroups); }
+	
+	mode.groups = oldAndNewGroups; }
+	
+
+
+// ===============
+// GROUP STUFF END
+// ===============
+	
+
+
+function init() {
+	s.mode = "BasicMode";
+	s.Basic = { initDone : false };
+	s.Spatial = { initDone : false };
+	BasicMode();
+	s.initDone = true;
+	startGame(); }
+	
+	
+	//for(var i = 0; i < s.Basic.persons.length; i++) {
+		//console.log(s.Basic.persons[i].id); }
+
+
+
+//deleting person in turn causes bug sometimes BUG FIXED proly
+//upon create new person grid becomes too colorful BUG FIXED proly
+
+
+
+		</script>
+	</head>
+	<body onload="init();">
+		<div style="wrapper">
+			<div id="infoBox"></div>
+			<div id="modeSelector"></div>
+			<div id="container"></div>
+		</div>
+	</body>
+</html>
