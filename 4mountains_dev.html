@@ -101,6 +101,11 @@
 // Metaphor-X ja Metaphor-Y ja Metaphor-diag
 // Toimintalogiikka: pätee kaikkiin pelaajiin jotka ovat siirtävän pelaajan xp:llä
 // Toimintaehto: siirtävän pelaajan xp:n tulee sisältää myös ruutu, johon siirretään (rohkaisee symmetriaan)
+//
+// AI implementation. Strategies can be intellectual patterns but mere identification algorithms can be those, too. Should we differentiate between them in some way? Not sure.
+//
+// Magic The Gathering analogy: xp should be like land, not like xp. This means you get 1 of each land at start. (???) Or draw stuff from deck?
+// Tarot expansion: 13 number cards per deck. odd are bad, even decent, high excellent. hmm. 16 is better.
 
 
 
@@ -289,7 +294,7 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
 		intrinsic = -intrinsic;}		
 	if (Math.abs(Y) === 0) {
 		intrinsic = Math.abs(X);}
-	if (s.Basic.nonrelScale === "exp") {
+	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.pow(2,intrinsic); }}
 	if (s.Basic.nonrelScale === "exp-1") {
@@ -304,7 +309,7 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
 
 function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
 	var a = absVal(X,Y);
-	var relativized;
+	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
 	if		(X === 0 && Y === 0) {  //Dyn
 		relativized = new Val(a,0,0,0,0,0,0,0,0);}
 	else if (X === 0 && Y > 0) {  //abs
