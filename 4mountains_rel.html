@@ -1,48 +1,107 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 309</title>
+		<title>Four Mountains beta 313</title>
 		<style>
+
+
+		
 			body{
 				height:100%;
 				margin:0px;
 				font-family:verdana;
-				font-size:13px;
-				}
+				font-size:13px; }
+
 			.wrapper{
 				height:100%;}
+
 			#container{
 				width:100%;}
+
+
+
+			#modeSelector{
+				padding-top: 0px;
+				width:100%;
+				padding-bottom: 2px;
+				font-size: 10px;
+
+				background: rgba(89,81,89,1);
+				background: -moz-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(89,81,89,1)), color-stop(5%, rgba(217,189,196,1)), color-stop(35%, rgba(250,232,205,1)), color-stop(95%, rgba(126,128,98,1)), color-stop(100%, rgba(54,54,54,1)));
+				background: -webkit-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -o-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -ms-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: linear-gradient(to bottom, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#595159', endColorstr='#363636', GradientType=0 ); }
+
+			.amoqSelectorText{
+				padding-right:10px;
+				position:relative;
+				top:-3px; }
+
+
+
+			#infoBox{
+				padding-bottom:2px;
+				font-size: 14px;
+				display:block;
+				height: 30px;
+				line-height:22px;
+				/*background-color:black;*/
+				color:black;
+				width: 100%;
+				overflow: hidden;
+
+				background: rgba(64,98,102,1);
+				background: -moz-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(64,98,102,1)), color-stop(7%, rgba(246,246,246,1)), color-stop(28%, rgba(255,255,255,1)), color-stop(47%, rgba(246,246,246,1)), color-stop(94%, rgba(237,237,237,1)), color-stop(100%, rgba(0,0,0,1)));
+				background: -webkit-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -o-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -ms-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: linear-gradient(to bottom, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#406266', endColorstr='#000000', GradientType=0 ); }
+
+			#infoBoxText{
+				padding: 4px;}
+
+
+
 			.amoqButton{
 				display:block;
 				padding: 5px;
 				text-align:center;
 				float:left;}
-			#infoBox{
-				display:block;
-				height: 25px;
-				background-color:black;
-				color:red;
-				width: 100%;
-				overflow: hidden;}
-			#infoBoxText{
-				padding: 4px;}
+
+
+
 			table{
 				border-spacing: 0px;
 				text-align:left;
 				border-right: 1px solid #ccc;
 				border-bottom: 1px solid #ccc;}
+
 			td{
 				padding-left: 2px;
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
 				border-left: 1px solid #ccc;}
+
+
+
 			#stratTable{
 				}
+
+
+
 			#personTable{
 				font-size: 16px; }
+
 			#personTable td{
 				height: 21px; }
+
+
+
 			.outlineInc {
 				border: 1px solid green;
 				position:relative;
@@ -62,6 +121,7 @@
    				-webkit-text-stroke-color: green;
    				font-weight: bold;
    				float: right; }
+
    			.outlineDec {
    				border: 1px solid maroon;
    				position:relative;
@@ -81,6 +141,9 @@
    				-webkit-text-stroke-color: maroon;
    				font-weight: bold;
    				float: right; }
+
+
+
 		</style>
 		<script src="4mountains_files/jquery-2.js"></script>
 		<script src="4mountains_files/underscore-min.js"></script>
@@ -1349,8 +1412,10 @@ function drawInfoBox(text) {  if(s.Basic.maxDebug) {console.log("DRAWINFOBOX"); 
 			text = "Any message displayed here is also written in the console. You can access the console by F12.";}
 		else {
 			text = "Welcome";}}
-	$( "#infoBox" ).empty();
-	$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	//$( "#infoBox" ).empty();
+	//$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	var box = document.getElementById("infoBox");
+	box.innerHTML = "<div id='infoBoxText'>" + text + "</div>";
 	if(s.Basic.logInfoBox === true) {
 		console.log(text);}}
 
@@ -1398,7 +1463,7 @@ function drawModeSelector(mode) {
 	var ids = ["BasicMode", "stratComMode", "SpatialMode"];
 	var modes = [];
 	for(var i = 0; i < ids.length; i++) {
-		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'>" + remLast4(ids[i]) + "</input>"); }
+		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'><span class='amoqSelectorText'>" + remLast4(ids[i]) + "</span></input>"); }
 	for(var i = 0; i < ids.length; i++) {
 		modes.push(document.getElementById(ids[i])); }
 	for(var i = 0; i < modes.length; i++) {
@@ -2614,8 +2679,8 @@ function init() {
 	</head>
 	<body onload="init();">
 		<div style="wrapper">
-			<div id="infoBox"></div>
 			<div id="modeSelector"></div>
+			<div id="infoBox"></div>
 			<div id="container"></div>
 		</div>
 	</body>
