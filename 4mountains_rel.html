@@ -265,9 +265,9 @@ function BasicMode() {
 
 
 
-function stratComMode() {
-	s.mode = "stratComMode";
-	drawModeSelector("stratComMode"); }
+function compStratMode() {
+	s.mode = "compStratMode";
+	drawModeSelector("compStratMode"); }
 
 
 	
@@ -1462,7 +1462,7 @@ function delPersonHover() { drawInfoBox("Deletes a person.");}
 function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
 function restartHover() { drawInfoBox("Starts a new game and erases the old one.") }
 function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
-function stratComModeHover() { drawInfoBox("stratCom is a statistical comparison tool for strategic analysis."); }
+function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
 function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
 	
 		
@@ -1484,7 +1484,7 @@ function initSpatialModeDisplay() {
 function remLast4(str) { return str.slice(0, str.length - 4); }
 function drawModeSelector(mode) {
 	$( "#modeSelector" ).empty();
-	var ids = ["BasicMode", "stratComMode", "SpatialMode"];
+	var ids = ["BasicMode", "compStratMode", "SpatialMode"];
 	var modes = [];
 	for(var i = 0; i < ids.length; i++) {
 		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'><span class='amoqSelectorText'>" + remLast4(ids[i]) + "</span></input>"); }
@@ -2330,15 +2330,13 @@ function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 	var moves = availableSlots(s.Basic.personInTurn);
 	moves = _.shuffle(moves);
 	moves = s.Basic.strategies[0].rule(moves);
-	//moves = moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } );	
-	//moves = moves.sort(s.Basic.strategies[0].rule); // uncomment this and comment previous line --> BUG!!!
 	return moves[0]; }
 	
 
 
 function createStrategies(mode) {
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveNS", "Randomly makes any move whose necessarily static value is maximal. Disregards others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Randomly makes any move whose necessarily static value is maximal. Ignores others and groups.",
 			false,
 			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }}
 
