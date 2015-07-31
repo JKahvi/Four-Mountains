@@ -359,7 +359,7 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 
 
 		
-function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
+function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change s.Basic to s.mode and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy mode?
 	if(s.Basic.relScale === "sum") {
 		if (Math.abs(X) >= Math.abs(Y)) {
 			var intrinsic = Math.abs(X) + Math.abs(Y);}
