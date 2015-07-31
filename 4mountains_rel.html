@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 316</title>
+		<title>Four Mountains beta 317</title>
 		<style>
 
 
@@ -1622,9 +1622,9 @@ function updatePersonList(diffs, hover) {
 	var row;
 	var id = "";
 	var bot;
-	var name;
 	var X;
 	var Y;
+	var name;
 	var mor;
 	var tot;
 	var diams;
@@ -1645,9 +1645,9 @@ function updatePersonList(diffs, hover) {
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		id = table.rows[i].cells[0];
 		bot = table.rows[i].cells[1];
-		name = table.rows[i].cells[2];
-		X = table.rows[i].cells[3];
-		Y = table.rows[i].cells[4];
+		X = table.rows[i].cells[2];
+		Y = table.rows[i].cells[3];
+		name = table.rows[i].cells[4];
 		spacer3 = table.rows[i].cells[5];
 		mor = table.rows[i].cells[6];
 		tot = table.rows[i].cells[7];
@@ -1802,9 +1802,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	var row;
 	var id = "";
 	var bot;
-	var name;
 	var X;
 	var Y;
+	var name;
 	var mor;
 	var tot;
 	var diams;
@@ -1825,9 +1825,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	row = table.insertRow(0);
 	id = row.insertCell(0);
 	bot = row.insertCell(1);
-	name = row.insertCell(2);
-	X = row.insertCell(3);
-	Y = row.insertCell(4);
+	X = row.insertCell(2);
+	Y = row.insertCell(3);
+	name = row.insertCell(4);
 	spacer3 = row.insertCell(5);
 	mor = row.insertCell(6);
 	tot = row.insertCell(7);
@@ -1846,12 +1846,12 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	id.style.backgroundColor = "#ccc";
 	bot.innerHTML = "bot";
 	bot.style.backgroundColor = "#ccc";
-	name.innerHTML = "<div style='text-align:center;'>name</div>";
-	name.style.backgroundColor = "#ccc";
 	X.innerHTML = "<div style='text-align:center;'>X</div>";
 	X.style.backgroundColor = "#ccc";
 	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
 	Y.style.backgroundColor = "#ccc";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
+	name.style.backgroundColor = "#ccc";
 	spacer3.innerHTML = "&nbsp;";
 	spacer3.style.backgroundColor = "#ccc";
 	mor.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
@@ -1888,9 +1888,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		row = table.insertRow(i);
 		id = row.insertCell(0);
 		bot = row.insertCell(1);
-		name = row.insertCell(2);
-		X = row.insertCell(3);
-		Y = row.insertCell(4);
+		X = row.insertCell(2);
+		Y = row.insertCell(3);
+		name = row.insertCell(4);
 		spacer3 = row.insertCell(5);
 		spacer3.style.backgroundColor = "#ccc";
 		mor = row.insertCell(6);
