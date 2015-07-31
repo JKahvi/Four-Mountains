@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 318</title>
+		<title>Four Mountains beta 319</title>
 		<style>
 
 
@@ -194,6 +194,8 @@
 
 /*
 
+
+
 SpatialMode is objective world
 - persons have radius (culturally determined) of friendzone, intimatezone etc. and approaching someone is a vector, ie. if you go too near someone it is LUST and if he isn't in the mood you can't even be FRIEND
 - any game actions should be defined in terms of these slots, perhaps allowing for polysemy
@@ -218,11 +220,19 @@ mystical is esthetic
  - distance between groups
  - temporal distance
 
+
+
  ATTACH MODULE
  - insert button for attaching a Mode as module to current Mode
  benefit: allows to split overflowing UI into many windows, perhaps on several screens.
  modules can also be used in isolation
  when module is attached, all player and group and other data is copied to the current module
+
+
+
+Do these modules, metaphysically, emerge from each other? 
+
+
 
 */
 
@@ -251,7 +261,7 @@ function BasicMode() {
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false,
-				relScale: "sum",
+				relScale: "sum2",
 				grid: [],
 				slots: [],
 				playing: false,
@@ -407,7 +417,16 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 
 		
 function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change s.Basic to s.mode and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy mode?
-	if(s.Basic.relScale === "sum") {
+	if(s.Basic.relScale === "sum2") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X) + Math.abs(Y);}
+		else {
+			var intrinsic = -((Math.abs(X) - Math.abs(Y)) * (Math.abs(X) - Math.abs(Y)));}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
+	else if(s.Basic.relScale === "sum") {
 		if (Math.abs(X) >= Math.abs(Y)) {
 			var intrinsic = Math.abs(X) + Math.abs(Y);}
 		else {
@@ -428,10 +447,10 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change 
 	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.pow(2,intrinsic); }}
-	if (s.Basic.nonrelScale === "exp-1") {
+	if (s.Basic.nonrelScale === "exp1") {
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.floor(Math.pow(2,intrinsic - 1)); }}
-	if (s.Basic.nonrelScale === "exp-2") {
+	if (s.Basic.nonrelScale === "exp2") {
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.abs(Math.floor(Math.pow(2,intrinsic - 2))); }}
 	return intrinsic;}
@@ -2370,7 +2389,7 @@ function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 
 function createStrategies(mode) {
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Randomly makes any move whose necessarily static value is maximal. Ignores others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "immSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
 			false,
 			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }}
 
