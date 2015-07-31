@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 319</title>
+		<title>Four Mountains beta 320</title>
 		<style>
 
 
@@ -1845,7 +1845,7 @@ function drawStrategyList() {
 		for(var j = 0; j < s.mode.persons.length; j++) {
 			cell = row.insertCell(j);
 			//cell.innerHTML = personsStratArr[j][i - 1].name; 
-			cell.innerHTML = s.mode.strategies[0].name; // yeah right... continue from here
+			cell.innerHTML = s.mode.strategies[i - 1].name; // yeah right... continue from here
 		}}}
 
 			
@@ -2388,10 +2388,18 @@ function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 
 
 function createStrategies(mode) {
+
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "immSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
 			false,
-			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }}
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
+			false,
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
+
+}
 
 
 
