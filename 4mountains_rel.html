@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 313</title>
+		<title>Four Mountains beta 315</title>
 		<style>
 
 
-		
+
 			body{
 				height:100%;
 				margin:0px;
@@ -204,6 +204,7 @@ function BasicMode() {
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false,
+				relScale: "sum",
 				grid: [],
 				slots: [],
 				playing: false,
@@ -359,14 +360,24 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 
 		
 function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
-	if (Math.abs(X) >= Math.abs(Y)) {
-		var intrinsic = Math.abs(X - (X - Y));}
-	else {
-		var intrinsic = Math.abs(X) - Math.abs(Y);}
-	if (Math.abs(X) === 0) {
-		intrinsic = -intrinsic;}		
-	if (Math.abs(Y) === 0) {
-		intrinsic = Math.abs(X);}
+	if(s.Basic.relScale === "sum") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X) + Math.abs(Y);}
+		else {
+			var intrinsic = Math.abs(X) - Math.abs(Y);}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
+	else if(s.Basic.relScale === "intersect") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X - (X - Y));}
+		else {
+			var intrinsic = Math.abs(X) - Math.abs(Y);}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
 	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.pow(2,intrinsic); }}
