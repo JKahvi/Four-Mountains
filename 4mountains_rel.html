@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 317</title>
+		<title>Four Mountains beta 318</title>
 		<style>
 
 
@@ -2326,11 +2326,11 @@ function Strategy(mode, id, name, desc, vals, rule) {
 
 
 
-
 function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 	var moves = availableSlots(s.Basic.personInTurn);
-	moves = _.shuffle(moves);	
-	moves = moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } );	
+	moves = _.shuffle(moves);
+	moves = s.Basic.strategies[0].rule(moves);
+	//moves = moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } );	
 	//moves = moves.sort(s.Basic.strategies[0].rule); // uncomment this and comment previous line --> BUG!!!
 	return moves[0]; }
 	
@@ -2340,7 +2340,7 @@ function createStrategies(mode) {
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveNS", "Randomly makes any move whose necessarily static value is maximal. Disregards others and groups.",
 			false,
-			function(a,b) {	return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } )); }}
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }}
 
 
 
