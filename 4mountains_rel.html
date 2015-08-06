@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 320</title>
+		<title>Four Mountains beta 321</title>
 		<style>
 
 
@@ -103,6 +103,7 @@
 
 
 			.outlineInc {
+				font-family:impact;
 				border: 1px solid green;
 				position:relative;
 				-webkit-border-radius: 10px;
@@ -119,10 +120,11 @@
    				-webkit-text-fill-color: lime; /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: green;
-   				font-weight: bold;
+   				/*font-weight: bold;*/
    				float: right; }
 
    			.outlineDec {
+   				font-family:impact;
    				border: 1px solid maroon;
    				position:relative;
    				-webkit-border-radius: 10px;
@@ -139,7 +141,7 @@
    				/*-webkit-text-fill-color: white;*/ /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: maroon;
-   				font-weight: bold;
+   				/*font-weight: bold;*/
    				float: right; }
 
 
@@ -240,6 +242,8 @@ Do these modules, metaphysically, emerge from each other?
 
 // distance does not affect vector summation stuff, is only a factor in value change?
 // so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
+
+// BUG! bug: bots should not try to acquire xp that's already been acquired
 
 
 
@@ -1730,7 +1734,7 @@ function updatePersonList(diffs, hover) {
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
 
 		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
-		else {
+		else { // BUG!! these don't work, should use absolute value of coordinate instead of diff
 			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
 			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
 			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
@@ -2395,14 +2399,14 @@ function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 function createStrategies(mode) {
 
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
-			false,
-			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
-
-	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
 			false,
 			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
+			false,
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
 
 }
 
