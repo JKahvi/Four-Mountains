@@ -1,48 +1,109 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 304</title>
+		<title>Four Mountains beta 323</title>
 		<style>
+
+
+
 			body{
 				height:100%;
 				margin:0px;
 				font-family:verdana;
-				font-size:13px;
-				}
+				font-size:13px; }
+
 			.wrapper{
 				height:100%;}
+
 			#container{
-				padding-top: 10px;
-				padding-left: 6px;}
+				width:100%;}
+
+
+
+			#modeSelector{
+				padding-top: 0px;
+				width:100%;
+				padding-bottom: 2px;
+				font-size: 10px;
+
+				background: rgba(89,81,89,1);
+				background: -moz-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(89,81,89,1)), color-stop(5%, rgba(217,189,196,1)), color-stop(35%, rgba(250,232,205,1)), color-stop(95%, rgba(126,128,98,1)), color-stop(100%, rgba(54,54,54,1)));
+				background: -webkit-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -o-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: -ms-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				background: linear-gradient(to bottom, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#595159', endColorstr='#363636', GradientType=0 ); }
+
+			.amoqSelectorText{
+				padding-right:10px;
+				position:relative;
+				top:-3px; }
+
+
+
+			#infoBox{
+				padding-bottom:2px;
+				font-size: 14px;
+				display:block;
+				height: 30px;
+				line-height:22px;
+				/*background-color:black;*/
+				color:black;
+				width: 100%;
+				overflow: hidden;
+
+				background: rgba(64,98,102,1);
+				background: -moz-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(64,98,102,1)), color-stop(7%, rgba(246,246,246,1)), color-stop(28%, rgba(255,255,255,1)), color-stop(47%, rgba(246,246,246,1)), color-stop(94%, rgba(237,237,237,1)), color-stop(100%, rgba(0,0,0,1)));
+				background: -webkit-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -o-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -ms-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: linear-gradient(to bottom, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#406266', endColorstr='#000000', GradientType=0 ); }
+
+			#infoBoxText{
+				padding: 4px;}
+
+
+
 			.amoqButton{
 				display:block;
 				padding: 5px;
 				text-align:center;
 				float:left;}
-			#infoBox{
-				display:block;
-				height: 25px;
-				background-color:black;
-				color:red;
-				width: 100%;
-				overflow: hidden;}
-			#infoBoxText{
-				padding: 4px;}
+
+
+
 			table{
 				border-spacing: 0px;
 				text-align:left;
 				border-right: 1px solid #ccc;
 				border-bottom: 1px solid #ccc;}
+
 			td{
 				padding-left: 2px;
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
 				border-left: 1px solid #ccc;}
+
+
+
+			#stratTable{
+				}
+
+
+
 			#personTable{
 				font-size: 16px; }
+
 			#personTable td{
 				height: 21px; }
+
+
+
 			.outlineInc {
+				font-family:impact;
 				border: 1px solid green;
 				position:relative;
 				-webkit-border-radius: 10px;
@@ -59,9 +120,11 @@
    				-webkit-text-fill-color: lime; /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: green;
-   				font-weight: bold;
+   				/*font-weight: bold;*/
    				float: right; }
+
    			.outlineDec {
+   				font-family:impact;
    				border: 1px solid maroon;
    				position:relative;
    				-webkit-border-radius: 10px;
@@ -78,11 +141,14 @@
    				/*-webkit-text-fill-color: white;*/ /* Will override color (regardless of order) */
    				-webkit-text-stroke-width: 1px;
    				-webkit-text-stroke-color: maroon;
-   				font-weight: bold;
+   				/*font-weight: bold;*/
    				float: right; }
+
+
+
 		</style>
-		<script src="MARKOVER%20beta_files/jquery-2.js"></script>
-		<script src="MARKOVER%20beta_files/underscore-min.js"></script>
+		<script src="4mountains_files/jquery-2.js"></script>
+		<script src="4mountains_files/underscore-min.js"></script>
 		<script>
 
 
@@ -110,6 +176,74 @@
 // No level decrease when a player voluntarily enters a nonrelativized slot that would lower his xp. Levels affected only when a player IS MOVED to a slot.
 //
 // Math aspect: relativized slot closest to origin should have a value of 2, and so on.
+//
+// MTG aspect as debate simulator
+//
+// Polysemylator for real-time observation of one player?
+//
+// to do: beliefs as personality, use same tech as for int?
+// considerations, same tech as soc
+// calculations, priorities
+// revelations, insert new priority
+//
+// biological patterns may suggest new rules (intellectual patterns). in this case the rule bestows as much quality upon inventor as everyone who uses it
+//
+// calculative patterns personified as deities or spiritual beings?????? revolutionary philosophyical insight if true
+//
+// model personality as normative quality?
+//
+// model mysticality with symmetry and golden ration in power set of objects? other rules? need lots of pattern recognition for this...?
+
+/*
+
+
+
+SpatialMode is objective world
+- persons have radius (culturally determined) of friendzone, intimatezone etc. and approaching someone is a vector, ie. if you go too near someone it is LUST and if he isn't in the mood you can't even be FRIEND
+- any game actions should be defined in terms of these slots, perhaps allowing for polysemy
+
+ESPgrid is subjective world
+- oddly, there is ESPgrid and objective tables now but no subjective tables
+- considerations, as a whole, are CONDUCT
+- calculations involve ponderings about whether others will imitate my conduct or how others will react to my conduct
+- euphoria involves a low value for all calculations...
+- beliefs should probably include hard-wired reactions such as hugging feels good (of course autistic person would require hugbox(this is very important))
+
+normative is personality and SUPEREGO
+- syntactic level involves automated actions (ie. don't touch electric appliance when wet etc.)
+- who am I? own xp system for WHO I OUGHT TO BE whereas objective is WHAT I REALLY AM
+- metatheoretic level ponders components of identities regardless of who possesses said identity, ie. it might decide a certain kind of identity should be collectively established
+- analogy level involves ...
+
+mystical is esthetic
+- search for golden ratio and symmetry in *all* data is probably the best we can do. this involves
+ - player size/weight differences
+ - distance between players
+ - distance between groups
+ - temporal distance
+
+
+
+ ATTACH MODULE
+ - insert button for attaching a Mode as module to current Mode
+ benefit: allows to split overflowing UI into many windows, perhaps on several screens.
+ modules can also be used in isolation
+ when module is attached, all player and group and other data is copied to the current module
+
+
+
+Do these modules, metaphysically, emerge from each other? 
+
+
+
+*/
+
+
+
+// distance does not affect vector summation stuff, is only a factor in value change?
+// so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
+
+// BUG! bug: bots should not try to acquire xp that's already been acquired
 
 
 
@@ -136,6 +270,7 @@ function BasicMode() {
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false,
+				relScale: "sum2",
 				grid: [],
 				slots: [],
 				playing: false,
@@ -156,6 +291,7 @@ function BasicMode() {
 				latestPersonsDiff: false,
 				latestGroupsDiff: false,
 				initDone: false };
+			createStrategies(s.Basic);
 			newPerson(s.Basic,"Rotta",true);
 			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
 			s.Basic.personInTurn = s.Basic.persons[0];
@@ -165,12 +301,12 @@ function BasicMode() {
 			newPerson(s.Basic,"Länsigootti",true);
 			createMetaphysics(s.Basic, s.Basic.res);
 			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
-			drawGrid(s.Basic.grid, s.Basic.persons, false);
-			createStrategies(s.Basic); }
+			drawGrid(s.Basic.grid, s.Basic.persons, false); }
 		s.mode = s.Basic;
 		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
 		drawInfoBox(false);
 		drawPersonList(false);
+		drawStrategyList();
 		drawButton("startGame");
 		drawButton("autoPlay");
 		drawButton("newPerson");
@@ -182,9 +318,9 @@ function BasicMode() {
 
 
 
-function stratComMode() {
-	s.mode = "stratComMode";
-	drawModeSelector("stratComMode"); }
+function compStratMode() {
+	s.mode = "compStratMode";
+	drawModeSelector("compStratMode"); }
 
 
 	
@@ -289,22 +425,41 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 
 
 		
-function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); }
-	if (Math.abs(X) >= Math.abs(Y)) {
-		var intrinsic = Math.abs(X - (X - Y));}
-	else {
-		var intrinsic = Math.abs(X) - Math.abs(Y);}
-	if (Math.abs(X) === 0) {
-		intrinsic = -intrinsic;}		
-	if (Math.abs(Y) === 0) {
-		intrinsic = Math.abs(X);}
+function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change s.Basic to s.mode and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy mode?
+	if(s.Basic.relScale === "sum2") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X) + Math.abs(Y);}
+		else {
+			var intrinsic = -((Math.abs(X) - Math.abs(Y)) * (Math.abs(X) - Math.abs(Y)));}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
+	else if(s.Basic.relScale === "sum") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X) + Math.abs(Y);}
+		else {
+			var intrinsic = Math.abs(X) - Math.abs(Y);}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
+	else if(s.Basic.relScale === "intersect") {
+		if (Math.abs(X) >= Math.abs(Y)) {
+			var intrinsic = Math.abs(X - (X - Y));}
+		else {
+			var intrinsic = Math.abs(X) - Math.abs(Y);}
+		if (Math.abs(X) === 0) {
+			intrinsic = -intrinsic;}		
+		if (Math.abs(Y) === 0) {
+			intrinsic = Math.abs(X);}}
 	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.pow(2,intrinsic); }}
-	if (s.Basic.nonrelScale === "exp-1") {
+	if (s.Basic.nonrelScale === "exp1") {
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.floor(Math.pow(2,intrinsic - 1)); }}
-	if (s.Basic.nonrelScale === "exp-2") {
+	if (s.Basic.nonrelScale === "exp2") {
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.abs(Math.floor(Math.pow(2,intrinsic - 2))); }}
 	return intrinsic;}
@@ -412,8 +567,7 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.valNR = relVal(0,0);
 	this.dec = 0;
 	this.bens = [relVal(0,0)];
-	this.xp = new Val(0,1,1,1,0,0,1,0,0);
-	this.strategies = [mode.strategies[0]]; }
+	this.xp = new Val(0,1,1,1,0,0,1,0,0); }
 	
 	
 	
@@ -429,8 +583,7 @@ function Role(id, name, bot, X, Y, visX, visY, val, valNR, dec, bens, xp) {  if(
 	this.valNR = valNR;
 	this.dec = dec;
 	this.bens = bens;
-	this.xp = xp;
-	this.strategies = strategies; }
+	this.xp = xp; }
 	
 	
 	
@@ -616,7 +769,7 @@ function restart() {
 
 function findSlotPos(grid,x,y) { if(s.Basic.maxDebug) {console.log("FINDSLOTPOS:"); }
 	var a = grid[y];
-	var b = a[x];
+	var b = a[x]; // THIS LINE generates error message ostensibly because some strategies are buggy and try to move the player to invalid slot!
 	return b;}
 
 
@@ -687,7 +840,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 	var bensDiff = [];
 	var levelUp;
 	var currBen;
-	var stratsDiff = mode.strategies[0];
+	var stratsDiff;
 	var buffer;
 	
 	for (var i = 0; i < s.Basic.persons.length; i++) {
@@ -1072,7 +1225,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9xn3y4 = new Slot("Mess",			-3,  4, "8900FE", "000", "chaotic");
 		var r9xn3yn1 = new Slot("Share", 		-3, -1, "845F77", "FFF", "cooperating");
 		var r9xn3yn2 = new Slot("Possess",		-3, -2, "CC5CA5", "000", "stylistic");
-		var r9xn3yn3 = new Slot("Happy", 		-3, -3, "FF30CF", "000", "calculating");
+		var r9xn3yn3 = new Slot("Happy", 		-3, -3, "FF30CF", "000", "calculative");
 		var r9xn3yn4 = new Slot("Shock", 		-3, -4, "2EFF62", "000", "hurrying");
 
 		var r9xn4y0 = new Slot("Champion",		-4,  0, "000000", "FFF", false);
@@ -1083,7 +1236,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9xn4yn1 = new Slot("What?", 		-4, -1, "44323E", "FFF", "obvious");
 		var r9xn4yn2 = new Slot("Be", 			-4, -2, "883F6F", "FFF", "customary");
 		var r9xn4yn3 = new Slot("Fun", 			-4, -3, "CF2799", "000", "recreational");
-		var r9xn4yn4 = new Slot("Epiphany", 	-4, -4, "FF00BF", "000", "euphoria");
+		var r9xn4yn4 = new Slot("Euphoria", 	-4, -4, "FF00BF", "000", "epiphanic");
 
 		var slots = [
 		r9x0y0, r9x0y1, r9x0y2, r9x0y3, r9x0y4, r9x0yn1, r9x0yn2, r9x0yn3, r9x0yn4,
@@ -1251,8 +1404,8 @@ function createMetaphysics(mode, res) {
 		
 		var r9l1sub = new Level("Believing", -1, -1, 1);
 		var r9l2sub = new Level("Considering", -1, -1, 2);
-		var r9l3sub = new Level("Calculating", -1, -1, 3);
-		var r9l4sub = new Level("Epiphanic", -1, -1, 4);
+		var r9l3sub = new Level("Visionary", -1, -1, 3);
+		var r9l4sub = new Level("Euphoric", -1, -1, 4);
 		
 		var r9c1abs = new Cluster("Harmony", 1, 1);
 		var r9c2abs = new Cluster("Significance", 1, 2);
@@ -1345,8 +1498,10 @@ function drawInfoBox(text) {  if(s.Basic.maxDebug) {console.log("DRAWINFOBOX"); 
 			text = "Any message displayed here is also written in the console. You can access the console by F12.";}
 		else {
 			text = "Welcome";}}
-	$( "#infoBox" ).empty();
-	$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	//$( "#infoBox" ).empty();
+	//$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	var box = document.getElementById("infoBox");
+	box.innerHTML = "<div id='infoBoxText'>" + text + "</div>";
 	if(s.Basic.logInfoBox === true) {
 		console.log(text);}}
 
@@ -1369,14 +1524,36 @@ function delPersonHover() { drawInfoBox("Deletes a person.");}
 function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
 function restartHover() { drawInfoBox("Starts a new game and erases the old one.") }
 function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
-function stratComModeHover() { drawInfoBox("stratCom is a statistical comparison tool for strategic analysis."); }
+function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
 function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
 	
 		
 
 function initBasicModeDisplay() {
 	$( "#container" ).empty();
-	$( "#container").append("<div id='gridContainer'></div><div id='ruleTable'></div><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='options'></div><div id='groupList'></div><table id='groupTable'></table>");
+	$( "#container").append("
+		<div style='float:left'>
+			<div id='gridContainer'></div>
+		</div>
+		<div style='float:left; display: inline;'>
+			<table id='stratTable'></table>
+		</div>
+		<div style='float:left; display:inline;'>
+			<table id='groupTable'></table>
+		</div>
+		<div style='clear:both; height:0px;'>&nbsp;</div>
+		<div style='float:left'>
+			<table id='personTable'></table>
+		</div>
+		<div style='float:right'></div>
+		<div style='clear:both; height:0px;'>&nbsp;</div>
+		<button id='startGame' class='amoqButton'></button>
+		<button id='autoPlay' class='amoqButton'></button>
+		<button id='newPerson' class='amoqButton'></button>
+		<button id='delPerson' class='amoqButton'></button>
+		<button id='restart' class='amoqButton'></button>
+		<div style='clear:both; height:0px;'>&nbsp;</div>
+		<div id='options'></div>");
 	drawModeSelector("BasicMode"); }
 		
 
@@ -1391,10 +1568,10 @@ function initSpatialModeDisplay() {
 function remLast4(str) { return str.slice(0, str.length - 4); }
 function drawModeSelector(mode) {
 	$( "#modeSelector" ).empty();
-	var ids = ["BasicMode", "stratComMode", "SpatialMode"];
+	var ids = ["BasicMode", "compStratMode", "SpatialMode"];
 	var modes = [];
 	for(var i = 0; i < ids.length; i++) {
-		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'>" + remLast4(ids[i]) + "</input>"); }
+		$("#modeSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'><span class='amoqSelectorText'>" + remLast4(ids[i]) + "</span></input>"); }
 	for(var i = 0; i < ids.length; i++) {
 		modes.push(document.getElementById(ids[i])); }
 	for(var i = 0; i < modes.length; i++) {
@@ -1529,9 +1706,9 @@ function updatePersonList(diffs, hover) {
 	var row;
 	var id = "";
 	var bot;
-	var name;
 	var X;
 	var Y;
+	var name;
 	var mor;
 	var tot;
 	var diams;
@@ -1552,9 +1729,9 @@ function updatePersonList(diffs, hover) {
 	for (var i = 1; i <= s.Basic.persons.length; i++) {
 		id = table.rows[i].cells[0];
 		bot = table.rows[i].cells[1];
-		name = table.rows[i].cells[2];
-		X = table.rows[i].cells[3];
-		Y = table.rows[i].cells[4];
+		X = table.rows[i].cells[2];
+		Y = table.rows[i].cells[3];
+		name = table.rows[i].cells[4];
 		spacer3 = table.rows[i].cells[5];
 		mor = table.rows[i].cells[6];
 		tot = table.rows[i].cells[7];
@@ -1579,7 +1756,7 @@ function updatePersonList(diffs, hover) {
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
 
 		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
-		else {
+		else { // BUG!! these don't work, should use absolute value of coordinate instead of diff
 			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
 			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
 			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
@@ -1658,61 +1835,50 @@ function nullVals(arr){
 
 function calcStrategyRows() {
 	var ret = 1;
-	for (var i = 0; i < mode.strategies.length; i++) {
-		for (var j = 0; j < mode.strategies[i].vals.length; j++) {
-			if (!(nullVal(strategies[i].vals[j]))) {
+	for (var i = 0; i < s.mode.strategies.length; i++) {
+		for (var j = 0; j < s.mode.strategies[i].vals.length; j++) {
+			if (!(nullVal(s.mode.strategies[i].vals[j]))) {
 				ret++;
 				break; }}}
 	return ret;	}
 
 
 
-function makePersonStratArr() {
-	
-}
+function makePersonStratArr(id) {
+	var ret = [];
+	for(var i = 0; i < s.mode.strategies.length; i++) {
+		//if(!(nullVal(s.mode.strategies[i].vals[id]))) {
+			ret.push(s.mode.strategies[i]); }
+			//}
+	ret = ret.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) });
+	return ret; }
 
 
 
-function drawStrategyList(diffs) {
-	var table = document.getElementById("ruleTable");
-	var row;
+function drawStrategyList() {
+	var table = document.getElementById("stratTable");
+	var row = table.insertRow(0);
+	var cell;
 	var person;
 	var strategy;
-	var colCounter = 0;
 	var rowCounter = calcStrategyRows();
-	var personStratArr = makePersonStratArr();
+	var personsStratArr = [];
+	var buffer;
 
-	row = table.insertRow(0);
-	for(var i = 0; i < mode.strategies.length; i++) {
-		if(!(nullVals(mode.strategies[i].vals))) {
-			strategy = row.insertCell(colCounter);
-			strategy.innerHTML = mode.strategies[i].name;
-			colCounter++; }}
+	for(var i = 0; i < s.mode.persons.length; i++) { personsStratArr.push(makePersonStratArr(i)); }
 
-	for(var i = 1; i < rowCounter.length; i++) {
+	for(var i = 0; i < s.mode.persons.length; i++) {
+		cell = row.insertCell(i);
+		cell.innerHTML = s.mode.persons[i].name; }
 
-	}
-
-
-
-		//xxx
-		strategy.innerHTML
-	}
-
-
-	for(var i = 0; i < mode.persons.length; i++) {
-		person = row.insertCell(i);	
-		person.innerHTML = mode.persons[i].id + " " + mode.persons[i].name; }
-
-	for(var i = 1; i <= mode.strategies.length; i++) {
+	for(var i = 1; i <= s.mode.strategies.length; i++) {
 		row = table.insertRow(i);
-		for(var j = 0; j < mode.persons.length; j++) {
-			strategy = row.insertCell(j);
-			strategy.innerHTML = //xxx
-		}
-	}
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			cell = row.insertCell(j);
+			//cell.innerHTML = personsStratArr[j][i - 1].name; 
+			cell.innerHTML = s.mode.strategies[i - 1].name; // yeah right... continue from here
+		}}}
 
-}
 			
 
 function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
@@ -1720,9 +1886,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	var row;
 	var id = "";
 	var bot;
-	var name;
 	var X;
 	var Y;
+	var name;
 	var mor;
 	var tot;
 	var diams;
@@ -1743,9 +1909,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	row = table.insertRow(0);
 	id = row.insertCell(0);
 	bot = row.insertCell(1);
-	name = row.insertCell(2);
-	X = row.insertCell(3);
-	Y = row.insertCell(4);
+	X = row.insertCell(2);
+	Y = row.insertCell(3);
+	name = row.insertCell(4);
 	spacer3 = row.insertCell(5);
 	mor = row.insertCell(6);
 	tot = row.insertCell(7);
@@ -1764,12 +1930,12 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	id.style.backgroundColor = "#ccc";
 	bot.innerHTML = "bot";
 	bot.style.backgroundColor = "#ccc";
-	name.innerHTML = "<div style='text-align:center;'>name</div>";
-	name.style.backgroundColor = "#ccc";
 	X.innerHTML = "<div style='text-align:center;'>X</div>";
 	X.style.backgroundColor = "#ccc";
 	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
 	Y.style.backgroundColor = "#ccc";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
+	name.style.backgroundColor = "#ccc";
 	spacer3.innerHTML = "&nbsp;";
 	spacer3.style.backgroundColor = "#ccc";
 	mor.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
@@ -1806,9 +1972,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		row = table.insertRow(i);
 		id = row.insertCell(0);
 		bot = row.insertCell(1);
-		name = row.insertCell(2);
-		X = row.insertCell(3);
-		Y = row.insertCell(4);
+		X = row.insertCell(2);
+		Y = row.insertCell(3);
+		name = row.insertCell(4);
 		spacer3 = row.insertCell(5);
 		spacer3.style.backgroundColor = "#ccc";
 		mor = row.insertCell(6);
@@ -2216,8 +2382,7 @@ function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
 
 function nullValForEachPerson(persons) {
 	var arr = [];
-	for (var i = 0; i < persons.length; i++) {
-		arr.push(relVal(0,0);)}
+	for (var i = 0; i < persons.length; i++) { arr.push(relVal(0,0)) }
 	return arr; }
 
 function getStrategyNameById(id) {
@@ -2230,14 +2395,45 @@ function getStrategyRuleById(id) {
 		if (mode.strategies[i].id === id) {
 			return mode.strategies[i].rule;	}}}
 
-function Strategy(id, name, vals, rule) {
-	this.id = id;
+function Strategy(mode, id, name, desc, vals, rule) {
+	this.mode = mode;
+	if (!id) { this.id = mode.strategies.length; }
+	else { this.id = id; }
+	if (!name) { this.name = getStrategyNameById(id); }
+	else { this.name = name; }
 	if (!name) { this.name = getStrategyNameById(id); }
 	else { this.name = name; }
 	if (!vals) { this.vals = nullValForEachPerson(mode.persons); }
 	else { this.vals = vals; }
 	if (!rule) { this.rule = getStrategyRuleById(id);}
 	else { this.rule = rule; }}
+
+
+
+function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
+	var moves = availableSlots(s.Basic.personInTurn);
+	moves = _.shuffle(moves);
+	moves = s.Basic.strategies[0].rule(moves);
+	return moves[0]; }
+	
+
+
+function createStrategies(mode) {
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
+			false,
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
+			false,
+			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
+
+}
+
+
+
 	
 	
 
@@ -2258,23 +2454,8 @@ function groupNecStaVal(val) {
 			//yyy
 			console.log("moi");
 }}}*/
-
-
-
-function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
-	var moves = availableSlots(s.Basic.personInTurn);
-	moves = _.shuffle(moves);	
-	//moves = moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } );	
-	moves = moves.sort(s.Basic.strategies[0].rule);
-	return moves[0]; }
-	
-
-
-function createStrategies() {
-	s.Basic.strategies.push(new Strategy ("N", "naiveR", mode.persons, relVal(0,0), function(a,b) {
-		return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } ));
 		
-	s.Basic.strategies.push(new Strategy ("Nn", "naiveNR", mode.persons, relVal(0,0), function(a,b) {
+/*	s.Basic.strategies.push(new Strategy ("Nn", "naiveNR", mode.persons, relVal(0,0), function(a,b) {
 		return parseFloat(b.totVal) - parseFloat(a.totVal) } ));
 		
 	s.Basic.strategies.push(new Strategy ("i", "individualistic", mode.persons, relVal(0,0), function(a,b) {
@@ -2282,13 +2463,13 @@ function createStrategies() {
 		var bCalcs = calcPersons(b.X, b.Y);
 		aCalcs = aCalcs.sort(function(a,b) { return parseFloat(b.val.necStaVal) - parseFloat(a.val.necStaVal)});
 		bCalcs = bCalcs.sort(function(a,b) { return parseFloat(b.val.necStaVal) - parseFloat(a.val.necStaVal)});
-		return Math.max(parseFloat(aCalcs[0].val.necStaVal) - parseFloat(bCalcs[0].val.necStaVal)) } ));
+		return Math.max(parseFloat(aCalcs[0].val.necStaVal) - parseFloat(bCalcs[0].val.necStaVal)) } ));*/
 		
 		
 	/*s.Basic.strategies.push(new Strategy ("c", "collectivist", 0, 0, function(a,b) {
 		return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) } ));*/
 	//s.Basic.strategies.push(new Strategy ("c", "cooperative", 0, 0, 
-}
+//}
 
 
 
@@ -2612,8 +2793,8 @@ function init() {
 	</head>
 	<body onload="init();">
 		<div style="wrapper">
-			<div id="infoBox"></div>
 			<div id="modeSelector"></div>
+			<div id="infoBox"></div>
 			<div id="container"></div>
 		</div>
 	</body>
