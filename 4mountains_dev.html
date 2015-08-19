@@ -245,6 +245,10 @@ Do these modules, metaphysically, emerge from each other?
 
 // BUG! bug: bots should not try to acquire xp that's already been acquired
 
+// BUG!? create person still causes error message? did i fix that?
+
+// BUG! restart clears added players and fails to update autoplay status??
+
 
 
 // ==================
@@ -1044,7 +1048,7 @@ function checkKeyPressed(e) { if(s.Basic.maxDebug) {console.log("CHECKKEYPRESSED
 function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
 	var res = Math.sqrt(slots.length);
 	var grid = [];
-	var buffer;	
+	var buffer;	
 	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
 	for (var i = 0; i < slots.length; i = i + res) {
 		buffer = slots.slice(i, i + res);
