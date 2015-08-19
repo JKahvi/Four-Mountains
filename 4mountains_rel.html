@@ -52,6 +52,7 @@
 				color:black;
 				width: 100%;
 				overflow: hidden;
+				font-family: Tahoma;
 
 				background: rgba(64,98,102,1);
 				background: -moz-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
@@ -1048,7 +1049,7 @@ function checkKeyPressed(e) { if(s.Basic.maxDebug) {console.log("CHECKKEYPRESSED
 function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
 	var res = Math.sqrt(slots.length);
 	var grid = [];
-	var buffer;	
+	var buffer;
 	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
 	for (var i = 0; i < slots.length; i = i + res) {
 		buffer = slots.slice(i, i + res);
