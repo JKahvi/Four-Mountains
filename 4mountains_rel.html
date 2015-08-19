@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 321</title>
+		<title>Four Mountains beta 324</title>
 		<style>
 
 
@@ -244,6 +244,10 @@ Do these modules, metaphysically, emerge from each other?
 // so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
 
 // BUG! bug: bots should not try to acquire xp that's already been acquired
+
+// BUG!? create person still causes error message? did i fix that?
+
+// BUG! restart clears added players and fails to update autoplay status??
 
 
 
@@ -1044,7 +1048,7 @@ function checkKeyPressed(e) { if(s.Basic.maxDebug) {console.log("CHECKKEYPRESSED
 function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
 	var res = Math.sqrt(slots.length);
 	var grid = [];
-	var buffer;	
+	var buffer;	
 	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
 	for (var i = 0; i < slots.length; i = i + res) {
 		buffer = slots.slice(i, i + res);
@@ -1518,11 +1522,11 @@ function groupBensHover(id1, id2) { //group.ids is person id array, but these id
 
 
 
-function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}	
-function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human..");}	
-function delPersonHover() { drawInfoBox("Deletes a person.");}	
-function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns.");}
-function restartHover() { drawInfoBox("Starts a new game and erases the old one.") }
+function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}
+function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human.."); }
+function delPersonHover() { drawInfoBox("Deletes a person."); }
+function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns."); }
+function restartHover() { drawInfoBox("Starts a new game and erases the old one."); }
 function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
 function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
 function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
@@ -1531,7 +1535,29 @@ function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mou
 
 function initBasicModeDisplay() {
 	$( "#container" ).empty();
-	$( "#container").append("<div id='gridContainer'></div><div style='clear:both; height:0px;'>&nbsp;</div><div style='float:left'><table id='personTable'></table></div><div style='float:right'><table id='stratTable'></table></div><div style='clear:both; height:0px;'>&nbsp;</div><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='options'></div><div id='groupList'></div><table id='groupTable'></table>");
+	$( "#container").append("\
+		<div style='float:left'>\
+			<div id='gridContainer'></div>\
+		</div>\
+		<div style='float:left; display: inline;'>\
+			<table id='stratTable'></table>\
+		</div>\
+		<div style='float:left; display:inline;'>\
+			<table id='groupTable'></table>\
+		</div>\
+		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<div style='float:left'>\
+			<table id='personTable'></table>\
+		</div>\
+		<div style='float:right'></div>\
+		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<button id='startGame' class='amoqButton'></button>\
+		<button id='autoPlay' class='amoqButton'></button>\
+		<button id='newPerson' class='amoqButton'></button>\
+		<button id='delPerson' class='amoqButton'></button>\
+		<button id='restart' class='amoqButton'></button>\
+		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<div id='options'></div>");
 	drawModeSelector("BasicMode"); }
 		
 
