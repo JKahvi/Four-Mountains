@@ -1,4 +1,4 @@
-*NB: An easy way to try this software is to check out the latest version number from 4mountains_rel.html (search for the string "beta") and then type that number as X in http://a.moq.fi/testX.htm.*
+*NB: An easy way to try the software is to check out the latest version number from 4mountains_rel.html (search for the string "beta") and then type that number as X in http://a.moq.fi/testX.htm.*
 
 Four Mountains
 ==============
