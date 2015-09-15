@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 324</title>
+		<title>Four Mountains beta 327</title>
 		<style>
 
 
@@ -245,8 +245,6 @@ Do these modules, metaphysically, emerge from each other?
 // so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
 
 // BUG! bug: bots should not try to acquire xp that's already been acquired
-
-// BUG!? create person still causes error message? did i fix that?
 
 // BUG! restart clears added players and fails to update autoplay status??
 
@@ -598,7 +596,7 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 	var hidden = false;
 	var fill = 0;
 	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean"))) {
-		hidden = true;}
+		hidden = true;} // hidden should be "not hidden"? it means "hidden from the coder"
 	var cancel = false;
 	if (hidden) {
 		var name = prompt("Name","");
@@ -613,18 +611,20 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			for (var j = 0; j < fill; j++) {
 				mode.persons[i].bens.push(relVal(0,0));}}
 		addGroups(mode, oldGroups, mode.persons);
-		if(hidden) {  // BUG adding a person causes error message flood to console before new turn has been completed. messages come upon hover
+		if(hidden) { 
 			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
 			if(mode.playing) {
 				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 			else {
 				drawGrid(mode.grid, mode.persons, false); }}
-			//drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 		if(s.initDone) {
-			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
+			var calcs = { persons : calcPersons(0, 0), groups : [] };
+			calcs.groups = calcGroups(0, 0, calcs.persons);
+			s.mode.latestPersonsDiff = calcs.persons;
+			s.mode.latestGroupsDiff = calcs.groups;
 			$( "#personTable" ).empty();
-			drawPersonList(false); 
+			drawPersonList(false);
 			$( "#groupTable" ).empty();
 			drawGroupList(false); }}}
 
@@ -1543,9 +1543,6 @@ function initBasicModeDisplay() {
 		<div style='float:left; display: inline;'>\
 			<table id='stratTable'></table>\
 		</div>\
-		<div style='float:left; display:inline;'>\
-			<table id='groupTable'></table>\
-		</div>\
 		<div style='clear:both; height:0px;'>&nbsp;</div>\
 		<div style='float:left'>\
 			<table id='personTable'></table>\
@@ -1558,6 +1555,9 @@ function initBasicModeDisplay() {
 		<button id='delPerson' class='amoqButton'></button>\
 		<button id='restart' class='amoqButton'></button>\
 		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<div style='float:left; display:inline;'>\
+			<table id='groupTable'></table>\
+		</div>\
 		<div id='options'></div>");
 	drawModeSelector("BasicMode"); }
 		
@@ -1630,7 +1630,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 			//if ((currentSlot.X === 0) || (currentSlot.Y === 0)) { slotGrade = "" }
 			//else { slotGrade = currentSlot.absVal }
 			slotGrade = currentSlot.absVal;
-			$("#gridContainer").append("<div onmouseout='defaultHover()' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
+			$("#gridContainer").append("<div onmouseout='defaultHover();' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' onclick='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>");}
 		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>");}}
 	
 	
