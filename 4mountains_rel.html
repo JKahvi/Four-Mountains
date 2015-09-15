@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 360</title>
+		<title>Four Mountains beta 378</title>
 		<style>
 
 
@@ -503,6 +503,31 @@ function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relati
 	var a = absVal(X,Y);
 	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
 	if		(X === 0 && Y === 0) {  //Dyn
+		relativized = new Val(0,0,0,0,0,0,0,0,0);}
+	else if (X === 0 && Y > 0) {  //abs
+		relativized = new Val(0,a,0,0,0,0,0,0,0);}
+	else if (X === 0 && Y < 0) {  //tan
+		relativized = new Val(0,0,a,0,0,0,0,0,0);}
+	else if (X > 0 && Y === 0) {  //rat
+		relativized = new Val(0,0,0,a,0,0,0,0,0);}
+	else if (X > 0 && Y > 0) {  //nor
+		relativized = new Val(0,0,0,0,a,0,0,0,0);}
+	else if (X > 0 && Y < 0) {  //obj
+		relativized = new Val(0,0,0,0,0,a,0,0,0);}
+	else if (X < 0 && Y === 0) {  //gno
+		relativized = new Val(0,0,0,0,0,0,a,0,0);}
+	else if (X < 0 && Y > 0) {  //mys
+		relativized = new Val(0,0,0,0,0,0,0,a,0);}	
+	else if (X < 0 && Y < 0) {  //sub
+		relativized = new Val(0,0,0,0,0,0,0,0,a);}
+	return relativized;}
+
+
+
+/*function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
+	var a = absVal(X,Y);
+	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
+	if		(X === 0 && Y === 0) {  //Dyn
 		relativized = new Val(a,0,0,0,0,0,0,0,0);}
 	else if (X === 0 && Y > 0) {  //abs
 		relativized = new Val(0,Y,0,0,0,0,0,0,0);}
@@ -520,7 +545,7 @@ function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relati
 		relativized = new Val(0,Y,0,0,0,0,-X,a,0);}	
 	else if (X < 0 && Y < 0) {  //sub
 		relativized = new Val(0,0,-Y,0,0,0,-X,0,a);}
-	return relativized;}
+	return relativized;}*/
 
 
 
@@ -558,16 +583,7 @@ function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 
 
 function invVal(val) {
-	var ret = new Val(
-		ret.Dyn = -val.Dyn,
-		ret.abs = -val.abs,
-		ret.tan = -val.tan,
-		ret.rat = -val.rat,
-		ret.nor = -val.nor,
-		ret.obj = -val.obj,
-		ret.gno = -val.gno,
-		ret.mys = -val.mys,
-		ret.sub = -val.sub);
+	var ret = new Val(-val.Dyn, -val.abs, -val.tan, -val.rat, -val.nor, -val.obj, -val.gno, -val.mys, -val.sub);
 	return ret; }
 
 	
@@ -612,14 +628,13 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.visX = 0;
 	this.visY = 0;
 	this.val = relVal(0,0);
-	this.valNR = relVal(0,0);
 	this.dec = 0;
 	this.bens = [relVal(0,0)];
 	this.xp = new Val(0,1,1,1,0,0,1,0,0); }
 	
 	
 	
-function Role(id, name, bot, X, Y, visX, visY, val, valNR, dec, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
+function Role(id, name, bot, X, Y, visX, visY, val, dec, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
 	this.id = id;
 	this.name = name;
 	this.bot = bot;
@@ -628,7 +643,6 @@ function Role(id, name, bot, X, Y, visX, visY, val, valNR, dec, bens, xp) {  if(
 	this.visX = visX;  // deprecated, should replace visualization with Markover-style solution
 	this.visY = visY;  // deprecated, should replace visualization with Markover-style solution
 	this.val = val;
-	this.valNR = valNR;
 	this.dec = dec;
 	this.bens = bens;
 	this.xp = xp; }
@@ -847,7 +861,8 @@ function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAV
 	var minX = -person.xp.gno;
 	var maxY = person.xp.abs;
 	var minY = -person.xp.tan;
-	if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
+	if ((X === person.X) && (Y === person.Y)) { return false; }
+	else if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
 	else { return false; }}
 
 
@@ -900,8 +915,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 	var newY = 0;
 	var newVisX = 0;
 	var newVisY = 0;
-	var valDiff;
-	var valNRDiff;
+	var valDiff = relVal(0,0);
 	var decDiff;
 	var bensDiff = [];
 	var levelUp;
@@ -919,41 +933,26 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 		if (!((newX === 0) || (newY === 0))) {
 			newVisX = s.Basic.persons[i].X + X;
 			newVisY = s.Basic.persons[i].Y + Y; }
-		if (!((newX === 0) || (newY === 0))) {
-			valDiff = relVal(newX, newY);
-			valNRDiff = relVal(0, 0); }
-		else {
-			valDiff = relVal(0, 0);
-			valNRDiff = relVal(newX, newY);}
-		//decDiff = calcDecDiff(s.Basic.persons[i], valDiff);
-		//new attr: eth (only own moves affect)
+		if (!((newX === 0) || (newY === 0))) { //xxx levelup
+			valDiff = relVal(newX, newY); }
 		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
-		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, valNRDiff, decDiff, bensDiff, levelUp));}
-	
-	for (var i = 0; i < personsDiff.length; i++) {
-		buffer = [];		
-		for (var j = 0; j < personsDiff.length; j++) {
-			if (!(j === getNumberOfPerson(s.Basic.personInTurn))) {
-				buffer.push(relVal(0, 0));}
-			else if(!(nullVal(personsDiff[i].xp))) {
-				console.log(totVal(personsDiff[i].xp));
-				if(totVal(personsDiff[i].xp) > 0) {
-					buffer.push(personsDiff[i].val); }
-				else if (totVal(personsDiff[i].xp) < 0) {
-					console.log("fault start");
-					buffer.push(invVal(personsDiff[i].val));
-					console.log("fault end"); }}
-			else { buffer.push(personsDiff[i].val); }} //xxx
-			personsDiff[i].bens = buffer; }
 
-	/*for (var i = 0; i < personsDiff.length; i++) {
+		if (!nullVal(levelUp)) {
+			if((totVal(levelUp)) > 0) {
+				valDiff = relVal(newX, newY); }
+			else if((totVal(levelUp)) < 0) {
+				valDiff = invVal(relVal(newX, newY)); }}
+
+		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, decDiff, bensDiff, levelUp));}
+
+	for (var i = 0; i < personsDiff.length; i++) {
 		buffer = [];		
 		for (var j = 0; j < personsDiff.length; j++) {
 			if (!(j === getNumberOfPerson(s.Basic.personInTurn))) {
 				buffer.push(relVal(0, 0));}
 			else {
 				buffer.push(personsDiff[i].val);}}
-			personsDiff[i].bens = buffer;}*/
+			personsDiff[i].bens = buffer;}
 		
 	if (!(debug === false)) {
 		var dev;
@@ -984,7 +983,6 @@ function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console
 		s.Basic.persons[i].visY = personsDiff[i].visY;
 		//s.Basic.persons[i].dec = s.Basic.persons[i].dec + personsDiff[i].dec;
 		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
-		s.Basic.persons[i].valNR = sumVal(s.Basic.persons[i].valNR, personsDiff[i].valNR);
 		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
 		buffer = [];
 		for (var j = 0; j < s.Basic.persons.length; j++) {
@@ -1709,7 +1707,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 				currentSlotColor = currentSlot.color;}
 			slotGrade = currentSlot.absVal;
 			id = "x" + currentSlot.X + "y" + currentSlot.Y;
-			$("#gridContainer").append("<div id='" + id + "' onmousedown='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' mouseleave='defaultHover();' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>"); }
+			$("#gridContainer").append("<div id='" + id + "' onmousedown='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' onmouseout='defaultHover();' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>"); }
 		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>"); }}
 
 	
@@ -1773,6 +1771,21 @@ function dispValDecency(value) {
 function reportValDiff(oldVal, diff, hover) {
 	var ret;
 	var newVal = oldVal + diff;
+	if(!hover) {
+		if (oldVal === newVal) {ret = oldVal }
+		else if (oldVal < newVal) {ret = oldVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
+		else if (oldVal > newVal) {ret = oldVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
+	else{
+		if (oldVal === newVal) {ret = oldVal }
+		else if (oldVal < newVal) {ret = newVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
+		else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
+	return ret; }
+
+
+
+function reportBenDiff(oldVal, diff, hover) {
+	var ret;
+	var newVal = totVal(sumVal(oldVal, diff));
 	if(!hover) {
 		if (oldVal === newVal) {ret = oldVal }
 		else if (oldVal < newVal) {ret = oldVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
@@ -1910,8 +1923,8 @@ function updatePersonList(diffs, hover) {
 			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
-			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(necStaVal(s.Basic.persons[i - 1].bens[j - 18]), necStaVal(diffs[i - 1].bens[j - 18])) + "</div>"; }}}}
+			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
+			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(totVal(s.Basic.persons[i - 1].bens[j - 18]), totVal(diffs[i - 1].bens[j - 18])) + "</div>"; }}}}
 
 
 
@@ -2367,9 +2380,9 @@ function colorBenTableCell(val, limit) {
 	var Y = val.abs - val.tan;
 	var absX = Math.abs(X);
 	var absY = Math.abs(Y);
-	var ratio = (Math.min(absX, absY) / Math.max(absX, absY));
+	//var ratio = (Math.min(absX, absY) / Math.max(absX, absY));
 	
-	if (!normalize) {
+	/*if (!normalize) {
 		X = (X / limit.X) * (s.Basic.res / 2);
 		Y = (Y / limit.Y) * (s.Basic.res / 2);
 		if (X < 0) { X = Math.ceil(X) }
@@ -2388,7 +2401,7 @@ function colorBenTableCell(val, limit) {
 		if (X < 0) { X = Math.ceil(X) }
 		if (X > 0) { X = Math.floor(X) }
 		if (Y < 0) { Y = Math.ceil(Y) }
-		if (Y > 0) { Y = Math.floor(Y) }}
+		if (Y > 0) { Y = Math.floor(Y) }}*/
 		
 	
 	
@@ -2438,8 +2451,10 @@ function colorBenTableCell(val, limit) {
 		
 		}*/
 	//console.log("X: " + X + ", Y: " + Y);
-	if(s.Basic.initDone) { return findColorsByXY(X, Y); }
-	else { return colors; }}
+	//if(s.Basic.initDone) { return findColorsByXY(X, Y); }
+	//else {
+	return colors; }
+//}
 	
 
 
@@ -2522,13 +2537,15 @@ function removeNonLevelUps(person, moves) {
 function simPersons(personList, X, Y) {
 	var output = relVal(0,0);
 	for (var i = 0; i < personList.length; i++) {
-		if (!((X === 0) || (Y === 0))) {
-			output = sumVal(output, personList[i].val);	}
-		else if (!(nullVal(personList[i].xp))) {
-			if (totVal(personList[i].xp < 0)) {
-				output = sumVal(output, -absVal(X,Y)); }
-			else if (totVal(personList[i].xp > 0))
-				output = sumVal(output, absVal(X,Y)); }}
+		output = sumVal(output, personList[i].val); }
+	return totVal(output); }
+
+
+
+function simVal(personList, X, Y) {
+	var output = relVal(0,0);
+	for (var i = 0; i < personList.length; i++) {
+		output = sumVal(output, personList[i].val); }
 	return totVal(output); }
 
 
@@ -2560,11 +2577,11 @@ function createStrategies(mode) {
 				}
 			})); }*///xxx
 
-
+/*
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfless", "Prefers immediate value for anyone. Ignores benefactors and groups.",
 			false,
-			function(moves) {
+			function(moves) { //remove nonlevelups for all .. xxx doesnt work
 				for (var i = 0; i < moves.length; i++) {
 					moves[i].simVal = calcPersons(moves[i].X, moves[i].Y);
 					moves[i].simVal = simPersons(moves[i].simVal, moves[i].X, moves[i].Y); }
@@ -2578,6 +2595,17 @@ function createStrategies(mode) {
 				removeNonLevelUps(mode.personInTurn, moves);
 				return moves.sort(function(a,b) {
 					return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
+		*/
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
+			false,
+			function(moves) {
+				for (var i = 0; i < moves.length; i++) {
+					moves[i].simVal = calcPersons(moves[i].X, moves[i].Y);
+					moves[i].simVal = simVal(moves[i].simVal, moves[i].X, moves[i].Y); }
+				return moves.sort(function(a,b) {
+					return parseFloat(b.simVal) - parseFloat(a.simVal) }); })); }
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for self. Ignores others and groups.",
@@ -2805,7 +2833,7 @@ function copyPersonById(id) {
 	var copy;
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		if(id === s.Basic.persons[i].id) {
-			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].valNR, s.Basic.persons[i].dec, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
+			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].dec, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
 	return copy; }
 	
 	
