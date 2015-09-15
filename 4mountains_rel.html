@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 378</title>
+		<title>Four Mountains beta 380</title>
 		<style>
 
 
@@ -877,7 +877,7 @@ function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHEC
 			else if ((Y < 0) && (Y < -xp.tan)) { xp2.tan = -(Y + xp.tan); }}}
 	else if(s.Basic.revertingXp) {
 		if (((X === 0) || (Y === 0)) && !((X === 0) && (Y === 0))) {
-			if (X > 0) { xp2.rat = X - xp.rat; }
+			if 		(X > 0) { xp2.rat = X - xp.rat; }
 			else if (X < 0) { xp2.gno = -(X + xp.gno); }
 			else if (Y > 0) { xp2.abs = Y - xp.abs; }
 			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
@@ -933,15 +933,17 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 		if (!((newX === 0) || (newY === 0))) {
 			newVisX = s.Basic.persons[i].X + X;
 			newVisY = s.Basic.persons[i].Y + Y; }
-		if (!((newX === 0) || (newY === 0))) { //xxx levelup
+		if (!((newX === 0) || (newY === 0))) { 
 			valDiff = relVal(newX, newY); }
 		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
 
-		if (!nullVal(levelUp)) {
+		if (!(nullVal(levelUp))) { //xxx
 			if((totVal(levelUp)) > 0) {
 				valDiff = relVal(newX, newY); }
 			else if((totVal(levelUp)) < 0) {
-				valDiff = invVal(relVal(newX, newY)); }}
+				valDiff = invVal(relVal(newX, newY)); }
+			else if((totVal(levelUp)) === 0) {
+				valDiff = relVal(0,0); }}
 
 		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, decDiff, bensDiff, levelUp));}
 
@@ -2598,12 +2600,23 @@ function createStrategies(mode) {
 		*/
 
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfless", "Prefers immediate value for anyone. Ignores benefactors and groups.",
 			false,
 			function(moves) {
 				for (var i = 0; i < moves.length; i++) {
 					moves[i].simVal = calcPersons(moves[i].X, moves[i].Y);
 					moves[i].simVal = simVal(moves[i].simVal, moves[i].X, moves[i].Y); }
+				return moves.sort(function(a,b) {
+					return parseFloat(b.simVal) - parseFloat(a.simVal) }); })); }
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
+			false,
+			function(moves) {
+				for (var i = 0; i < moves.length; i++) {
+					moves[i].simVal = calcPersons(moves[i].X, moves[i].Y);
+					//xxx
+					moves[i].simVal = totVal(moves[i].simVal); }
 				return moves.sort(function(a,b) {
 					return parseFloat(b.simVal) - parseFloat(a.simVal) }); })); }
 
