@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 327</title>
+		<title>Four Mountains beta 331</title>
 		<style>
 
 
@@ -91,7 +91,7 @@
 
 
 			#stratTable{
-				}
+				position: absolute;}
 
 
 
@@ -267,7 +267,7 @@ function BasicMode() {
 		initBasicModeDisplay();
 		if(!s.Basic.initDone) {
 			s.Basic = {
-				name: "BasicMode",
+				name: "BasicMode", // modes should have ids, too?
 				persons: [],
 				groups: [],
 				res: 9,
@@ -289,6 +289,7 @@ function BasicMode() {
 				maxDebug: false,
 				strategies: [],
 				revertingXp: true,
+				xpRegulation: 1,
 				defaultInfoBox: "",
 				slotHover: false,
 				latestPersonsDiff: false,
@@ -309,7 +310,7 @@ function BasicMode() {
 		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
 		drawInfoBox(false);
 		drawPersonList(false);
-		drawStrategyList();
+		drawStratList();
 		drawButton("startGame");
 		drawButton("autoPlay");
 		drawButton("newPerson");
@@ -626,7 +627,9 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			$( "#personTable" ).empty();
 			drawPersonList(false);
 			$( "#groupTable" ).empty();
-			drawGroupList(false); }}}
+			drawGroupList(false);
+			$( "#stratTable" ).empty();
+			drawStratList(false); }}}
 
 
 
@@ -809,6 +812,10 @@ function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHEC
 			else if (X < 0) { xp2.gno = -(X + xp.gno); }
 			else if (Y > 0) { xp2.abs = Y - xp.abs; }
 			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
+	if(s.mode.xpRegulation > 0) {
+		var val = Math.abs(totVal(xp2));
+		if (val > s.mode.xpRegulation) {
+			xp2 = makeXp(0, 0, 0, 0); }}
 	return xp2;}
 
 	
@@ -1814,11 +1821,18 @@ function updatePersonList(diffs, hover) {
 		if (s.Basic.persons[i - 1].val.mys < 0) { diams.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
 		
-		left.innerHTML = s.Basic.persons[i - 1].xp.gno;
-		right.innerHTML = s.Basic.persons[i - 1].xp.rat;
-		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
-		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
-		
+		if (!(diffs)) {	left.innerHTML = s.Basic.persons[i - 1].xp.gno; }
+		else { left.innerHTML = reportValDiff(s.Basic.persons[i - 1].xp.gno, diffs[i - 1].xp.gno, hover); }
+
+		if (!(diffs)) { right.innerHTML = s.Basic.persons[i - 1].xp.rat; }
+		else { right.innerHTML = reportValDiff(s.Basic.persons[i - 1].xp.rat, diffs[i - 1].xp.rat, hover); }
+
+		if (!(diffs)) {	up.innerHTML = s.Basic.persons[i - 1].xp.abs; }
+		else { up.innerHTML = reportValDiff(s.Basic.persons[i - 1].xp.abs, diffs[i - 1].xp.abs, hover); }
+
+		if (!(diffs)) {	down.innerHTML = s.Basic.persons[i - 1].xp.tan; }
+		else { down.innerHTML = reportValDiff(s.Basic.persons[i - 1].xp.tan, diffs[i - 1].xp.tan, hover); }
+
 		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
 			bens = table.rows[i].cells[j];
 			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
@@ -1860,7 +1874,7 @@ function makePersonStratArr(id) {
 
 
 
-function drawStrategyList() {
+function drawStratList() {
 	var table = document.getElementById("stratTable");
 	var row = table.insertRow(0);
 	var cell;
@@ -2420,20 +2434,38 @@ function ai() {  if(s.Basic.maxDebug) {console.log("AI"); }
 	moves = _.shuffle(moves);
 	moves = s.Basic.strategies[0].rule(moves);
 	return moves[0]; }
-	
+
+
+
+function removeNonLevelUps(person, moves) {
+	for(var i = 0; i < moves.length; i++) {
+		if ((moves[i].X === 0) || (moves[i].Y === 0)) {
+			if (nullVal(levelUpCheck(person.xp, moves[i].X, moves[i].Y))) {
+				moves.splice(i,1);
+				i--;}}}
+	return moves;}
+
 
 
 function createStrategies(mode) {
 
-	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
-			false,
-			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
 			false,
-			function(moves) { return moves.sort(function(a,b) { return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
+			function(moves) {
+				removeNonLevelUps(mode.personInTurn, moves);
+				return moves.sort(function(a,b) {
+					return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
+
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
+			false,
+			function(moves) {
+				return moves.sort(function(a,b) {
+					return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
+
+
 
 }
 
