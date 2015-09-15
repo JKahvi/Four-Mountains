@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 331</title>
+		<title>Four Mountains beta 335</title>
 		<style>
 
 
@@ -2447,11 +2447,34 @@ function removeNonLevelUps(person, moves) {
 
 
 
+function simPersons(personList, X, Y) {
+	var output = relVal(0,0);
+	for (var i = 0; i < personList.length; i++) {
+		if (!((X === 0) || (Y === 0))) {
+			output = sumVal(output, personList[i].val);	}
+		else if (!(nullVal(personList[i].xp))) {
+			if (totVal(personList[i].xp < 0)) {
+				output = sumVal(output, -absVal(X,Y)); }
+			else if (totVal(personList[i].xp > 0))
+				output = sumVal(output, absVal(X,Y)); }}
+	return totVal(output); }
+
+
+
 function createStrategies(mode) {
 
+	if(mode.name === "BasicMode") {
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfless", "Prefers immediate value for anyone. Ignores groups.",
+			false,
+			function(moves) {
+				for (var i = 0; i < moves.length; i++) {
+					moves[i].simVal = calcPersons(moves[i].X, moves[i].Y); //OPT remove move 4th param
+					moves[i].simVal = simPersons(moves[i].simVal, moves[i].X, moves[i].Y); }
+				return moves.sort(function(a,b) {
+					return parseFloat(b.simVal) - parseFloat(a.simVal) }); })); }
 
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for agent. Ignores others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
 			false,
 			function(moves) {
 				removeNonLevelUps(mode.personInTurn, moves);
@@ -2459,13 +2482,11 @@ function createStrategies(mode) {
 					return parseFloat(b.absVal) - parseFloat(a.absVal) }); })); }
 
 	if(mode.name === "BasicMode") {
-		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for agent. Ignores others and groups.",
+		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for self. Ignores others and groups.",
 			false,
 			function(moves) {
 				return moves.sort(function(a,b) {
 					return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
-
-
 
 }
 
