@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 384</title>
+		<title>Four Mountains beta 391</title>
 		<style>
 
 
@@ -9,7 +9,7 @@
 			body{
 				height:100%;
 				margin:0px;
-				font-family:verdana;
+				font-family:tahoma;
 				font-size:13px; }
 
 			.wrapper{
@@ -279,7 +279,7 @@ function BasicMode() {
 				playing: false,
 				personInTurn: false,
 				turn: 0,
-				autoBotTurn: -1, //-1 for none
+				autoBotTurn: 20, //-1 for none
 				autoBotTurnDefault: 3000,
 				logInfoBox: false,
 				disableAutoContinueOnHumanTurn: true,
@@ -290,6 +290,7 @@ function BasicMode() {
 				strategies: [],
 				revertingXp: true,
 				xpRegulation: 1,
+				levCap: true,
 				defaultInfoBox: "",
 				slotHover: false,
 				latestPersonsDiff: false,
@@ -628,13 +629,13 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.visX = 0;
 	this.visY = 0;
 	this.val = relVal(0,0);
-	this.dec = 0;
+	this.antiVal = relVal(0,0);
 	this.bens = [relVal(0,0)];
 	this.xp = new Val(0,1,1,1,0,0,1,0,0); }
 	
 	
 	
-function Role(id, name, bot, X, Y, visX, visY, val, dec, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
+function Role(id, name, bot, X, Y, visX, visY, val, antiVal, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
 	this.id = id;
 	this.name = name;
 	this.bot = bot;
@@ -643,7 +644,7 @@ function Role(id, name, bot, X, Y, visX, visY, val, dec, bens, xp) {  if(s.Basic
 	this.visX = visX;  // deprecated, should replace visualization with Markover-style solution
 	this.visY = visY;  // deprecated, should replace visualization with Markover-style solution
 	this.val = val;
-	this.dec = dec;
+	this.antiVal = antiVal;
 	this.bens = bens;
 	this.xp = xp; }
 	
@@ -866,6 +867,13 @@ function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAV
 	else { return false; }}
 
 
+
+function maxVal(val) {
+	var vals = [val.Dyn, val.gno, val.rat, val.abs, val.tan, val.obj, val.sub, val.nor, val.mys];
+	vals = vals.sort(function(a,b) { return parseFloat(a) - parseFloat(b) } );
+	return vals[0]; }
+
+
 	
 function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHECK:"); }
 	var xp2 = makeXp(0, 0, 0, 0);
@@ -881,10 +889,7 @@ function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHEC
 			else if (X < 0) { xp2.gno = -(X + xp.gno); }
 			else if (Y > 0) { xp2.abs = Y - xp.abs; }
 			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
-	if(s.mode.xpRegulation > 0) {
-		var val = Math.abs(totVal(xp2));
-		if (val > s.mode.xpRegulation) {
-			xp2 = makeXp(0, 0, 0, 0); }}
+	if ((totVal(xp2) > s.mode.xpRegulation) || (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.res / 2))) { xp2 = makeXp(0, 0, 0, 0); }
 	return xp2;}
 
 	
@@ -905,10 +910,35 @@ function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
 
 -(s.Basic.persons[i].dec - calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);*/
 
+
+
+function calcDec(object) {
+	var ret;
+	var val = totVal(object.val);
+	var antiVal = -totVal(object.antiVal);
+	if ((val === 0) && (antiVal === 0)) { return NaN; }
+	var ratio = Math.min(val, antiVal) / Math.max(val, antiVal);
+	if (val < antiVal) { return -ratio; }
+	else { return ratio; }}
+
+function dispDec(object) {
+	ret = Math.round(calcDec(object) * 100) / 100;
+	return ret; }
+
 		
-		
+
+// evil when something has so low moral value it is moral to hurt it?
+//
+// eth for self-inflicted
+//
+// exc for excellence
+//
+// mor for... ?
+
+
+	
 function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); }
-	var debug = "val";
+	var debug = false;
 	if (!(debug === false)) { console.log("CALCPERSONS on turn " + s.Basic.turn + " (" + s.Basic.personInTurn.name + ")"); }
 	var personsDiff = [];
 	var newX = 0;
@@ -916,7 +946,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 	var newVisX = 0;
 	var newVisY = 0;
 	var valDiff = relVal(0,0);
-	var decDiff;
+	var antiValDiff;
 	var bensDiff = [];
 	var levelUp;
 	var currBen;
@@ -924,12 +954,14 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 	var buffer;
 	
 	for (var i = 0; i < s.Basic.persons.length; i++) {
+
 		if (s.Basic.personInTurn === s.Basic.persons[i]) {
 			newX = X;
 			newY = Y;}
 		else {
 			newX = s.Basic.persons[i].X + X;
 			newY = s.Basic.persons[i].Y + Y;}
+
 		if (!((newX === 0) || (newY === 0))) {
 			newVisX = s.Basic.persons[i].X + X;
 			newVisY = s.Basic.persons[i].Y + Y; }
@@ -937,16 +969,12 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 			valDiff = relVal(newX, newY); }
 
 		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
+		if (!nullVal(levelUp)) { valDiff = relVal(newX, newY); }
 
-		if (!(nullVal(levelUp))) { //xxx
-			if(!(totVal(levelUp) === 0)) {
-				valDiff = relVal(newX, newY); }
-			/*else if((totVal(levelUp)) < 0) {
-				valDiff = invVal(relVal(newX, newY)); }*/
-			else if((totVal(levelUp)) === 0) {
-				valDiff = relVal(0,0); }}
+		if (totVal(valDiff) < 0) { antiValDiff = valDiff; }
+		else { antiValDiff = relVal(0,0); }
 
-		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, decDiff, bensDiff, levelUp)); }
+		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, antiValDiff, bensDiff, levelUp)); }
 
 	for (var i = 0; i < personsDiff.length; i++) {
 		buffer = [];		
@@ -984,8 +1012,8 @@ function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console
 		s.Basic.persons[i].Y = personsDiff[i].Y;
 		s.Basic.persons[i].visX = personsDiff[i].visX;
 		s.Basic.persons[i].visY = personsDiff[i].visY;
-		//s.Basic.persons[i].dec = s.Basic.persons[i].dec + personsDiff[i].dec;
 		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
+		s.Basic.persons[i].antiVal = sumVal(s.Basic.persons[i].antiVal, personsDiff[i].antiVal);
 		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
 		buffer = [];
 		for (var j = 0; j < s.Basic.persons.length; j++) {
@@ -1521,7 +1549,7 @@ function personsInSlot(slot, persons) {  if(s.Basic.maxDebug) {console.log("PERS
 	var population = [];
 	for (var i = 0; i < persons.length; i++) {
 		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
-			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 2px 3px; font-size: 13px; margin-right: 2px; margin-top: -2px;'><strong>" + (i /*+ 1*/) + "</strong></div>";}}
+			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + (i /*+ 1*/) + "</strong></div>";}}
 	if(population.length === 0) {
 		population = "&nbsp;";}
 	return population;}
@@ -1693,6 +1721,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 	var currentSlot;
 	var slotIsAvailable = false;
 	var currentSlotColor;
+	var currentSlotName;
 	var slotGrade = 0;
 	var id = "";
 	for (var y = 0; y < res; y++) {
@@ -1701,6 +1730,9 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 		for (var x = 0; x < res; x++) {
 			currentSlot = findSlotPos(grid,x,y);
 			if(!(person === false)) {
+				if((person.X === currentSlot.X) && (person.Y === currentSlot.Y)) {
+					currentSlotName = ""; }
+				else { currentSlotName = currentSlot.name; }
 				slotIsAvailable = slotAvailable(currentSlot.X, currentSlot.Y, person);
 				if(slotIsAvailable === true) {
 					currentSlotColor = currentSlot.color;}
@@ -1710,7 +1742,7 @@ function drawGrid(grid, persons, person) { if(s.Basic.maxDebug) {console.log("DR
 				currentSlotColor = currentSlot.color;}
 			slotGrade = currentSlot.absVal;
 			id = "x" + currentSlot.X + "y" + currentSlot.Y;
-			$("#gridContainer").append("<div id='" + id + "' onmousedown='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' onmouseout='defaultHover();' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 85px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlot.name + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>"); }
+			$("#gridContainer").append("<div id='" + id + "' onmousedown='slotClick(" + currentSlot.X + "," + currentSlot.Y + ")' onmouseout='defaultHover();' onmouseover='slotHover(" + currentSlot.X + "," + currentSlot.Y + ")' style='padding: 3px; float: left; width: 70px; background-color: #" + currentSlotColor + "; color: #" + currentSlot.textColor + ";'>" + currentSlotName + "<div style='text-align:right; float:right;'>" + slotGrade + "</div><br /><div class='playpen'>" + drawPersons(currentSlot, persons) + "</div></div>"); }
 		$("#gridContainer").append("</div><div style='clear:both; height:0px;'>&nbsp;</div>"); }}
 
 	
@@ -1762,7 +1794,7 @@ function calcDecency(value) { //probably shouldn't be here
 	rom = value.abs + value.tan;
 	if (cla > rom) {mor = 1 / (cla / rom); }
 	if (rom > cla) {mor = -(1 / (rom / cla)); }
-	return mor; }
+	return mor; } // bad func
 	
 	
 	
@@ -1794,7 +1826,7 @@ function updatePersonList(diffs, hover) {
 	var X;
 	var Y;
 	var name;
-	var mor;
+	var dec;
 	var tot;
 	var diams;
 	var hearts;
@@ -1818,7 +1850,7 @@ function updatePersonList(diffs, hover) {
 		Y = table.rows[i].cells[3];
 		name = table.rows[i].cells[4];
 		spacer3 = table.rows[i].cells[5];
-		mor = table.rows[i].cells[6];
+		dec = table.rows[i].cells[6];
 		tot = table.rows[i].cells[7];
 		diams = table.rows[i].cells[8];
 		hearts = table.rows[i].cells[9];
@@ -1856,16 +1888,17 @@ function updatePersonList(diffs, hover) {
 		else { Y.innerHTML = diffs[i - 1].Y; }*/ /*s.Basic.persons[i - 1].Y + "&#8680;" +*/
 		
 		//buffer = Math.round(s.Basic.persons[i - 1].dec);
-		buffer = Math.round(calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
-		mor.innerHTML = buffer;		
+		//buffer = Math.round(((calcDec(s.Basic.persons[i - 1])) * 100) / 100);
+		buffer = dispDec(s.Basic.persons[i - 1]);
+		dec.innerHTML = buffer;	
 		if (buffer < 0) { 
-			mor.style.backgroundColor = "#000";
-			mor.style.color = "#fff"; }
+			dec.style.backgroundColor = "#000";
+			dec.style.color = "#fff"; }
 		else {
-			mor.style.backgroundColor = "#fff";
-			mor.style.color = "#000"; }
+			dec.style.backgroundColor = "#fff";
+			dec.style.color = "#000"; }
 
-		if (!(diffs)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
+		if (!(diffs)) {tot.innerHTML = totVal(s.Basic.persons[i - 1].val);}
 		else { tot.innerHTML = reportValDiff(totVal(s.Basic.persons[i - 1].val), totVal(diffs[i - 1].val), hover); }
 		if (totVal(s.Basic.persons[i - 1].val) < 0) { 
 			tot.style.backgroundColor = "#000";
@@ -1985,7 +2018,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	var X;
 	var Y;
 	var name;
-	var mor;
+	var dec;
 	var tot;
 	var diams;
 	var hearts;
@@ -2009,7 +2042,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	Y = row.insertCell(3);
 	name = row.insertCell(4);
 	spacer3 = row.insertCell(5);
-	mor = row.insertCell(6);
+	dec = row.insertCell(6);
 	tot = row.insertCell(7);
 	diams = row.insertCell(8);
 	hearts = row.insertCell(9);
@@ -2034,8 +2067,8 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	name.style.backgroundColor = "#ccc";
 	spacer3.innerHTML = "&nbsp;";
 	spacer3.style.backgroundColor = "#ccc";
-	mor.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
-	mor.style.backgroundColor = "#ccc";
+	dec.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
+	dec.style.backgroundColor = "#ccc";
 	tot.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(4)'>val</div>";
 	tot.style.backgroundColor = "#ccc";
 	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(0)'>&diams;</div>";
@@ -2073,7 +2106,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		name = row.insertCell(4);
 		spacer3 = row.insertCell(5);
 		spacer3.style.backgroundColor = "#ccc";
-		mor = row.insertCell(6);
+		dec = row.insertCell(6);
 		tot = row.insertCell(7);
 		diams = row.insertCell(8);
 		diams.style.backgroundColor = "#FFBBBD";
@@ -2093,28 +2126,36 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		spacer2.style.backgroundColor = "#ccc";
 	
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+		id.style.fontFamily = "tahoma";
 
 		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
 		else { bot.innerHTML = "" }
+		bot.style.fontFamily = "tahoma";
 
 		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
 		else { name.innerHTML = s.Basic.persons[i - 1].name; }
+		name.style.fontFamily = "tahoma";
 
 		X.innerHTML = s.Basic.persons[i - 1].X;
+		X.style.fontFamily = "tahoma";
 		Y.innerHTML = s.Basic.persons[i - 1].Y;
+		Y.style.fontFamily = "tahoma";
 		
 		//buffer = Math.round(s.Basic.persons[i - 1].dec);
-		buffer = Math.round(calcPersonMor(s.Basic.persons[i - 1] * 100) / 100);
-		mor.innerHTML = buffer;
+		//buffer = Math.round(((calcDec(s.Basic.persons[i - 1])) * 100) / 100);
+		buffer = dispDec(s.Basic.persons[i - 1]);
+		dec.innerHTML = buffer;
+		dec.style.fontFamily = "tahoma";
 		if (buffer < 0) { 
-			mor.style.backgroundColor = "#000";
-			mor.style.color = "#fff"; }
+			dec.style.backgroundColor = "#000";
+			dec.style.color = "#fff"; }
 		else {
-			mor.style.backgroundColor = "#fff";
-			mor.style.color = "#000"; }
+			dec.style.backgroundColor = "#fff";
+			dec.style.color = "#000"; }
 		
 		buffer = necStaVal(s.Basic.persons[i - 1].val);
 		tot.innerHTML = buffer;
+		tot.style.fontFamily = "tahoma";
 		if (buffer < 0) { 
 			tot.style.backgroundColor = "#000";
 			tot.style.color = "#fff"; }
@@ -2124,35 +2165,44 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	
 		buffer = s.Basic.persons[i - 1].val.obj;
 		diams.innerHTML = buffer;
+		diams.style.fontFamily = "tahoma";
 		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
 		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
 		
 		buffer = s.Basic.persons[i - 1].val.sub;
 		hearts.innerHTML = buffer;
+		hearts.style.fontFamily = "tahoma";
 		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
 		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
 		
 		buffer = s.Basic.persons[i - 1].val.nor;
 		spades.innerHTML = buffer;
+		spades.style.fontFamily = "tahoma";
 		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
 		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
 		
 		buffer = s.Basic.persons[i - 1].val.mys;
 		clubs.innerHTML = buffer;
+		clubs.style.fontFamily = "tahoma";
 		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
 		
 		left.innerHTML = s.Basic.persons[i - 1].xp.gno;
+		left.style.fontFamily = "tahoma";
 		right.innerHTML = s.Basic.persons[i - 1].xp.rat;
+		right.style.fontFamily = "tahoma";
 		up.innerHTML = s.Basic.persons[i - 1].xp.abs;
+		up.style.fontFamily = "tahoma";
 		down.innerHTML = s.Basic.persons[i - 1].xp.tan;
+		down.style.fontFamily = "tahoma";
 			
 		for (var j = 18; j < s.Basic.persons[i - 1].bens.length + 18; j++) {
 			bens = row.insertCell(j);
 			colors = colorBenTableCell(s.Basic.persons[i - 1].bens[j - 18], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + necStaVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
+			bens.style.fontFamily = "tahoma";
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
 
 			
 			
@@ -2229,6 +2279,7 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 	var table = document.getElementById("groupTable");
 	var row;
 	var ids = "";
+	var dec;
 	var tot;
 	var diams;
 	var hearts;
@@ -2241,7 +2292,7 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 	
 	row = table.insertRow(0);
 	ids = row.insertCell(0);
-	mor = row.insertCell(1);
+	dec = row.insertCell(1);
 	tot = row.insertCell(2);
 	diams = row.insertCell(3);
 	diams.style.backgroundColor = "#FFBBBD";
@@ -2255,8 +2306,8 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 	
 	ids.innerHTML = "pop";
 	ids.style.backgroundColor = "#ccc";
-	mor.innerHTML = "dec";
-	mor.style.backgroundColor = "#ccc";
+	dec.innerHTML = "dec";
+	dec.style.backgroundColor = "#ccc";
 	tot.innerHTML = "val";
 	tot.style.backgroundColor = "#ccc";
 	diams.innerHTML = "&diams;";
@@ -2273,7 +2324,7 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 	for (var i = 1; i <= s.Basic.groups.length; i++) {
 		row = table.insertRow(i);
 		ids = row.insertCell(0);
-		mor = row.insertCell(1);
+		dec = row.insertCell(1);
 		tot = row.insertCell(2);
 		diams = row.insertCell(3);
 		diams.style.backgroundColor = "#FFBBBD";
@@ -2287,13 +2338,13 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 		ids.innerHTML = "<div style='text-align:right !important'>" + drawIds(s.Basic.groups[i - 1]) + "</div>";
 		
 		buffer = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
-		mor.innerHTML = buffer;		
+		dec.innerHTML = buffer;		
 		if (buffer < 0) { 
-			mor.style.backgroundColor = "#000";
-			mor.style.color = "#fff"; }
+			dec.style.backgroundColor = "#000";
+			dec.style.color = "#fff"; }
 		else {
-			mor.style.backgroundColor = "#fff";
-			mor.style.color = "#000"; }
+			dec.style.backgroundColor = "#fff";
+			dec.style.color = "#000"; }
 		
 		buffer = necStaVal(s.Basic.groups[i - 1].val);
 		tot.innerHTML = buffer;
@@ -2304,7 +2355,7 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 			tot.style.backgroundColor = "#fff";
 			tot.style.color = "#000"; }
 		
-		mor.innerHTML = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
+		dec.innerHTML = Math.round(calcGroupMor(s.Basic.groups[i - 1]) * 100) / 100;
 		tot.innerHTML = necStaVal(s.Basic.groups[i - 1].val);
 		
 		buffer = s.Basic.groups[i - 1].val.obj;
@@ -2836,7 +2887,7 @@ function copyPersonById(id) {
 	var copy;
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		if(id === s.Basic.persons[i].id) {
-			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].dec, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
+			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].antiVal, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
 	return copy; }
 	
 	
