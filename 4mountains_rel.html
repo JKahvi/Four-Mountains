@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 380</title>
+		<title>Four Mountains beta 384</title>
 		<style>
 
 
@@ -908,7 +908,7 @@ function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
 		
 		
 function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); }
-	var debug = false;
+	var debug = "val";
 	if (!(debug === false)) { console.log("CALCPERSONS on turn " + s.Basic.turn + " (" + s.Basic.personInTurn.name + ")"); }
 	var personsDiff = [];
 	var newX = 0;
@@ -935,17 +935,18 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 			newVisY = s.Basic.persons[i].Y + Y; }
 		if (!((newX === 0) || (newY === 0))) { 
 			valDiff = relVal(newX, newY); }
+
 		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
 
 		if (!(nullVal(levelUp))) { //xxx
-			if((totVal(levelUp)) > 0) {
+			if(!(totVal(levelUp) === 0)) {
 				valDiff = relVal(newX, newY); }
-			else if((totVal(levelUp)) < 0) {
-				valDiff = invVal(relVal(newX, newY)); }
+			/*else if((totVal(levelUp)) < 0) {
+				valDiff = invVal(relVal(newX, newY)); }*/
 			else if((totVal(levelUp)) === 0) {
 				valDiff = relVal(0,0); }}
 
-		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, decDiff, bensDiff, levelUp));}
+		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, decDiff, bensDiff, levelUp)); }
 
 	for (var i = 0; i < personsDiff.length; i++) {
 		buffer = [];		
@@ -953,7 +954,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 			if (!(j === getNumberOfPerson(s.Basic.personInTurn))) {
 				buffer.push(relVal(0, 0));}
 			else {
-				buffer.push(personsDiff[i].val);}}
+				buffer.push(relVal(personsDiff[i].X, personsDiff[i].Y)); }}
 			personsDiff[i].bens = buffer;}
 		
 	if (!(debug === false)) {
@@ -1783,21 +1784,6 @@ function reportValDiff(oldVal, diff, hover) {
 		else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
 	return ret; }
 
-
-
-function reportBenDiff(oldVal, diff, hover) {
-	var ret;
-	var newVal = totVal(sumVal(oldVal, diff));
-	if(!hover) {
-		if (oldVal === newVal) {ret = oldVal }
-		else if (oldVal < newVal) {ret = oldVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
-		else if (oldVal > newVal) {ret = oldVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
-	else{
-		if (oldVal === newVal) {ret = oldVal }
-		else if (oldVal < newVal) {ret = newVal + "<span class='outlineInc'; '>+" + diff + "</span>"}
-		else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
-	return ret; }
-
 	
 	
 function updatePersonList(diffs, hover) {
@@ -1880,8 +1866,8 @@ function updatePersonList(diffs, hover) {
 			mor.style.color = "#000"; }
 
 		if (!(diffs)) {tot.innerHTML = necStaVal(s.Basic.persons[i - 1].val);}
-		else { tot.innerHTML = reportValDiff(necStaVal(s.Basic.persons[i - 1].val), necStaVal(diffs[i - 1].val), hover); }
-		if (necStaVal(s.Basic.persons[i - 1].val) < 0) { 
+		else { tot.innerHTML = reportValDiff(totVal(s.Basic.persons[i - 1].val), totVal(diffs[i - 1].val), hover); }
+		if (totVal(s.Basic.persons[i - 1].val) < 0) { 
 			tot.style.backgroundColor = "#000";
 			tot.style.color = "#fff"; }
 		else {
@@ -1926,7 +1912,11 @@ function updatePersonList(diffs, hover) {
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
 			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
-			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(totVal(s.Basic.persons[i - 1].bens[j - 18]), totVal(diffs[i - 1].bens[j - 18])) + "</div>"; }}}}
+			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(totVal(s.Basic.persons[i - 1].bens[j - 18]), totVal(diffs[i - 1].bens[j - 18]), hover) + "</div>"; }}}}
+			/*if (totVal(s.Basic.persons[i - 1].bens[j - 18]) < (totVal(s.Basic.persons[i - 1].bens[j - 18]) + totVal(diffs[i - 1].bens[j - 18]))) {
+
+			}*/
+
 
 
 
