@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 395</title>
+		<title>Four Mountains beta 399</title>
 		<style>
 
 
@@ -11,6 +11,34 @@
 				margin:0px;
 				font-family:tahoma;
 				font-size:13px; }
+
+			table{
+				border-spacing: 0px;}
+
+			.fancyUIstratTable table {
+				border-spacing: 0px;
+				border-right: 1px solid #444;
+				border-bottom: 1px solid #444; }
+
+			.fancyUIstratTable td {
+				border-right: 1px solid #444;
+				border-bottom: 1px solid #444; }
+
+			#personTable table,
+			#groupTable table {
+				border-spacing: 0px;
+				text-align:left;
+				border-right: 1px solid #ccc;
+				border-bottom: 1px solid #ccc;}
+
+			#personTable td,
+			#groupTable td {
+				padding-left: 2px;
+				padding-right: 2px;
+				border-top: 1px solid #ccc;
+				border-left: 1px solid #ccc;}
+
+
 
 			.wrapper{
 				height:100%;}
@@ -25,6 +53,7 @@
 				width:100%;
 				padding-bottom: 2px;
 				font-size: 10px;
+				font-family: verdana;
 
 				background: rgba(89,81,89,1);
 				background: -moz-linear-gradient(top, rgba(89,81,89,1) 0%, rgba(217,189,196,1) 5%, rgba(250,232,205,1) 35%, rgba(126,128,98,1) 95%, rgba(54,54,54,1) 100%);
@@ -68,6 +97,58 @@
 
 
 
+
+			.fancyUIstratTable table,
+			.fancyUIstratTable tr,
+			.fancyUIstratTable td, {
+				border-right: 0px solid #444;
+				border-bottom: 0px solid #444; }
+
+			.fancyUIstratVals {
+				background-color: #444;
+				padding: 0px 4px 0px 4px;}
+
+			.fancyUIstratVals td {
+				border-right: 1px solid #444;
+				border-left: 1px solid #ccc;
+				border-bottom: 0px solid #444; }
+
+			.fancyUIstratVals table {
+				border-right: 0px solid #444;
+				border-bottom: 0px solid #444;
+				background: rgba(64,98,102,1);
+				background: -moz-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(64,98,102,1)), color-stop(7%, rgba(246,246,246,1)), color-stop(28%, rgba(255,255,255,1)), color-stop(47%, rgba(246,246,246,1)), color-stop(94%, rgba(237,237,237,1)), color-stop(100%, rgba(0,0,0,1)));
+				background: -webkit-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -o-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: -ms-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				background: linear-gradient(to bottom, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#406266', endColorstr='#000000', GradientType=0 ); }
+
+			.fancyUIstratName {
+				background-color: #444;	}
+
+			.fancyUIstratName div {
+				background: #3b3e3f; /* Old browsers */
+				background: -moz-linear-gradient(top,  #3b3e3f 0%, #e9eadc 5%, #efe8cb 33%, #efdcc9 77%, #efeeea 100%); /* FF3.6+ */
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3b3e3f), color-stop(5%,#e9eadc), color-stop(33%,#efe8cb), color-stop(77%,#efdcc9), color-stop(100%,#efeeea)); /* Chrome,Safari4+ */
+				background: -webkit-linear-gradient(top,  #3b3e3f 0%,#e9eadc 5%,#efe8cb 33%,#efdcc9 77%,#efeeea 100%); /* Chrome10+,Safari5.1+ */
+				background: -o-linear-gradient(top,  #3b3e3f 0%,#e9eadc 5%,#efe8cb 33%,#efdcc9 77%,#efeeea 100%); /* Opera 11.10+ */
+				background: -ms-linear-gradient(top,  #3b3e3f 0%,#e9eadc 5%,#efe8cb 33%,#efdcc9 77%,#efeeea 100%); /* IE10+ */
+				background: linear-gradient(to bottom,  #3b3e3f 0%,#e9eadc 5%,#efe8cb 33%,#efdcc9 77%,#efeeea 100%); /* W3C */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b3e3f', endColorstr='#efeeea',GradientType=0 ); /* IE6-9 */
+
+				-webkit-border-top-left-radius: 16px;
+				-webkit-border-top-right-radius: 16px;
+				-moz-border-radius-topleft: 16px;
+				-moz-border-radius-topright: 16px;
+				border-top-left-radius: 16px;
+				border-top-right-radius: 16px;
+
+				padding: 0px 8px; }
+
+
+
 			.amoqButton{
 				display:block;
 				padding: 5px;
@@ -76,22 +157,15 @@
 
 
 
-			table{
-				border-spacing: 0px;
-				text-align:left;
-				border-right: 1px solid #ccc;
-				border-bottom: 1px solid #ccc;}
-
-			td{
-				padding-left: 2px;
-				padding-right: 2px;
-				border-top: 1px solid #ccc;
-				border-left: 1px solid #ccc;}
-
-
-
 			#stratTable{
-				position: absolute;}
+				position: absolute;
+				text-align: center;}
+
+			.stratValTable {
+				position: relative;
+				top: -2px;
+				width: 100%;
+				text-align: center; }
 
 
 
@@ -244,9 +318,15 @@ Do these modules, metaphysically, emerge from each other?
 // distance does not affect vector summation stuff, is only a factor in value change?
 // so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
 
-// BUG! bug: bots should not try to acquire xp that's already been acquired
+
 
 // BUG! restart clears added players and fails to update autoplay status??
+
+// BUG delperson causes bug if used right after newperson
+
+// BUG if create new person, amoq will think that was previous person when visualizing turn
+
+// dec is miscalculated. shoud account for x y diff instead of just absval
 
 
 
@@ -270,24 +350,25 @@ function BasicMode() {
 				name: "BasicMode", // modes should have ids, too?
 				persons: [],
 				groups: [],
+				strategies: [],
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false,
 				relScale: "sum2",
 				grid: [],
 				slots: [],
+				fancyUI: true,
 				playing: false,
 				personInTurn: false,
 				turn: 0,
-				autoBotTurn: 20, //-1 for none
-				autoBotTurnDefault: 3000,
+				autoBotTurn: -1, //-1 for none
+				autoBotTurnDefault: 50,
 				logInfoBox: false,
 				disableAutoContinueOnHumanTurn: true,
 				pause: false,
 				moveAttempt: false,
 				simultaneousTurns: false,
 				maxDebug: false,
-				strategies: [],
 				revertingXp: true,
 				xpRegulation: 1,
 				levCap: true,
@@ -298,7 +379,6 @@ function BasicMode() {
 				latestX: 0,
 				latestY: 0,
 				initDone: false };
-			createStrategies(s.Basic);
 			newPerson(s.Basic,"Rotta",true);
 			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
 			s.Basic.personInTurn = s.Basic.persons[0];
@@ -310,10 +390,11 @@ function BasicMode() {
 			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
 			drawGrid(s.Basic.grid, s.Basic.persons, false); }
 		s.mode = s.Basic;
+		createStrategies(s.Basic);
 		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
 		drawInfoBox(false);
 		drawPersonList(false, false);
-		drawStratList();
+		drawStratList(false);
 		drawButton("startGame");
 		drawButton("autoPlay");
 		drawButton("newPerson");
@@ -727,10 +808,6 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 			drawGroupList(false);
 			$( "#stratTable" ).empty();
 			drawStratList(false); }}}
-		
-
-
-// BUG if create new person, amoq will think that was previous person when visualizing turn
 	
 
 
@@ -1426,6 +1503,12 @@ function getSlotSymbol(slot) {
 		if (slot.Y < 0) { ret = "&diams;" }
 		else if (slot.Y > 0) { ret = "&spades;" }}
 	return ret; }
+
+
+
+function describeStrategy(id) {
+	id = parseInt(id);
+	drawInfoBox(s.mode.strategies[id].desc); }
 	
 
 
@@ -1856,7 +1939,7 @@ function updatePersonList(diffs, hover) {
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
 
 		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
-		else { // BUG!! these don't work, should use absolute value of coordinate instead of diff
+		else { // BUG!! these don't work, should use absolute value of coordinate instead of diff ALREADY FIXED?
 			if (Math.abs(s.Basic.persons[i - 1].X) === Math.abs(diffs[i - 1].X)) { X.innerHTML = diffs[i - 1].X; }
 			else if ( Math.abs(s.Basic.persons[i - 1].X) < Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].X + "</span>"; } /*00bb00*/
 			else if ( Math.abs(s.Basic.persons[i - 1].X) > Math.abs(diffs[i - 1].X)) { X.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].X + "</span>"; }}
@@ -1866,12 +1949,7 @@ function updatePersonList(diffs, hover) {
 			if (Math.abs(s.Basic.persons[i - 1].Y) === Math.abs(diffs[i - 1].Y)) { X.innerHTML = diffs[i - 1].Y; }
 			else if ( Math.abs(s.Basic.persons[i - 1].Y) < Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineInc'; '>" + diffs[i - 1].Y + "</span>"; } /*00bb00*/
 			else if ( Math.abs(s.Basic.persons[i - 1].Y) > Math.abs(diffs[i - 1].Y)) { Y.innerHTML = "<span class='outlineDec'; '>" + diffs[i - 1].Y + "</span>"; }}
-		
-		/*if (!hover) { Y.innerHTML = s.Basic.persons[i - 1].Y; }
-		else { Y.innerHTML = diffs[i - 1].Y; }*/ /*s.Basic.persons[i - 1].Y + "&#8680;" +*/
-		
-		//buffer = Math.round(s.Basic.persons[i - 1].dec);
-		//buffer = Math.round(((calcDec(s.Basic.persons[i - 1])) * 100) / 100);
+
 		buffer = dispDec(s.Basic.persons[i - 1]);
 		dec.innerHTML = buffer;	
 		if (buffer < 0) { 
@@ -1965,6 +2043,7 @@ function makePersonStratArr(id) {
 
 function drawStratList() {
 	var table = document.getElementById("stratTable");
+	if (s.mode.fancyUI) { table.className = "fancyUIstratTable"; }
 	var row = table.insertRow(0);
 	var cell;
 	var person;
@@ -1973,21 +2052,28 @@ function drawStratList() {
 	var personsStratArr = [];
 	var buffer;
 
-	for(var i = 0; i < s.mode.persons.length; i++) { personsStratArr.push(makePersonStratArr(i)); }
+	//for(var i = 0; i < s.mode.persons.length; i++) { personsStratArr.push(makePersonStratArr(i)); }
 
 	for(var i = 0; i < s.mode.persons.length; i++) {
-		cell = row.insertCell(i);
-		cell.innerHTML = s.mode.persons[i].name; }
+		cell = row.insertCell(i);//xyz
+		cell.style.backgroundColor = "#ccc";
+		cell.style.fontSize = "10px"
+		cell.style.fontFamily = "verdana"
+		cell.innerHTML = i + " " + s.mode.persons[i].name; }
 
-	for(var i = 1; i <= s.mode.strategies.length; i++) {
-		row = table.insertRow(i);
+	for(var i = 0; i < s.mode.strategies.length; i++) {
+		row = table.insertRow((2 * i) + 1);
 		for(var j = 0; j < s.mode.persons.length; j++) {
 			cell = row.insertCell(j);
-			//cell.innerHTML = personsStratArr[j][i - 1].name; 
-			cell.innerHTML = s.mode.strategies[i - 1].name; // yeah right... continue from here
-		}}}
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratName"; }
+			cell.innerHTML = "<div onmouseover='describeStrategy(" + s.mode.strategies[i].id + ")'>" + s.mode.strategies[i].name + "</div>"; }
+		row = table.insertRow((2 * i) + 2);
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			cell = row.insertCell(j);
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
+			cell.innerHTML = "<table class='stratValTable'><tr><td>" + totVal(s.mode.strategies[i].vals[j]) + "</td><td>" + s.mode.strategies[i].vals[j].obj + "</td><td>" + s.mode.strategies[i].vals[j].sub + "</td><td>" + s.mode.strategies[i].vals[j].nor + "</td><td>" + s.mode.strategies[i].vals[j].mys + "</td></tr></table>"; }}}
 
-			
+
 
 function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
 	var table = document.getElementById("personTable");
@@ -2257,23 +2343,21 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 	spades.style.backgroundColor = "#FFDDBC";
 	clubs = row.insertCell(6);
 	clubs.style.backgroundColor = "#FFFEBC";
-	//bens = row.insertCell(7);
 	
-	ids.innerHTML = "pop";
+	ids.innerHTML = "<div style='text-align:center;'>pop</div>";
 	ids.style.backgroundColor = "#ccc";
-	dec.innerHTML = "dec";
+	dec.innerHTML = "<div style='text-align:center;'>dec</div>";
 	dec.style.backgroundColor = "#ccc";
-	tot.innerHTML = "val";
+	tot.innerHTML = "<div style='text-align:center;'>val</div>";
 	tot.style.backgroundColor = "#ccc";
-	diams.innerHTML = "&diams;";
-	hearts.innerHTML = "&hearts;";
-	spades.innerHTML = "&spades;";
-	clubs.innerHTML = "&clubs;";
-	//bens.innerHTML = "<div style='overflow:visible; position:absolute; margin-top: -9px;'>bens</div>";
+	diams.innerHTML = "<div style='text-align:center;'>&diams;</div>";
+	hearts.innerHTML = "<div style='text-align:center;'>&hearts;</div>";
+	spades.innerHTML = "<div style='text-align:center;'>&spades;</div>";
+	clubs.innerHTML = "<div style='text-align:center;'>&clubs;</div>";
 	
 	for (var i = 0; i < s.Basic.groups.length; i++) {
 		bens = row.insertCell(i + 7);
-		bens.innerHTML = drawIds(s.Basic.groups[i]);
+		bens.innerHTML = "<div style='text-align:center;'>" + drawIds(s.Basic.groups[i]) + "</div>";
 		bens.style.backgroundColor = "#ccc"; }
 	
 	for (var i = 1; i <= s.Basic.groups.length; i++) {
@@ -2491,6 +2575,11 @@ function getStrategyNameById(id) {
 		if (mode.strategies[i].id === id) {
 			return mode.strategies[i].name;	}}}
 
+function getStrategyDescById(id) {
+	for (var i = 0; i < mode.strategies.length; i++) {
+		if (mode.strategies[i].id === id) {
+			return mode.strategies[i].desc;	}}}
+
 function getStrategyRuleById(id) {
 	for (var i = 0; i < mode.strategies.length; i++) {
 		if (mode.strategies[i].id === id) {
@@ -2502,10 +2591,11 @@ function Strategy(mode, id, name, desc, vals, rule) {
 	else { this.id = id; }
 	if (!name) { this.name = getStrategyNameById(id); }
 	else { this.name = name; }
-	if (!name) { this.name = getStrategyNameById(id); }
-	else { this.name = name; }
+	if (!name) { this.desc = getStrategyDescById(id); }
+	else { this.desc = desc; }
 	if (!vals) { this.vals = nullValForEachPerson(mode.persons); }
 	else { this.vals = vals; }
+	this.vals = nullValForEachPerson(mode.persons);
 	if (!rule) { this.rule = getStrategyRuleById(id);}
 	else { this.rule = rule; }}
 
@@ -2542,10 +2632,6 @@ function simVal(personList, X, Y) {
 	for (var i = 0; i < personList.length; i++) {
 		output = sumVal(output, personList[i].val); }
 	return totVal(output); }
-
-
-
-// BUG delperson causes bug if used right after newperson
 
 
 
@@ -2977,6 +3063,7 @@ function init() {
 
 //deleting person in turn causes bug sometimes BUG FIXED proly
 //upon create new person grid becomes too colorful BUG FIXED proly
+// BUG! bug: bots should not try to acquire xp that's already been acquired FIXED???
 
 
 
