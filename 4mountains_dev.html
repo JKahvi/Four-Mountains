@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 405</title>
+		<title>Four Mountains beta 415</title>
 		<style>
 
 
@@ -17,22 +17,24 @@
 
 			.fancyUIstratTable table {
 				border-spacing: 0px;
-				border-right: 1px solid #444;
-				border-bottom: 1px solid #444; }
+				border-right: 1px solid #433;
+				border-bottom: 1px solid #433; }
 
 			.fancyUIstratTable td {
 				border-right: 1px solid #444;
 				border-bottom: 1px solid #444; }
 
 			#personTable table,
-			#groupTable table {
+			#groupTable table,
+			#patternTable table {
 				border-spacing: 0px;
 				text-align:left;
 				border-right: 1px solid #ccc;
 				border-bottom: 1px solid #ccc;}
 
 			#personTable td,
-			#groupTable td {
+			#groupTable td,
+			#patternTable td {
 				padding-left: 2px;
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
@@ -101,21 +103,30 @@
 			.fancyUIstratTable table,
 			.fancyUIstratTable tr,
 			.fancyUIstratTable td, {
-				border-right: 0px solid #444;
-				border-bottom: 0px solid #444; }
+				border-right: 0px solid #433;
+				border-bottom: 0px solid #433; }
 
 			.fancyUIstratVals {
-				background-color: #444;
+				background-color: #433;
 				padding: 0px 4px 0px 4px;}
 
-			.fancyUIstratVals td {
-				border-right: 1px solid #444;
-				border-left: 1px solid #ccc;
-				border-bottom: 0px solid #444; }
+			.fancyUIstratValsAll {
+				background-color: #433;
+				padding: 2px 0px 0px 0px;}
 
-			.fancyUIstratVals table {
-				border-right: 0px solid #444;
-				border-bottom: 0px solid #444;
+			.fancyUIstratVals td,
+			.fancyUIstratValsAll td {
+				border-right: 1px solid #433;
+				border-left: 1px solid #ccc;
+				border-bottom: 0px solid #433; }
+
+			.fancyUIstratValsAll table { border: 1px solid #030f03; }
+			.fancyUIstratValsAll td { border-bottom: 2px solid #232f23; }
+
+			.fancyUIstratVals table,
+			.fancyUIstratValsAll table {
+				border-right: 0px solid #433;
+				border-bottom: 0px solid #433;
 				background: rgba(64,98,102,1);
 				background: -moz-linear-gradient(top, rgba(64,98,102,1) 0%, rgba(246,246,246,1) 7%, rgba(255,255,255,1) 28%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 94%, rgba(0,0,0,1) 100%);
 				background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(64,98,102,1)), color-stop(7%, rgba(246,246,246,1)), color-stop(28%, rgba(255,255,255,1)), color-stop(47%, rgba(246,246,246,1)), color-stop(94%, rgba(237,237,237,1)), color-stop(100%, rgba(0,0,0,1)));
@@ -126,7 +137,7 @@
 				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#406266', endColorstr='#000000', GradientType=0 ); }
 
 			.fancyUIstratName {
-				background-color: #444;	}
+				background-color: #433;	}
 
 			.fancyUIstratName div {
 				background: #3b3e3f; /* Old browsers */
@@ -351,6 +362,7 @@ function BasicMode() {
 				persons: [],
 				groups: [],
 				strategies: [],
+				patterns: [],
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false,
@@ -404,14 +416,10 @@ function BasicMode() {
 		drawGroupList(false, false);
 		s.mode.initDone = true; }}
 
-
-
 function compStratMode() {
 	s.mode = "compStratMode";
 	drawModeSelector("compStratMode"); }
 
-
-	
 function SpatialMode() {
 	if(!(s.mode.name === "SpatialMode")) {
 		initSpatialModeDisplay();
@@ -459,18 +467,8 @@ function SpatialMode() {
 		drawButton("restart");
 		drawButton("devFunc");
 		s.mode.initDone = true; }}
-	
-	
-	
-function devStates() { if(s.Basic.maxDebug) {console.log("DEVSTATES:"); }
-	console.log("Pause: " + s.Basic.pause);}
 		
 		
-		
-function makeXp(left, right, up, down) { if(s.Basic.maxDebug) {console.log("MAKEXP"); }
-	var output;
-	output = new Val(0, up, down, right, 0, 0, left, 0, 0);
-	return output;}
 		
 function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("VAL"); }
 	this.Dyn = Dyn;
@@ -483,7 +481,10 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 	this.mys = mys;
 	this.sub = sub;}
 
-
+function makeXp(left, right, up, down) { if(s.Basic.maxDebug) {console.log("MAKEXP"); }
+	var output;
+	output = new Val(0, up, down, right, 0, 0, left, 0, 0);
+	return output;}
 		
 function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change s.Basic to s.mode and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy mode?
 	if(s.Basic.relScale === "sum2") {
@@ -524,8 +525,6 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change 
 			intrinsic = Math.abs(Math.floor(Math.pow(2,intrinsic - 2))); }}
 	return intrinsic;}
 	
-	
-
 function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
 	var a = absVal(X,Y);
 	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
@@ -549,11 +548,9 @@ function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relati
 		relativized = new Val(0,0,0,0,0,0,0,0,a);}
 	return relativized;}
 
-
-
-/*function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
+function devVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // IDEA visval would be visibility... as val object
 	var a = absVal(X,Y);
-	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
+	var relativized;
 	if		(X === 0 && Y === 0) {  //Dyn
 		relativized = new Val(a,0,0,0,0,0,0,0,0);}
 	else if (X === 0 && Y > 0) {  //abs
@@ -572,27 +569,19 @@ function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relati
 		relativized = new Val(0,Y,0,0,0,0,-X,a,0);}	
 	else if (X < 0 && Y < 0) {  //sub
 		relativized = new Val(0,0,-Y,0,0,0,-X,0,a);}
-	return relativized;}*/
-
-
+	return relativized;}
 
 function nullVal(val) {
 	if((val.Dyn === 0) && (val.abs === 0) && (val.tan === 0) && (val.rat === 0) && (val.nor === 0) && (val.obj === 0) && (val.gno === 0) && (val.mys === 0) && (val.sub === 0)) { return true; }
 	else { return false; }}
 
-
-
 function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
 	var output = a.Dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
 	return output;}
 
-
-
 function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr relVal is already taken
 	var output = val.obj + val.nor + val.sub + val.mys;
 	return output;}
-
-	
 	
 function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	var c = new Val(
@@ -607,13 +596,9 @@ function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 		a.sub + b.sub);		
 	return c;}
 
-
-
 function invVal(val) {
 	var ret = new Val(-val.Dyn, -val.abs, -val.tan, -val.rat, -val.nor, -val.obj, -val.gno, -val.mys, -val.sub);
 	return ret; }
-
-
 
 function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPAREVAL:"); } //unused
 	var DynDiff = guestVal.Dyn - hostVal.Dyn;
@@ -626,7 +611,57 @@ function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPA
 	var mysDiff = guestVal.mys - hostVal.mys;
 	var subDiff = guestVal.sub - hostVal.sub;
 	var valDiff = new Val(DynDiff, absDiff, tanDiff, ratDiff, norDiff, objDiff, gnoDiff, mysDiff, subDiff);
-	return valDiff;}
+	return valDiff; }
+
+function maxVal(val) {
+	var vals = [val.Dyn, val.gno, val.rat, val.abs, val.tan, val.obj, val.sub, val.nor, val.mys];
+	vals = vals.sort(function(a,b) { return parseFloat(a) - parseFloat(b) } );
+	return vals[0]; }
+
+
+
+function calcDec(object) {
+	var ret;
+	var val = totVal(object.val);
+	var antiVal = -totVal(object.antiVal);
+	if ((val === 0) && (antiVal === 0)) { return NaN; }
+	var ratio = Math.min(val, antiVal) / Math.max(val, antiVal);
+	if (val < antiVal) { return -ratio; }
+	else { return ratio; }}
+
+function dispDec(object) {
+	ret = Math.round(calcDec(object) * 100) / 100;
+	return ret; }
+
+
+
+function longestArrInArr(arr) {
+	var len = 0;
+	for (var i = 0; i < arr.length; i++) {
+		if (len < arr[i].length) { len = arr[i].length; }}
+	return len; }
+
+function powerSetOf(arrFull) {  if(s.Basic.maxDebug) {console.log("POWERSETOF"); }
+  var ret = [], fullLen = arrFull.length, last = fullLen - 1;
+  function get(arrPrefix, start, lenToFind) {
+    for(lenToFind--; start < fullLen; start++)
+      if(!lenToFind)
+        ret.push(arrPrefix.concat([arrFull[start]]));
+      else if(start < last)
+        get(arrPrefix.concat([arrFull[start]]), start + 1, lenToFind); }
+  for(var lenToFind = fullLen; lenToFind > 0; lenToFind--)
+    get([], 0, lenToFind);
+	var buffer = [];
+	for(var i = 0; i < ret.length; i++) {
+		if(ret[i].length > 1) {
+			buffer.push(ret[i]); }}
+  return buffer;}//.concat([[]]);
+
+function contains(a, obj) {
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] === obj) {
+            return true; }}
+    return false; }
 
 	
 
@@ -651,9 +686,116 @@ function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPA
 03:10 <kahvi> jotka ovat siis samassa järjestyksessä kuin s.Basic.persons -arrayn elementit, vaikka tätä ei ole kirjoitettu mihinkään eksplisiittisesti
 *nyt on kirjoitettu eksplisiittisesti koska id:t lisätty
 */
+
+
+
+function findSlotPos(grid,x,y) { if(s.Basic.maxDebug) {console.log("FINDSLOTPOS:"); }
+	var a = grid[y];
+	var b = a[x]; // THIS LINE generates error message ostensibly because some strategies are buggy and try to move the player to invalid slot!
+	return b;}
+
+function findSlot(X,Y) { if(s.Basic.maxDebug) {console.log("FINDSLOT:"); }
+	var res = Math.floor(s.Basic.grid.length / 2);
+	return findSlotPos(s.Basic.grid, X + res, res - Y);}
 	
+function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAVAILABLE:"); }
+	var maxX = person.xp.rat;
+	var minX = -person.xp.gno;
+	var maxY = person.xp.abs;
+	var minY = -person.xp.tan;
+	if ((X === person.X) && (Y === person.Y)) { return false; }
+	else if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
+	else { return false; }}
+
+
+
+function moveHover(X, Y) { if(s.Basic.maxDebug) {console.log("MOVEHOVER"); }
+	var calcs = { persons : calcPersons(X, Y), groups : [], strategies : [] };
+	calcs.groups = calcGroups(X, Y, calcs.persons);
+	calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
+	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+	updatePersonList(calcs.persons, true);
+	updateGroupList(calcs.groups, true); }
+
+function move(X, Y) { if(s.Basic.maxDebug) {console.log("MOVE"); }
+	s.Basic.turn++;
+	if ((X === false) && (Y === false)) { // these params are false if current player is bot
+		var botMove = ai(s.Basic.personInTurn);
+		X = botMove.X;
+		Y = botMove.Y;}
+	var calcs = { persons : calcPersons(X, Y), groups : [], strats : [] };
+	calcs.groups = calcGroups(X, Y, calcs.persons);
+	calcs.strats = calcStrategies(X, Y, calcs.persons, calcs.groups); //
+	makeMove(X, Y, calcs.persons, calcs.groups);
+	changeTurn(calcs); }
+
+function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console.log("MAKEMOVE"); }
+	s.mode.latestX = X;
+	s.mode.latestY = Y;
+	s.mode.latestPersonsDiff = personsDiff;
+	s.mode.latestGroupsDiff = groupsDiff;
+	var buffer;
+	for (var i = 0; i < s.Basic.persons.length; i++) {
+		s.Basic.persons[i].X = personsDiff[i].X;
+		s.Basic.persons[i].Y = personsDiff[i].Y;
+		s.Basic.persons[i].visX = personsDiff[i].visX;
+		s.Basic.persons[i].visY = personsDiff[i].visY;
+		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
+		s.Basic.persons[i].antiVal = sumVal(s.Basic.persons[i].antiVal, personsDiff[i].antiVal);
+		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
+		buffer = [];
+		for (var j = 0; j < s.Basic.persons.length; j++) {
+			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j]));}
+		s.Basic.persons[i].bens = buffer;}
 	
-	
+	for (var i = 0; i < s.Basic.groups.length; i++) {
+		s.Basic.groups[i].val = sumVal(s.Basic.groups[i].val, groupsDiff[i].val);
+		s.Basic.groups[i].antiVal = sumVal(s.Basic.groups[i].antiVal, groupsDiff[i].antiVal);
+		s.Basic.groups[i].bens = sumBens(s.Basic.groups[i].bens, groupsDiff[i].bens); }}
+
+function devStates() { if(s.Basic.maxDebug) {console.log("DEVSTATES:"); }
+	console.log("Pause: " + s.Basic.pause);}
+
+function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
+	var debug = false;
+	s.Basic.personInTurn = nextPerson(s.Basic.personInTurn);
+	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
+	updatePersonList(calcs.persons, false);
+	updateGroupList(calcs.groups, false);
+	$( "#stratTable" ).empty();
+	drawStratList(false); //yzx
+	var next = nextPerson(s.Basic.personInTurn);
+	reportTurn();
+	if(s.Basic.autoBotTurn >= 0) {
+		if(s.Basic.pause === false) {
+			if(s.Basic.personInTurn.bot === true) {
+				updateButton("startGame", "Pause (Enter)");
+				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
+			else {
+				clearInterval(s.Basic.moveAttempt);
+				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
+		else { //pause is on
+			clearInterval(s.Basic.moveAttempt);
+			if(s.Basic.personInTurn.bot === true) {
+				updateButton("startGame", "Continue (Enter)");}
+			else { //no reason to pause on human turn
+				s.Basic.pause = false;}}}
+	else {
+		if(s.Basic.personInTurn.bot === false) {
+			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
+		else {
+			updateButton("startGame", "Continue (Enter)");}}
+		
+	if(debug === true) {
+		devStates();}}
+
+function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
+	if (s.Basic.pause === false) {
+		clearInterval(s.Basic.moveAttempt);
+		move (X, Y); }}
+
+
+
 function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
 	if(!((typeof mode) === "object")) {
 		var mode = s.mode; }
@@ -675,6 +817,7 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			for (var j = 0; j < fill; j++) {
 				mode.persons[i].bens.push(relVal(0,0));}}
 		addGroups(mode, oldGroups, mode.persons);
+		personIntoPattern(mode.persons[mode.persons.length - 1]);
 		if(hidden) { 
 			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
@@ -689,6 +832,8 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			s.mode.latestGroupsDiff = calcs.groups;
 			$( "#personTable" ).empty();
 			drawPersonList(false);
+			$( "#patternTable" ).empty();
+			drawPatternList(false);
 			$( "#groupTable" ).empty();
 			drawGroupList(false);
 			$( "#stratTable" ).empty();
@@ -787,9 +932,8 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 
 
 		
-function devVal(val) {  if(s.Basic.maxDebug) {console.log("DEVVAL"); }
-	var a;
-	a = "obj: " + val.obj + ", sub: " + val.sub + ", nor: " + val.nor + ", mys: " + val.mys;
+function debugVal(val) {  if(s.Basic.maxDebug) {console.log("DEBUGVAL"); }
+	var a = "obj: " + val.obj + ", sub: " + val.sub + ", nor: " + val.nor + ", mys: " + val.mys;
 	return a;}
 		
 		
@@ -826,183 +970,6 @@ function restart() {
 	s.initDone = false;
 	s.mode.initDone = false;
 	init(); }
-
-
-
-function findSlotPos(grid,x,y) { if(s.Basic.maxDebug) {console.log("FINDSLOTPOS:"); }
-	var a = grid[y];
-	var b = a[x]; // THIS LINE generates error message ostensibly because some strategies are buggy and try to move the player to invalid slot!
-	return b;}
-
-
-
-function findSlot(X,Y) { if(s.Basic.maxDebug) {console.log("FINDSLOT:"); }
-	var res = Math.floor(s.Basic.grid.length / 2);
-	return findSlotPos(s.Basic.grid, X + res, res - Y);}
-	
-	
-
-function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAVAILABLE:"); }
-	var maxX = person.xp.rat;
-	var minX = -person.xp.gno;
-	var maxY = person.xp.abs;
-	var minY = -person.xp.tan;
-	if ((X === person.X) && (Y === person.Y)) { return false; }
-	else if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
-	else { return false; }}
-
-
-
-function maxVal(val) {
-	var vals = [val.Dyn, val.gno, val.rat, val.abs, val.tan, val.obj, val.sub, val.nor, val.mys];
-	vals = vals.sort(function(a,b) { return parseFloat(a) - parseFloat(b) } );
-	return vals[0]; }
-
-
-
-function getPersonIds(persons) { if(s.Basic.maxDebug) {console.log("GETPERSONIDS"); }
-	var ids = [];
-	for(var i = 0; i < persons.length; i++) {
-		ids.push(persons[i].id); }
-	return ids; }
-
-
-
-function moveHover(X, Y) { if(s.Basic.maxDebug) {console.log("MOVEHOVER"); }
-	var calcs = { persons : calcPersons(X, Y), groups : [], strategies : [] };
-	calcs.groups = calcGroups(X, Y, calcs.persons);
-	calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
-	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
-	updatePersonList(calcs.persons, true);
-	updateGroupList(calcs.groups, true); }
-
-
-
-function move(X, Y) { if(s.Basic.maxDebug) {console.log("MOVE"); }
-	s.Basic.turn++;
-	if ((X === false) && (Y === false)) { // these params are false if current player is bot
-		var botMove = ai(s.Basic.personInTurn);
-		X = botMove.X;
-		Y = botMove.Y;}
-	var calcs = { persons : calcPersons(X, Y), groups : [] };
-	calcs.groups = calcGroups(X, Y, calcs.persons);
-	makeMove(X, Y, calcs.persons, calcs.groups);
-	changeTurn(calcs); }
-
-	
-
-function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
-	var buffer;
-	for (var i = 0; i < persons.length; i++) {
-		var buffer = [];
-		for (var j = 0; j < persons.length; j++) {
-			buffer.push(necStaVal(persons[i].bens[j]));}
-		console.log(buffer);}}
-
-
-
-function calcDec(object) {
-	var ret;
-	var val = totVal(object.val);
-	var antiVal = -totVal(object.antiVal);
-	if ((val === 0) && (antiVal === 0)) { return NaN; }
-	var ratio = Math.min(val, antiVal) / Math.max(val, antiVal);
-	if (val < antiVal) { return -ratio; }
-	else { return ratio; }}
-
-function dispDec(object) {
-	ret = Math.round(calcDec(object) * 100) / 100;
-	return ret; }
-
-
-
-function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console.log("MAKEMOVE"); }
-	s.mode.latestX = X;
-	s.mode.latestY = Y;
-	s.mode.latestPersonsDiff = personsDiff;
-	s.mode.latestGroupsDiff = groupsDiff;
-	var buffer;
-	for (var i = 0; i < s.Basic.persons.length; i++) {
-		s.Basic.persons[i].X = personsDiff[i].X;
-		s.Basic.persons[i].Y = personsDiff[i].Y;
-		s.Basic.persons[i].visX = personsDiff[i].visX;
-		s.Basic.persons[i].visY = personsDiff[i].visY;
-		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
-		s.Basic.persons[i].antiVal = sumVal(s.Basic.persons[i].antiVal, personsDiff[i].antiVal);
-		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
-		buffer = [];
-		for (var j = 0; j < s.Basic.persons.length; j++) {
-			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j]));}
-		s.Basic.persons[i].bens = buffer;}
-	
-	for (var i = 0; i < s.Basic.groups.length; i++) {
-		s.Basic.groups[i].val = sumVal(s.Basic.groups[i].val, groupsDiff[i].val);
-		s.Basic.groups[i].antiVal = sumVal(s.Basic.groups[i].antiVal, groupsDiff[i].antiVal);
-		s.Basic.groups[i].bens = sumBens(s.Basic.groups[i].bens, groupsDiff[i].bens); }}
-
-
-
-function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
-	var debug = false;
-	s.Basic.personInTurn = nextPerson(s.Basic.personInTurn);
-	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
-	updatePersonList(calcs.persons, false);
-	updateGroupList(calcs.groups, false);
-	var next = nextPerson(s.Basic.personInTurn);
-	reportTurn();
-	if(s.Basic.autoBotTurn >= 0) {
-		if(s.Basic.pause === false) {
-			if(s.Basic.personInTurn.bot === true) {
-				updateButton("startGame", "Pause (Enter)");
-				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
-			else {
-				clearInterval(s.Basic.moveAttempt);
-				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
-		else { //pause is on
-			clearInterval(s.Basic.moveAttempt);
-			if(s.Basic.personInTurn.bot === true) {
-				updateButton("startGame", "Continue (Enter)");}
-			else { //no reason to pause on human turn
-				s.Basic.pause = false;}}}
-	else {
-		if(s.Basic.personInTurn.bot === false) {
-			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
-		else {
-			updateButton("startGame", "Continue (Enter)");}}
-		
-	if(debug === true) {
-		devStates();}}
-
-
-
-function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
-	if (s.Basic.pause === false) {
-		clearInterval(s.Basic.moveAttempt);
-		move (X, Y); }}
-
-
-
-function powerSetOf(arrFull) {  if(s.Basic.maxDebug) {console.log("POWERSETOF"); }
-  var ret = [], fullLen = arrFull.length, last = fullLen - 1;
-  function get(arrPrefix, start, lenToFind) {
-    for(lenToFind--; start < fullLen; start++)
-      if(!lenToFind)
-        ret.push(arrPrefix.concat([arrFull[start]]));
-      else if(start < last)
-        get(arrPrefix.concat([arrFull[start]]), start + 1, lenToFind); }
-  for(var lenToFind = fullLen; lenToFind > 0; lenToFind--)
-    get([], 0, lenToFind);
-	var buffer = [];
-	for(var i = 0; i < ret.length; i++) {
-		if(ret[i].length > 1) {
-			buffer.push(ret[i]); }}
-  return buffer;}//.concat([[]]);
-
-function contains(a, obj) {
-    for (var i = 0; i < a.length; i++) {
-        if (a[i] === obj) {
-            return true; }}
-    return false; }
 
 
 
@@ -1540,6 +1507,10 @@ function initBasicModeDisplay() {
 		<button id='delPerson' class='amoqButton'></button>\
 		<button id='restart' class='amoqButton'></button>\
 		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<div style='float:left'>\
+			<table id='patternTable'></table>\
+		</div>\
+		<div style='clear:both; height:0px;'>&nbsp;</div>\
 		<div style='float:left; display:inline;'>\
 			<table id='groupTable'></table>\
 		</div>\
@@ -1694,7 +1665,63 @@ function reportValDiff(oldVal, diff, hover) {
 	return ret; }
 
 	
-	
+
+function drawStratList(hover) {
+	var table = document.getElementById("stratTable");
+	if (s.mode.fancyUI) { table.className = "fancyUIstratTable"; }
+	var cell;
+	var strategies = [];
+	var buffer;
+	var rowsToDo = 0;
+	var tot = 0;
+	var obj = 0;
+	var sub = 0;
+	var nor = 0;
+	var mys = 0;
+
+	var row = table.insertRow(0);
+	for(var i = 0; i < s.mode.persons.length; i++) {
+		strategies.push(getStrategiesOfPerson(i));
+		rowsToDo = longestArrInArr(strategies);
+		cell = row.insertCell(i);//xyz
+		cell.style.backgroundColor = "#ccc";
+		cell.style.fontSize = "10px"
+		cell.style.fontFamily = "verdana"
+		cell.innerHTML = i + " " + s.mode.persons[i].name; }
+
+	var row = table.insertRow(1);
+	for (var i = 0; i < s.mode.persons.length; i++) {
+		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(strategies[i][j].vals[i]); }
+		for (var j = 0; j < strategies[i].length; j++) { obj = obj + strategies[i][j].vals[i].obj; }
+		for (var j = 0; j < strategies[i].length; j++) { sub = sub + strategies[i][j].vals[i].sub; }
+		for (var j = 0; j < strategies[i].length; j++) { nor = nor + strategies[i][j].vals[i].nor; }
+		for (var j = 0; j < strategies[i].length; j++) { mys = mys + strategies[i][j].vals[i].mys; }
+		cell = row.insertCell(i);//xyz
+		if (s.mode.fancyUI)	{ cell.className = "fancyUIstratValsAll"}
+		cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>";
+		tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+
+	for(var i = 0; i < rowsToDo; i++) {
+		row = table.insertRow((2 * i) + 2);
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			cell = row.insertCell(j);
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratName"; }
+			cell.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeStrategy(" + s.mode.strategies[i].id + ");'>" + s.mode.strategies[i].id + " " + s.mode.strategies[i].name + "</div>"; }
+		row = table.insertRow((2 * i) + 3);
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			if (i < strategies[j].length) {
+				tot = totVal(strategies[j][i].vals[j]);
+				obj = strategies[j][i].vals[j].obj;
+				sub = strategies[j][i].vals[j].sub;
+				nor = strategies[j][i].vals[j].nor;
+				mys = strategies[j][i].vals[j].mys; }
+			else { tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+			cell = row.insertCell(j);
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
+			cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>"; }}}
+
+
+
 function updatePersonList(diffs, hover) {
 	var table = document.getElementById("personTable");
 	var row;
@@ -1818,73 +1845,6 @@ function updatePersonList(diffs, hover) {
 			bens.style.color = "#" + colors.text;
 			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
 			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(totVal(s.Basic.persons[i - 1].bens[j - 18]), totVal(diffs[i - 1].bens[j - 18]), hover) + "</div>"; }}}}
-
-
-
-function nullVals(arr){
-	var ret = true;
-	for (var i = 0; i < arr.length; i++) {
-		if(!(nullVal(arr[i].val))) {
-			ret = false; }}
-	return ret; }
-
-
-
-function calcStratRows() {
-	var ret = 1;
-	for (var i = 0; i < s.mode.strategies.length; i++) {
-		for (var j = 0; j < s.mode.strategies[i].vals.length; j++) {
-			if (!(nullVal(s.mode.strategies[i].vals[j]))) {
-				ret++;
-				break; }}}
-	return ret;	}
-
-
-
-function makePersonStratArr(id) {
-	var ret = [];
-	for(var i = 0; i < s.mode.strategies.length; i++) {
-		//if(!(nullVal(s.mode.strategies[i].vals[id]))) {
-			ret.push(s.mode.strategies[i]); }
-			//}
-	ret = ret.sort(function(a,b) { return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) });
-	return ret; }
-
-
-
-function drawStratList() {
-	var table = document.getElementById("stratTable");
-	if (s.mode.fancyUI) { table.className = "fancyUIstratTable"; }
-	var row = table.insertRow(0);
-	var cell;
-	var person;
-	var strategy;
-	var rowCounter = calcStratRows();
-	var personsStratArr = [];
-	var buffer;
-
-	//for(var i = 0; i < s.mode.persons.length; i++) { personsStratArr.push(makePersonStratArr(i)); }
-
-	for(var i = 0; i < s.mode.persons.length; i++) {
-		cell = row.insertCell(i);//xyz
-		cell.style.backgroundColor = "#ccc";
-		cell.style.fontSize = "10px"
-		cell.style.fontFamily = "verdana"
-		cell.innerHTML = i + " " + s.mode.persons[i].name; }
-
-	for(var i = 0; i < s.mode.strategies.length; i++) {
-		row = table.insertRow((2 * i) + 1);
-		for(var j = 0; j < s.mode.persons.length; j++) {
-			cell = row.insertCell(j);
-			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratName"; }
-			cell.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeStrategy(" + s.mode.strategies[i].id + ");'>" + s.mode.strategies[i].id + " " + s.mode.strategies[i].name + "</div>"; }
-		row = table.insertRow((2 * i) + 2);
-		for(var j = 0; j < s.mode.persons.length; j++) {
-			cell = row.insertCell(j);
-			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
-			cell.innerHTML = "<table class='stratValTable'><tr><td>" + totVal(s.mode.strategies[i].vals[j]) + "</td><td>" + s.mode.strategies[i].vals[j].obj + "</td><td>" + s.mode.strategies[i].vals[j].sub + "</td><td>" + s.mode.strategies[i].vals[j].nor + "</td><td>" + s.mode.strategies[i].vals[j].mys + "</td></tr></table>"; }}}
-
-
 
 function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
 	var table = document.getElementById("personTable");
@@ -2021,7 +1981,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 			dec.style.backgroundColor = "#fff";
 			dec.style.color = "#000"; }
 		
-		buffer = necStaVal(s.Basic.persons[i - 1].val);
+		buffer = totVal(s.Basic.persons[i - 1].val);
 		tot.innerHTML = buffer;
 		if (buffer < 0) { 
 			tot.style.backgroundColor = "#000";
@@ -2061,6 +2021,143 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
 			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
+
+
+
+function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERNLIST"); }
+	var table = document.getElementById("patternTable");
+	var row;
+	var id = "";
+	var X;
+	var Y;
+	var name;
+	var dec;
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var bens;
+	var spacer1;
+	var spacer2;
+	var spacer3;
+	var buffer;
+	var limit = getBenLimit(s.Basic.patterns);
+	
+	row = table.insertRow(0);
+	id = row.insertCell(0);
+	X = row.insertCell(1);
+	Y = row.insertCell(2);
+	name = row.insertCell(3);
+	spacer3 = row.insertCell(4);
+	dec = row.insertCell(5);
+	tot = row.insertCell(6);
+	diams = row.insertCell(7);
+	hearts = row.insertCell(8);
+	spades = row.insertCell(9);
+	clubs = row.insertCell(10);
+	spacer1 = row.insertCell(11);
+	
+	id.innerHTML = "sym";
+	id.style.backgroundColor = "#ccc";
+	X.innerHTML = "<div style='text-align:center;'>X</div>";
+	X.style.backgroundColor = "#ccc";
+	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
+	Y.style.backgroundColor = "#ccc";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
+	name.style.backgroundColor = "#ccc";
+	spacer3.innerHTML = "&nbsp;";
+	spacer3.style.backgroundColor = "#ccc";
+	dec.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
+	dec.style.backgroundColor = "#ccc";
+	tot.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(4)'>val</div>";
+	tot.style.backgroundColor = "#ccc";
+	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(0)'>&diams;</div>";
+	diams.style.backgroundColor = "#FFBBBD";
+	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(1)'>&hearts;</div>";
+	hearts.style.backgroundColor = "#FFBBEE";
+	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(2)'>&spades;</div>";
+	spades.style.backgroundColor = "#FFDDBC";
+	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(3)'>&clubs;</div>";
+	clubs.style.backgroundColor = "#FFFEBC";
+	spacer1.innerHTML = "&nbsp;";
+	spacer1.style.backgroundColor = "#ccc";
+	
+	for (var i = 0; i < s.Basic.patterns.length; i++) {
+		bens = row.insertCell(i + 11);
+		bens.innerHTML = "<div style='text-align:center !important;'>" + s.Basic.patterns[i].id + "</div>";
+		bens.style.backgroundColor = "#ccc"; }
+	
+	for (var i = 1; i <= s.Basic.patterns.length; i++) {
+		row = table.insertRow(i);
+		id = row.insertCell(0);
+		X = row.insertCell(1);
+		Y = row.insertCell(2);
+		name = row.insertCell(3);
+		spacer3 = row.insertCell(4);
+		spacer3.style.backgroundColor = "#ccc";
+		dec = row.insertCell(5);
+		tot = row.insertCell(6);
+		diams = row.insertCell(7);
+		diams.style.backgroundColor = "#FFBBBD";
+		hearts = row.insertCell(8);
+		hearts.style.backgroundColor = "#FFBBEE";
+		spades = row.insertCell(9);
+		spades.style.backgroundColor = "#FFDDBC";
+		clubs = row.insertCell(10);
+		clubs.style.backgroundColor = "#FFFEBC";
+		spacer1 = row.insertCell(11);
+		spacer1.style.backgroundColor = "#ccc";
+	
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.patterns[i - 1].id + "</div>";
+
+		X.innerHTML = s.Basic.patterns[i - 1].X;
+		Y.innerHTML = s.Basic.patterns[i - 1].Y;
+
+		buffer = dispDec(s.Basic.patterns[i - 1]);
+		dec.innerHTML = buffer;
+		if (buffer < 0) { 
+			dec.style.backgroundColor = "#000";
+			dec.style.color = "#fff"; }
+		else {
+			dec.style.backgroundColor = "#fff";
+			dec.style.color = "#000"; }
+		
+		buffer = totVal(s.Basic.patterns[i - 1].val);
+		tot.innerHTML = buffer;
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+	
+		buffer = s.Basic.patterns[i - 1].val.obj;
+		diams.innerHTML = buffer;
+		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.sub;
+		hearts.innerHTML = buffer;
+		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.nor;
+		spades.innerHTML = buffer;
+		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.mys;
+		clubs.innerHTML = buffer;
+		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+			
+		for (var j = 11; j < s.Basic.patterns[i - 1].bens.length + 11; j++) {
+			bens = row.insertCell(j);
+			colors = colorBenTableCell(s.Basic.patterns[i - 1].bens[j - 11], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 11] + ");'>" + totVal(s.Basic.patterns[i - 1].bens[j - 11]) + "</div>"; }}}
 
 
 
@@ -2124,8 +2221,6 @@ function updateGroupList(diffs, hover) { if(s.Basic.maxDebug) {console.log("UPDA
 			bens.style.color = "#" + colors.text;
 			if(!diffs) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + totVal(s.Basic.groups[i - 1].bens[j - 7]) + "</div>"; }
 			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + reportValDiff(totVal(s.Basic.groups[i - 1].bens[j - 7]), totVal(diffs[i - 1].bens[j - 7]), hover) + "</div>"; }}}}
-
-		
 
 function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST"); }
 	var table = document.getElementById("groupTable");
@@ -2384,17 +2479,17 @@ function Strategy(mode, id, name, desc, vals, priors, rule) {
 	else { this.name = name; }
 	if (!name) { this.desc = getStrategyDescById(id); }
 	else { this.desc = desc; }
-	if (!vals) { this.vals = nullValForEachPerson(mode.persons); }
+	if (!vals) { this.vals = valForEach(relVal(0,0), mode.persons); }
 	else { this.vals = vals; }
-	if (!priors) { this.priors = mode.strategies.length; }
+	if (!priors) { this.priors = valForEach(mode.strategies.length, mode.persons); } //change len to -1 when time to teach
 	else { this.priors = priors; }
 	if (!rule) { this.rule = getStrategyRuleById(id);}
 	else { this.rule = rule; }}
 
-function nullValForEachPerson(persons) {
-	var arr = [];
-	for (var i = 0; i < persons.length; i++) { arr.push(relVal(0,0)) }
-	return arr; }
+function valForEach(val, arr) {
+	var ret = [];
+	for (var i = 0; i < arr.length; i++) { ret.push(val); }
+	return ret; }
 
 function getStrategyNameById(id) {
 	for (var i = 0; i < mode.strategies.length; i++) {
@@ -2410,6 +2505,24 @@ function getStrategyRuleById(id) {
 	for (var i = 0; i < mode.strategies.length; i++) {
 		if (mode.strategies[i].id === id) {
 			return mode.strategies[i].rule;	}}}
+
+function getStrategiesOfPerson(person) {
+	var strats = [];
+	var ret = [];
+	var buffer = { strats : null, prior : 0};
+	for (var i = 0; i < s.mode.strategies.length; i++) {
+		if (!(s.mode.strategies[i].priors[person.id] === -1))
+			buffer.strat = s.mode.strategies[i];
+			buffer.prior = s.mode.strategies[i].priors[person.id];
+			strats.push({ strat : buffer.strat, prior : buffer.prior});	}
+	for (var i = 0; i < strats.length; i++) {
+		if (strats.prior === -1) {
+			strats.splice(i, 1);
+			i--; }}
+	strats.sort(function(a,b) { return parseFloat(b.prior) - parseFloat(a.prior) });
+	for (var i = 0; i < strats.length; i++) {
+		ret.push( strats[i].strat ); }
+	return ret; }
 
 
 
@@ -2433,25 +2546,31 @@ function simAi(subject, object) { if(s.Basic.maxDebug) {console.log("AI"); }
 	moves = _.shuffle(moves);
 	while ((moves.length > i) && (i < strats.length)) {
 		moves = strats[i].rule(moves);
-		strats[i].valDiff = calcPersons(moves[i].X, moves[i].Y);
+		strats[i].valsDiff = calcPersons(moves[i].X, moves[i].Y);
+		strats[i].valsDiff = strats[i].valsDiff[i].val;
 		i++; }
 	if (moves.length > 1) { moves = _.shuffle(moves); }
 	return strats; }
 
 
 
+// separate ino, bio, soc and int val around here. define pattern as an object of four vals. this way the core learn to process classical quality (properly)
 function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) {
-	var strats = simAi(nextPerson(personInTurn), personInTurn);
-	strats.persons 
+	var strats = [];
+	for (var i = 0; i < s.mode.persons.length; i++ ) {
+		strats.push(simAi(s.mode.persons[i], personInTurn)); }
+	return strats;
 }
 
 
 
 function calcStrategies(X, Y, personsDiffs, groupsDiffs) {
 	var stratsDiff = { vals : calcStratVals(s.mode.personInTurn, X, Y, personsDiffs, groupsDiffs), gVals : [], priors : [] };
-	stratsDiff.gVals = calcStratGVals(groupsDiffs);
-	stratsDiff.vals = addGVals(stratsDiff.gVals);
-	calcStratPriors(stratsDiff.vals);
+	//stratsDiff.gVals = calcStratGVals(groupsDiffs);
+	//stratsDiff.vals = addGVals(stratsDiff.gVals);
+	//calcStratPriors(stratsDiff.vals);
+	console.log(stratsDiff);
+	console.log(stratsDiff.vals);
 	return stratsDiff; }
 
 
@@ -2464,12 +2583,36 @@ function removeNonLevelUps(person, moves) {
 				i--;}}}
 	return moves;}
 
-
-function totsVal(personList, X, Y) {
+function totsPersonVal(personList, X, Y) {
 	var output = relVal(0,0);
 	for (var i = 0; i < personList.length; i++) {
 		output = sumVal(output, personList[i].val); }
 	return totVal(output); }
+
+function totsVal(valList, type) {
+	var output = relVal(0,0);
+	if (typeof type === "string") {
+		for (var i = 0; i < valList.length; i++) {
+			switch(type) {
+				case "obj" : output = sumVal(output, valList[i].obj); break;
+				case "sub" : output = sumVal(output, valList[i].sub); break;
+				case "nor" : output = sumVal(output, valList[i].nor); break;
+				case "mys" : output = sumVal(output, valList[i].mys); break;
+				case "abs" : output = sumVal(output, valList[i].abs); break;
+				case "tan" : output = sumVal(output, valList[i].tan); break;
+				case "gno" : output = sumVal(output, valList[i].gno); break;
+				case "rat" : output = sumVal(output, valList[i].rat); break;
+				case "Dyn" : output = sumVal(output, valList[i].Dyn); break;}}}
+	else {
+		for (var i = 0; i < valList.length; i++) {
+			output = sumVal(output, valList[i]); }}
+	return totVal(output); }
+
+function sumsVal(valList) {
+	var output = relVal(0,0);
+	for (var i = 0; i < valList.length; i++) {
+		output = sumVal(output, valList[i]); }
+	return output; }
 
 	/*function simPersons(personList, X, Y) {
 	var output = relVal(0,0);
@@ -2535,21 +2678,21 @@ function createStrategies(mode) {
 			false, false,
 			function(moves) {
 				for (var i = 0; i < moves.length; i++) {
-					moves[i].totsVal = calcPersons(moves[i].X, moves[i].Y);
-					moves[i].totsVal = totsVal(moves[i].totsVal, moves[i].X, moves[i].Y); }
+					moves[i].totsPersonVal = calcPersons(moves[i].X, moves[i].Y);
+					moves[i].totsPersonVal = totsPersonVal(moves[i].totsPersonVal, moves[i].X, moves[i].Y); }
 				return moves.sort(function(a,b) {
-					return parseFloat(b.totsVal) - parseFloat(a.totsVal) }); })); }
+					return parseFloat(b.totsPersonVal) - parseFloat(a.totsPersonVal) }); })); }
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
 			false, false,
 			function(moves) {
 				for (var i = 0; i < moves.length; i++) {
-					moves[i].totsVal = calcPersons(moves[i].X, moves[i].Y);
+					moves[i].totsPersonVal = calcPersons(moves[i].X, moves[i].Y);
 					//xxx
-					moves[i].totsVal = totsVal(moves[i].totsVal); }
+					moves[i].totsPersonVal = totsPersonVal(moves[i].totsPersonVal); }
 				return moves.sort(function(a,b) {
-					return parseFloat(b.totsVal) - parseFloat(a.totsVal) }); })); }
+					return parseFloat(b.totsPersonVal) - parseFloat(a.totsPersonVal) }); })); }
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for self. Ignores others and groups.",
@@ -2557,7 +2700,9 @@ function createStrategies(mode) {
 			function(moves) {
 				return moves.sort(function(a,b) {
 					return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
-
+/*console.log("CREATSTRATS:");
+console.log(mode.strategies);
+console.log("CREATESTRATS end");*/
 }
 
 
@@ -2620,8 +2765,6 @@ function Group(persons) {
 	this.antiVal = relVal(0,0);
 	this.bens = []; }
 	
-	
-	
 function GroupRole(ids, persons, val, antiVal, bens) { // i would have merged this function with Groups if I had known how at the time
 	this.ids = ids;
 	this.persons = persons;
@@ -2637,46 +2780,11 @@ function sumValArr(persons) {
 		val = sumVal(val,persons[i].val); }
 	return val; }
 
-
-
 function sumAntiValArr(persons) {
 	var val = relVal(0,0);
 	for(var i = 0; i < persons.length; i++) {
 		val = sumVal(val,persons[i].antiVal); }
 	return val; }
-	
-	
-
-function calcGroupBens(groups) {
-	var activeGroups = [];
-	for(var i = 0; i < groups.length; i++) {
-		if(contains(s.Basic.groups[i].ids, s.Basic.personInTurn.id)) {
-			activeGroups.push(groups[i]); }}
-	for(var i = 0; i < groups.length; i++) {
-		for(var j = 0; j < groups.length; j++) {
-			if(contains(activeGroups, groups[j])) {
-				groups[i].bens[j] = groups[i].val;}
-			else {
-				groups[i].bens[j] = relVal(0,0); }}}
-	return groups; }
-
-
-
-function calcGroups(X, Y, personsDiffs) {
-	var pertinentDiffs;
-	var groupsDiff = [];
-	for(var i = 0; i < s.Basic.groups.length; i++) {
-		pertinentDiffs = [];
-		for(var j = 0; j < personsDiffs.length; j++) {
-			if(contains(s.Basic.groups[i].ids, j)) {
-				pertinentDiffs.push(personsDiffs[j]); }}
-		groupsDiff.push(new Group(pertinentDiffs));
-		groupsDiff[i].val = sumValArr(pertinentDiffs);
-		groupsDiff[i].antiVal = sumAntiValArr(pertinentDiffs); }
-	groupsDiff = calcGroupBens(groupsDiff);
-	return groupsDiff; }
-
-
 
 function sumBens(b1, b2) {
 	var output = [];
@@ -2691,20 +2799,6 @@ function personListToIds(personList) {
 	for(var i = 0; i < personList.length; i++) {
 		ids.push(personList[i].id); }
 	return ids; }
-
-
-
-function personListsToIds(personLists) { if(s.Basic.maxDebug) {console.log("PERSONLISTSTOIDS"); }
-	var output = [];
-	var buffer;
-	for(var i = 0; i < personLists.length; i++) {
-		buffer = [];
-		for(var j = 0; j < personLists[j].length; j++) {
-			buffer.push(personLists[i][j].id);}
-		output.push(buffer); }
-	return output; }
-	
-	
 	
 function copyGroups(groups) { if(s.Basic.maxDebug) {console.log("COPYGROUPS"); }  
 	var copy = [];
@@ -2712,8 +2806,6 @@ function copyGroups(groups) { if(s.Basic.maxDebug) {console.log("COPYGROUPS"); }
 		for (var i = 0; i < groups.length; i++) {
 			copy.push(new GroupRole(groups[i].ids, groups[i].persons, groups[i].val, groups[i].antiVal, groups[i].bens)); }}
 	return copy; }
-	
-	
 	
 function groupsMembersToIdLists (groups) {
 	var output = [];
@@ -2725,8 +2817,6 @@ function groupsMembersToIdLists (groups) {
 		output.push(buffer); }
 	return output; }
 
-	
-	
 function personListsToGroupIdLists(personLists) {
 	var groups = [];
 	for (var i = 0; i < personLists.length; i++) {
@@ -2734,16 +2824,12 @@ function personListsToGroupIdLists(personLists) {
 	groups = groupsMembersToIdLists(groups);
 	return groups; }
 	
-	
-
 function copyPersonById(id) {
 	var copy;
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		if(id === s.Basic.persons[i].id) {
 			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].antiVal, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
 	return copy; }
-	
-	
 	
 function makeGroupFromIds(ids) {
 	var persons = [];
@@ -2752,26 +2838,17 @@ function makeGroupFromIds(ids) {
 	var group = new Group(persons);
 	return group; }
 
-
-	
 function makeGroupsFromIdLists(idLists) {
 	var groups = [];
 	for (var i = 0; i < idLists.length; i++) {
 		groups.push(makeGroupFromIds(idLists[i])); }
 	return groups; }
 
-
-
-function addGroupBens(groups) { // i think the else never happens
+function addGroupBens(groups) {
 	for (var i = 0; i < groups.length; i++) {
-		if(groups[i].bens.length === 0) {
-			for (var j = 0; j < groups.length; j++) {
-				groups[i].bens.push(relVal(0,0)); }}
-		else {
-			groups[i].bens.splice(i, 0, relVal(1,1)); }}
+		for (var j = 0; j < groups.length; j++) {
+			groups[i].bens.push(relVal(0,0)); }}
 	return groups; }
-	
-	
 
 function calcBensByIds(ids1, ids2) {
 	var output = relVal(0,0);
@@ -2779,8 +2856,6 @@ function calcBensByIds(ids1, ids2) {
 		for(var j = 0; j < ids2.length; j++) {
 			output = sumVal(output, s.Basic.persons[ids1[i]].bens[ids2[j]]); }}
 	return output; }
-
-
 
 function calcAllGroupBens(groups) {
 	var idsList = [];
@@ -2797,22 +2872,47 @@ function calcAllGroupBens(groups) {
 		for(var j = 0; j < groups[i].bens.length; j++) {
 			groups[i].bens[j] = newBens[i][j]; }}
 	return groups; }
-
-	
 	
 function personIsMemberOfGroup(person, group) {
 	var ret = false;
 	for(var i = 0; i < group.ids.length; i++) {
 		if(person.id === group.ids[i]) { ret = true; }}
 	return ret; }
-		
-	
-	
+			
 function calcAllGroupVals(mode, groups) {
 	for(var i = 0; i < mode.persons.length; i++) {
 		for(var j = 0; j < groups.length; j++) {
 			if (personIsMemberOfGroup(mode.persons[i], groups[j])) {
 				groups[j].val = sumVal(groups[j].val, mode.persons[i].val); }}}}
+
+
+
+function calcGroupBens(groups) {
+	var activeGroups = [];
+	for(var i = 0; i < groups.length; i++) {
+		if(contains(s.Basic.groups[i].ids, s.Basic.personInTurn.id)) {
+			activeGroups.push(groups[i]); }}
+	for(var i = 0; i < groups.length; i++) {
+		for(var j = 0; j < groups.length; j++) {
+			if(contains(activeGroups, groups[j])) {
+				groups[i].bens[j] = groups[i].val;}
+			else {
+				groups[i].bens[j] = relVal(0,0); }}}
+	return groups; }
+
+function calcGroups(X, Y, personsDiffs) {
+	var pertinentDiffs;
+	var groupsDiff = [];
+	for(var i = 0; i < s.Basic.groups.length; i++) {
+		pertinentDiffs = [];
+		for(var j = 0; j < personsDiffs.length; j++) {
+			if(contains(s.Basic.groups[i].ids, j)) {
+				pertinentDiffs.push(personsDiffs[j]); }}
+		groupsDiff.push(new Group(pertinentDiffs));
+		groupsDiff[i].val = sumValArr(pertinentDiffs);
+		groupsDiff[i].antiVal = sumAntiValArr(pertinentDiffs); }
+	groupsDiff = calcGroupBens(groupsDiff);
+	return groupsDiff; }
 			
 
 
@@ -2875,6 +2975,7 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.Y = 0;
 	this.visX = 0;
 	this.visY = 0;
+	this.body = relVal(0,0);
 	this.val = relVal(0,0);
 	this.antiVal = relVal(0,0);
 	this.bens = [relVal(0,0)];
@@ -3017,7 +3118,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 		var dev;
 		if (debug === "val") {
 			for (var i = 0; i < s.Basic.persons.length; i++) {
-				dev = devVal(personsDiff[i].val);
+				dev = debugVal(personsDiff[i].val);
 				console.log(i + ". " + dev);}}
 		else if (debug === "bens") {
 			devBens(personsDiff);}
@@ -3025,13 +3126,55 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 			for (var i = 0; i < s.Basic.persons.length; i++) {
 				console.log(personsDiff[i].xp);}}}
 			
-	return personsDiff;}
+	return personsDiff; }
+
+
+
+function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
+	var buffer;
+	for (var i = 0; i < persons.length; i++) {
+		var buffer = [];
+		for (var j = 0; j < persons.length; j++) {
+			buffer.push(necStaVal(persons[i].bens[j]));}
+		console.log(buffer);}}
 
 
 
 // ================
 // PERSON STUFF END
 // ================
+
+
+
+// ===================
+// PATTERN STUFF BEGIN
+// ===================
+
+
+
+function Pattern(name, ino, bio, soc, intl) {
+	this.id = s.Basic.patterns.length;
+	this.name = name;
+	this.val = makePVal(ino, bio, soc, intl);
+	this.bens = valForEach(relVal(0,0), s.Basic.patterns); }
+
+function makePVal(ino, bio, soc, intl) {
+	ret = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
+	return ret; }
+
+function personIntoPattern(person) {
+	var pat = new Pattern(person.name, person.body.val, person.val, relVal(0,0), relVal(0,0) );
+	for (var i = 0; i < s.Basic.patterns.length; i++ ) {
+		for (var j = 0; j < s.Basic.patterns.length; j++ ) {
+			s.Basic.patterns[j].bens[i][s.Basic.patterns.length] = relVal(0,0); }
+		s.Basic.patterns[i].bens.push(valForEach(relVal(0,0), s.Basic.patterns.length)); } //777
+	s.Basic.patterns.push(pat); }
+
+
+
+// =================
+// PATTERN STUFF END
+// =================
 	
 
 
