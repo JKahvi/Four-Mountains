@@ -360,7 +360,7 @@ function BasicMode() {
 			s.Basic = {
 				name: "BasicMode", // modes should have ids, too?
 				persons: [],
-				personsDIds: new DIds("ALPH"),
+				personsDIds: new DIds( "ALPH", false ),
 				groups: [],//yyx
 				strategies: [],
 				patterns: [],
@@ -1025,21 +1025,20 @@ function dId ( id, arr, dIds ) {
 	else {
 		var ret = "";
 		var loops = Math.floor((id + dIds.startFrom) / dIds.symbols.length );
-		if (dIds.numeric) {
+		if (loops === 0) { ret = dIds.symbols[id + dIds.startFrom ]; }
+		else if (dIds.numeric) {
 			for (var i = 0; i <= loops; i++) {
-				if (i === loops) { ret = dIds.symbols[i + dIds.startFrom ]; }
+				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
 				else {
-					id = id - dIds.startFrom;
 					for (var j = 0; j < loops; j++) {
-						ret = dIds.arr[id % dIds.symbols.length] + ret; }}}}
+						ret = dIds.arr[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
 		else if (!dIds.numeric) {
 			loops = Math.floor( id / (loops * loops));
 			for (var i = 0; i <= loops; i++ ) {
-				if (i === loops) { ret = dIds.symbols[i + dIds.startFrom ]; }
+				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
 				else {
-					id = id - dIds.startFrom;
 					for (var j = 0; j < loops; j++) {
-						ret = dIds.arr[id % dIds.symbols.length] + ret; }}}}
+						ret = dIds.arr[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
 		return ret; }}
 
 function arrToUpperCase(arr) {
@@ -1060,6 +1059,7 @@ function createSymbols (dIds) {
 		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
 		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
 		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
+	//console.log(ret);
 	return ret; }
 	
 	
@@ -1452,7 +1452,7 @@ function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPER
 	var population = [];
 	for (var i = 0; i < persons.length; i++) {
 		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
-			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + dId( i, s.mode.persons, s.mode.personsDIds ) + "</strong></div>";}}
+			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + /*dId(*/ i /*, s.mode.persons, s.mode.personsDIds )*/ + "</strong></div>";}}
 	if(population.length === 0) {
 		population = "&nbsp;";}//yyx ( id, arr, idType )
 	return population;}
