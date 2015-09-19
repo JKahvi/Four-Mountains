@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 415</title>
+		<title>Four Mountains beta 418</title>
 		<style>
 
 
@@ -25,14 +25,16 @@
 				border-bottom: 1px solid #444; }
 
 			#personTable table,
-			#groupTable table {
+			#groupTable table,
+			#patternTable table {
 				border-spacing: 0px;
 				text-align:left;
 				border-right: 1px solid #ccc;
 				border-bottom: 1px solid #ccc;}
 
 			#personTable td,
-			#groupTable td {
+			#groupTable td,
+			#patternTable td {
 				padding-left: 2px;
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
@@ -358,7 +360,8 @@ function BasicMode() {
 			s.Basic = {
 				name: "BasicMode", // modes should have ids, too?
 				persons: [],
-				groups: [],
+				personDIds: new DIds("ALPH", false),
+				groups: [],//yyx
 				strategies: [],
 				patterns: [],
 				res: 9,
@@ -633,6 +636,11 @@ function dispDec(object) {
 
 
 
+function valForEach(val, arr) {
+	var ret = [];
+	for (var i = 0; i < arr.length; i++) { ret.push(val); }
+	return ret; }
+
 function longestArrInArr(arr) {
 	var len = 0;
 	for (var i = 0; i < arr.length; i++) {
@@ -830,6 +838,8 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			s.mode.latestGroupsDiff = calcs.groups;
 			$( "#personTable" ).empty();
 			drawPersonList(false);
+			$( "#patternTable" ).empty();
+			drawPatternList(false);
 			$( "#groupTable" ).empty();
 			drawGroupList(false);
 			$( "#stratTable" ).empty();
@@ -998,6 +1008,57 @@ function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"
 		buffer = buffer.sort(function(a,b) { return parseFloat(a.X) - parseFloat(b.X) } );
 		grid.push(buffer);}
 	return grid;}
+
+
+
+function DIds (symbols, numeric, startFrom, font) {
+	this.symbols = createSymbols(symbols);
+	this.typeName = symbols;
+	this.numeric = numeric;
+	if (!(startFrom === false)) { this.startFrom = startFrom; }
+	else { this.startFrom = 0; }
+	if (!(font === false)) { this.font = font; }
+	else { this.font = s.mode.defaultFont; }}
+
+function dId ( id, arr, dIds ) {
+	if (!(typeof dIds === "object")) { return id; } //yxy
+	else {
+		var ret = "";
+		var loops = Math.floor( id / dIds.symbols.length );
+		if (loops === 0) { loops = 1; }
+		if (type.numeric) {
+			for (var i = 0; i < loops; i++) {
+				ret = ret + dIds.symbols[0];
+				for (var j = startFrom; i < startFrom + arr.length; i++) {
+					ret = dIds.arr[id % dIds.symbols.length] + ret; }}}
+		else if (!type.numeric) {
+			loops = Math.floor( id / (loops * loops));
+			if (loops === 0) { loops = 1; }
+			for (var i = 0; i < loops; i++ ) {
+				ret = ret + dIds.symbols[i];
+				for (var i = startFrom; i < startFrom + arr.length; i++) {
+					ret = dIds.arr[id % dIds.symbols.length] + ret; }}}
+		return ret; }}
+
+function arrToUpperCase(arr) {
+	var ret = [];
+	for (var i = 0; i < arr.length; i++) { ret.push(arr[i].toUpperCase()); }
+	return ret; }
+
+function createSymbols (dIds) {
+	var ret = [];
+	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	switch(dIds) {
+		case ( "num" || "numAlph" || "numALPH" || "numAlphALPH" ) : ret = ["0","1","2","3","4","5","6","7","8","9"];
+		case "numAlph" : ret = ret.concat(alphabet); break;
+		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
+		case ( "alph" || "alphALPH" || "numAlphALPH" ) : ret = ret.concat( alphabet );
+		case ( "alphALPH" || "numAlphALPH" ) : ret = ret.concat(arrToUpperCase(ret)); break;
+		case "ALPH" : ret = arrToUpperCase(ret); break;
+		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
+		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
+		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
+	return ret; }
 	
 	
 
@@ -1384,21 +1445,15 @@ function createMetaphysics(mode, res) {
 	mode.metaphysics = metaphysics; }
 	
 	
-	
-function personsInSlot(slot, persons) {  if(s.Basic.maxDebug) {console.log("PERSONSINSLOT"); }
+
+function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPERSONS"); }
 	var population = [];
 	for (var i = 0; i < persons.length; i++) {
 		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
-			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + (i /*+ 1*/) + "</strong></div>";}}
+			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + dId( i, s.mode.persons, s.mode.personsDIds ) + "</strong></div>";}}
 	if(population.length === 0) {
-		population = "&nbsp;";}
+		population = "&nbsp;";}//yyx ( id, arr, idType )
 	return population;}
-	
-	
-	
-function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPERSONS"); }
-	var a = personsInSlot(slot, persons);
-	return a;}
 	
 
 
@@ -1406,24 +1461,17 @@ function hexToRgb(hex) {  if(s.Basic.maxDebug) {console.log("HEXTORGB"); }
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-        return r + r + g + g + b + b;
-    });
-
+        return r + r + g + g + b + b; });
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
-
+        b: parseInt(result[3], 16) } : null; }
 
 function rgbToHex(r, g, b) { if(s.Basic.maxDebug) {console.log("RGBTOHEX"); }
-    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
+    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
 
-	
+
 
 function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
 	var hex = ("#" + slot.color);
@@ -1502,6 +1550,10 @@ function initBasicModeDisplay() {
 		<button id='newPerson' class='amoqButton'></button>\
 		<button id='delPerson' class='amoqButton'></button>\
 		<button id='restart' class='amoqButton'></button>\
+		<div style='clear:both; height:0px;'>&nbsp;</div>\
+		<div style='float:left'>\
+			<table id='patternTable'></table>\
+		</div>\
 		<div style='clear:both; height:0px;'>&nbsp;</div>\
 		<div style='float:left; display:inline;'>\
 			<table id='groupTable'></table>\
@@ -1656,8 +1708,75 @@ function reportValDiff(oldVal, diff, hover) {
 		else if (oldVal > newVal) {ret = newVal + "<span class='outlineDec'; '>" + diff + "</span>"}}
 	return ret; }
 
+
+
+// TABLES STUFF BEGIN
 	
-	
+
+// STRAT
+
+
+
+function drawStratList(hover) {
+	var table = document.getElementById("stratTable");
+	if (s.mode.fancyUI) { table.className = "fancyUIstratTable"; }
+	var cell;
+	var strategies = [];
+	var buffer;
+	var rowsToDo = 0;
+	var tot = 0;
+	var obj = 0;
+	var sub = 0;
+	var nor = 0;
+	var mys = 0;
+
+	var row = table.insertRow(0);
+	for(var i = 0; i < s.mode.persons.length; i++) {
+		strategies.push(getStrategiesOfPerson(i));
+		rowsToDo = longestArrInArr(strategies);
+		cell = row.insertCell(i);//xyz
+		cell.style.backgroundColor = "#ccc";
+		cell.style.fontSize = "10px"
+		cell.style.fontFamily = "verdana"
+		cell.innerHTML = i + " " + s.mode.persons[i].name; }
+
+	var row = table.insertRow(1);
+	for (var i = 0; i < s.mode.persons.length; i++) {
+		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(strategies[i][j].vals[i]); }
+		for (var j = 0; j < strategies[i].length; j++) { obj = obj + strategies[i][j].vals[i].obj; }
+		for (var j = 0; j < strategies[i].length; j++) { sub = sub + strategies[i][j].vals[i].sub; }
+		for (var j = 0; j < strategies[i].length; j++) { nor = nor + strategies[i][j].vals[i].nor; }
+		for (var j = 0; j < strategies[i].length; j++) { mys = mys + strategies[i][j].vals[i].mys; }
+		cell = row.insertCell(i);//xyz
+		if (s.mode.fancyUI)	{ cell.className = "fancyUIstratValsAll"}
+		cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>";
+		tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+
+	for(var i = 0; i < rowsToDo; i++) {
+		row = table.insertRow((2 * i) + 2);
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			cell = row.insertCell(j);
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratName"; }
+			cell.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeStrategy(" + s.mode.strategies[i].id + ");'>" + s.mode.strategies[i].id + " " + s.mode.strategies[i].name + "</div>"; }
+		row = table.insertRow((2 * i) + 3);
+		for(var j = 0; j < s.mode.persons.length; j++) {
+			if (i < strategies[j].length) {
+				tot = totVal(strategies[j][i].vals[j]);
+				obj = strategies[j][i].vals[j].obj;
+				sub = strategies[j][i].vals[j].sub;
+				nor = strategies[j][i].vals[j].nor;
+				mys = strategies[j][i].vals[j].mys; }
+			else { tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+			cell = row.insertCell(j);
+			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
+			cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>"; }}}
+
+
+
+// PERSON
+
+
+
 function updatePersonList(diffs, hover) {
 	var table = document.getElementById("personTable");
 	var row;
@@ -1781,64 +1900,6 @@ function updatePersonList(diffs, hover) {
 			bens.style.color = "#" + colors.text;
 			if (!(diffs)) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }
 			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + reportValDiff(totVal(s.Basic.persons[i - 1].bens[j - 18]), totVal(diffs[i - 1].bens[j - 18]), hover) + "</div>"; }}}}
-
-
-
-function drawStratList(hover) {
-	var table = document.getElementById("stratTable");
-	if (s.mode.fancyUI) { table.className = "fancyUIstratTable"; }
-	var cell;
-	var strategies = [];
-	var buffer;
-	var rowsToDo = 0;
-	var tot = 0;
-	var obj = 0;
-	var sub = 0;
-	var nor = 0;
-	var mys = 0;
-
-	var row = table.insertRow(0);
-	for(var i = 0; i < s.mode.persons.length; i++) {
-		strategies.push(getStrategiesOfPerson(i));
-		rowsToDo = longestArrInArr(strategies);
-		cell = row.insertCell(i);//xyz
-		cell.style.backgroundColor = "#ccc";
-		cell.style.fontSize = "10px"
-		cell.style.fontFamily = "verdana"
-		cell.innerHTML = i + " " + s.mode.persons[i].name; }
-
-	var row = table.insertRow(1);
-	for (var i = 0; i < s.mode.persons.length; i++) {
-		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(strategies[i][j].vals[i]); }
-		for (var j = 0; j < strategies[i].length; j++) { obj = obj + strategies[i][j].vals[i].obj; }
-		for (var j = 0; j < strategies[i].length; j++) { sub = sub + strategies[i][j].vals[i].sub; }
-		for (var j = 0; j < strategies[i].length; j++) { nor = nor + strategies[i][j].vals[i].nor; }
-		for (var j = 0; j < strategies[i].length; j++) { mys = mys + strategies[i][j].vals[i].mys; }
-		cell = row.insertCell(i);//xyz
-		if (s.mode.fancyUI)	{ cell.className = "fancyUIstratValsAll"}
-		cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>";
-		tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
-
-	for(var i = 0; i < rowsToDo; i++) {
-		row = table.insertRow((2 * i) + 2);
-		for(var j = 0; j < s.mode.persons.length; j++) {
-			cell = row.insertCell(j);
-			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratName"; }
-			cell.innerHTML = "<div onmouseout='defaultHover();' onmouseover='describeStrategy(" + s.mode.strategies[i].id + ");'>" + s.mode.strategies[i].id + " " + s.mode.strategies[i].name + "</div>"; }
-		row = table.insertRow((2 * i) + 3);
-		for(var j = 0; j < s.mode.persons.length; j++) {
-			if (i < strategies[j].length) {
-				tot = totVal(strategies[j][i].vals[j]);
-				obj = strategies[j][i].vals[j].obj;
-				sub = strategies[j][i].vals[j].sub;
-				nor = strategies[j][i].vals[j].nor;
-				mys = strategies[j][i].vals[j].mys; }
-			else { tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
-			cell = row.insertCell(j);
-			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
-			cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>"; }}}
-
-
 
 function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLIST (2)"); }
 	var table = document.getElementById("personTable");
@@ -1975,7 +2036,7 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 			dec.style.backgroundColor = "#fff";
 			dec.style.color = "#000"; }
 		
-		buffer = necStaVal(s.Basic.persons[i - 1].val);
+		buffer = totVal(s.Basic.persons[i - 1].val);
 		tot.innerHTML = buffer;
 		if (buffer < 0) { 
 			tot.style.backgroundColor = "#000";
@@ -2015,6 +2076,151 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
 			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 18] + ");'>" + totVal(s.Basic.persons[i - 1].bens[j - 18]) + "</div>"; }}}
+
+
+
+// PATTERN
+
+
+
+function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERNLIST"); }
+	var table = document.getElementById("patternTable");
+	var row;
+	var id = "";
+	var X;
+	var Y;
+	var name;
+	var dec;
+	var tot;
+	var diams;
+	var hearts;
+	var spades;
+	var clubs;
+	var bens;
+	var spacer1;
+	var spacer2;
+	var spacer3;
+	var buffer;
+	var limit = getBenLimit(s.Basic.patterns);
+	
+	row = table.insertRow(0);
+	id = row.insertCell(0);
+	X = row.insertCell(1);
+	Y = row.insertCell(2);
+	name = row.insertCell(3);
+	spacer3 = row.insertCell(4);
+	dec = row.insertCell(5);
+	tot = row.insertCell(6);
+	diams = row.insertCell(7);
+	hearts = row.insertCell(8);
+	spades = row.insertCell(9);
+	clubs = row.insertCell(10);
+	spacer1 = row.insertCell(11);
+	
+	id.innerHTML = "sym";
+	id.style.backgroundColor = "#ccc";
+	X.innerHTML = "<div style='text-align:center;'>X</div>";
+	X.style.backgroundColor = "#ccc";
+	Y.innerHTML = "<div style='text-align:center;'>Y</div>";
+	Y.style.backgroundColor = "#ccc";
+	name.innerHTML = "<div style='text-align:center;'>name</div>";
+	name.style.backgroundColor = "#ccc";
+	spacer3.innerHTML = "&nbsp;";
+	spacer3.style.backgroundColor = "#ccc";
+	dec.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(5)'>dec</div>";
+	dec.style.backgroundColor = "#ccc";
+	tot.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(4)'>val</div>";
+	tot.style.backgroundColor = "#ccc";
+	diams.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(0)'>&diams;</div>";
+	diams.style.backgroundColor = "#FFBBBD";
+	hearts.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(1)'>&hearts;</div>";
+	hearts.style.backgroundColor = "#FFBBEE";
+	spades.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(2)'>&spades;</div>";
+	spades.style.backgroundColor = "#FFDDBC";
+	clubs.innerHTML = "<div style='text-align:center;' onmouseout='defaultHover();' onmouseover='describeQuality(3)'>&clubs;</div>";
+	clubs.style.backgroundColor = "#FFFEBC";
+	spacer1.innerHTML = "&nbsp;";
+	spacer1.style.backgroundColor = "#ccc";
+	
+	for (var i = 0; i < s.Basic.patterns.length; i++) {
+		bens = row.insertCell(i + 11);
+		bens.innerHTML = "<div style='text-align:center !important;'>" + s.Basic.patterns[i].id + "</div>";
+		bens.style.backgroundColor = "#ccc"; }
+	
+	for (var i = 1; i <= s.Basic.patterns.length; i++) {
+		row = table.insertRow(i);
+		id = row.insertCell(0);
+		X = row.insertCell(1);
+		Y = row.insertCell(2);
+		name = row.insertCell(3);
+		spacer3 = row.insertCell(4);
+		spacer3.style.backgroundColor = "#ccc";
+		dec = row.insertCell(5);
+		tot = row.insertCell(6);
+		diams = row.insertCell(7);
+		diams.style.backgroundColor = "#FFBBBD";
+		hearts = row.insertCell(8);
+		hearts.style.backgroundColor = "#FFBBEE";
+		spades = row.insertCell(9);
+		spades.style.backgroundColor = "#FFDDBC";
+		clubs = row.insertCell(10);
+		clubs.style.backgroundColor = "#FFFEBC";
+		spacer1 = row.insertCell(11);
+		spacer1.style.backgroundColor = "#ccc";
+	
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.patterns[i - 1].id + "</div>";
+
+		X.innerHTML = s.Basic.patterns[i - 1].X;
+		Y.innerHTML = s.Basic.patterns[i - 1].Y;
+
+		buffer = dispDec(s.Basic.patterns[i - 1]);
+		dec.innerHTML = buffer;
+		if (buffer < 0) { 
+			dec.style.backgroundColor = "#000";
+			dec.style.color = "#fff"; }
+		else {
+			dec.style.backgroundColor = "#fff";
+			dec.style.color = "#000"; }
+		
+		buffer = totVal(s.Basic.patterns[i - 1].val);
+		tot.innerHTML = buffer;
+		if (buffer < 0) { 
+			tot.style.backgroundColor = "#000";
+			tot.style.color = "#fff"; }
+		else {
+			tot.style.backgroundColor = "#fff";
+			tot.style.color = "#000"; }
+	
+		buffer = s.Basic.patterns[i - 1].val.obj;
+		diams.innerHTML = buffer;
+		if (buffer < 0) { diams.style.backgroundColor = "#" + findSlot(1,-2).color; }
+		else { diams.style.backgroundColor = "#" + findSlot(1,-1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.sub;
+		hearts.innerHTML = buffer;
+		if (buffer < 0) { hearts.style.backgroundColor = "#" + findSlot(-1,-2).color; }
+		else { hearts.style.backgroundColor = "#" + findSlot(-1,-1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.nor;
+		spades.innerHTML = buffer;
+		if (buffer < 0) { spades.style.backgroundColor = "#" + findSlot(1,2).color; }
+		else { spades.style.backgroundColor = "#" + findSlot(1,1).color; }
+		
+		buffer = s.Basic.patterns[i - 1].val.mys;
+		clubs.innerHTML = buffer;
+		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
+			
+		for (var j = 11; j < s.Basic.patterns[i - 1].bens.length + 11; j++) {
+			bens = row.insertCell(j);
+			colors = colorBenTableCell(s.Basic.patterns[i - 1].bens[j - 11], limit);
+			bens.style.backgroundColor = "#" + colors.bg;
+			bens.style.color = "#" + colors.text;
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 11] + ");'>" + totVal(s.Basic.patterns[i - 1].bens[j - 11]) + "</div>"; }}}
+
+
+
+// GROUP
 
 
 
@@ -2078,8 +2284,6 @@ function updateGroupList(diffs, hover) { if(s.Basic.maxDebug) {console.log("UPDA
 			bens.style.color = "#" + colors.text;
 			if(!diffs) { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + totVal(s.Basic.groups[i - 1].bens[j - 7]) + "</div>"; }
 			else { bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + reportValDiff(totVal(s.Basic.groups[i - 1].bens[j - 7]), totVal(diffs[i - 1].bens[j - 7]), hover) + "</div>"; }}}}
-
-		
 
 function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST"); }
 	var table = document.getElementById("groupTable");
@@ -2188,7 +2392,7 @@ function drawGroupList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWGROUPLIST
 
 
 
-//function colorQuadrantTableCell (
+// TABLES STUFF END
 			
 			
 
@@ -2345,10 +2549,7 @@ function Strategy(mode, id, name, desc, vals, priors, rule) {
 	if (!rule) { this.rule = getStrategyRuleById(id);}
 	else { this.rule = rule; }}
 
-function valForEach(val, arr) {
-	var ret = [];
-	for (var i = 0; i < arr.length; i++) { ret.push(val); }
-	return ret; }
+
 
 function getStrategyNameById(id) {
 	for (var i = 0; i < mode.strategies.length; i++) {
@@ -2396,8 +2597,6 @@ function ai(subject) { if(s.Basic.maxDebug) {console.log("AI"); }
 	if (moves.length > 1) { moves = _.shuffle(moves); }
 	return moves[0]; }
 
-
-
 function simAi(subject, object) { if(s.Basic.maxDebug) {console.log("AI"); }
 	var i = 0;
 	var moves = availableSlots(object);
@@ -2433,20 +2632,6 @@ function calcStrategies(X, Y, personsDiffs, groupsDiffs) {
 	return stratsDiff; }
 
 
-
-function removeNonLevelUps(person, moves) {
-	for(var i = 0; i < moves.length; i++) {
-		if ((moves[i].X === 0) || (moves[i].Y === 0)) {
-			if (nullVal(levelUpCheck(person.xp, moves[i].X, moves[i].Y))) {
-				moves.splice(i,1);
-				i--;}}}
-	return moves;}
-
-function totsPersonVal(personList, X, Y) {
-	var output = relVal(0,0);
-	for (var i = 0; i < personList.length; i++) {
-		output = sumVal(output, personList[i].val); }
-	return totVal(output); }
 
 function totsVal(valList, type) {
 	var output = relVal(0,0);
@@ -2715,6 +2900,20 @@ function calcBensByIds(ids1, ids2) {
 		for(var j = 0; j < ids2.length; j++) {
 			output = sumVal(output, s.Basic.persons[ids1[i]].bens[ids2[j]]); }}
 	return output; }
+	
+function personIsMemberOfGroup(person, group) {
+	var ret = false;
+	for(var i = 0; i < group.ids.length; i++) {
+		if(person.id === group.ids[i]) { ret = true; }}
+	return ret; }
+			
+function calcAllGroupVals(mode, groups) {
+	for(var i = 0; i < mode.persons.length; i++) {
+		for(var j = 0; j < groups.length; j++) {
+			if (personIsMemberOfGroup(mode.persons[i], groups[j])) {
+				groups[j].val = sumVal(groups[j].val, mode.persons[i].val); }}}}
+
+
 
 function calcAllGroupBens(groups) {
 	var idsList = [];
@@ -2731,20 +2930,6 @@ function calcAllGroupBens(groups) {
 		for(var j = 0; j < groups[i].bens.length; j++) {
 			groups[i].bens[j] = newBens[i][j]; }}
 	return groups; }
-	
-function personIsMemberOfGroup(person, group) {
-	var ret = false;
-	for(var i = 0; i < group.ids.length; i++) {
-		if(person.id === group.ids[i]) { ret = true; }}
-	return ret; }
-			
-function calcAllGroupVals(mode, groups) {
-	for(var i = 0; i < mode.persons.length; i++) {
-		for(var j = 0; j < groups.length; j++) {
-			if (personIsMemberOfGroup(mode.persons[i], groups[j])) {
-				groups[j].val = sumVal(groups[j].val, mode.persons[i].val); }}}}
-
-
 
 function calcGroupBens(groups) {
 	var activeGroups = [];
@@ -2834,6 +3019,7 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.Y = 0;
 	this.visX = 0;
 	this.visY = 0;
+	this.body = relVal(0,0);
 	this.val = relVal(0,0);
 	this.antiVal = relVal(0,0);
 	this.bens = [relVal(0,0)];
@@ -2877,8 +3063,6 @@ function getNumberOfPerson(person) { if(s.Basic.maxDebug) {console.log("GETNUMBE
 		if (person === s.Basic.persons[i]) {
 			return i;}}}
 			
-			
-			
 function nextPerson(person) { if(s.Basic.maxDebug) {console.log("NEXTPERSON"); }
 	var id = getNumberOfPerson(person);
 	if(id === (s.Basic.persons.length - 1)) {
@@ -2894,6 +3078,22 @@ function prevPerson(person) { if(s.Basic.maxDebug) {console.log("PREVPERSON"); }
 		return s.Basic.persons[id - 1]; }}
 
 
+
+function totsPersonVal(personList, X, Y) {
+	var output = relVal(0,0);
+	for (var i = 0; i < personList.length; i++) {
+		output = sumVal(output, personList[i].val); }
+	return totVal(output); }
+
+
+
+function removeNonLevelUps(person, moves) {
+	for(var i = 0; i < moves.length; i++) {
+		if ((moves[i].X === 0) || (moves[i].Y === 0)) {
+			if (nullVal(levelUpCheck(person.xp, moves[i].X, moves[i].Y))) {
+				moves.splice(i,1);
+				i--;}}}
+	return moves;}
 
 function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHECK:"); }
 	var xp2 = makeXp(0, 0, 0, 0);
@@ -3010,9 +3210,23 @@ function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
 
 
 
-function personIntoPattern(person) {
+function Pattern(name, ino, bio, soc, intl) {
+	this.id = s.Basic.patterns.length;
+	this.name = name;
+	this.val = makePVal(ino, bio, soc, intl);
+	this.bens = valForEach(relVal(0,0), s.Basic.patterns); }
 
-}
+function makePVal(ino, bio, soc, intl) {
+	ret = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
+	return ret; }
+
+function personIntoPattern(person) {
+	var pat = new Pattern(person.name, person.body.val, person.val, relVal(0,0), relVal(0,0) );
+	/*for (var i = 0; i < s.Basic.patterns.length; i++ ) {
+		for (var j = 0; j < s.Basic.patterns.length; j++ ) {
+			s.Basic.patterns[j].bens[i][s.Basic.patterns.length] = relVal(0,0); }
+		s.Basic.patterns[i].bens.push(valForEach(relVal(0,0), s.Basic.patterns.length)); } //777
+	s.Basic.patterns.push(pat);*/ }
 
 
 
