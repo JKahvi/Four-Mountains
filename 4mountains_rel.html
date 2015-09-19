@@ -360,7 +360,7 @@ function BasicMode() {
 			s.Basic = {
 				name: "BasicMode", // modes should have ids, too?
 				persons: [],
-				personDIds: new DIds("ALPH", false),
+				personsDIds: new DIds("ALPH"),
 				groups: [],//yyx
 				strategies: [],
 				patterns: [],
@@ -1013,7 +1013,7 @@ function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"
 
 function DIds (symbols, numeric, startFrom, font) {
 	this.symbols = createSymbols(symbols);
-	this.typeName = symbols;
+	this.name = symbols;
 	this.numeric = numeric;
 	if (!(startFrom === false)) { this.startFrom = startFrom; }
 	else { this.startFrom = 0; }
@@ -1024,20 +1024,22 @@ function dId ( id, arr, dIds ) {
 	if (!(typeof dIds === "object")) { return id; } //yxy
 	else {
 		var ret = "";
-		var loops = Math.floor( id / dIds.symbols.length );
-		if (loops === 0) { loops = 1; }
-		if (type.numeric) {
-			for (var i = 0; i < loops; i++) {
-				ret = ret + dIds.symbols[0];
-				for (var j = startFrom; i < startFrom + arr.length; i++) {
-					ret = dIds.arr[id % dIds.symbols.length] + ret; }}}
-		else if (!type.numeric) {
+		var loops = Math.floor((id + dIds.startFrom) / dIds.symbols.length );
+		if (dIds.numeric) {
+			for (var i = 0; i <= loops; i++) {
+				if (i === loops) { ret = dIds.symbols[i + dIds.startFrom ]; }
+				else {
+					id = id - dIds.startFrom;
+					for (var j = 0; j < loops; j++) {
+						ret = dIds.arr[id % dIds.symbols.length] + ret; }}}}
+		else if (!dIds.numeric) {
 			loops = Math.floor( id / (loops * loops));
-			if (loops === 0) { loops = 1; }
-			for (var i = 0; i < loops; i++ ) {
-				ret = ret + dIds.symbols[i];
-				for (var i = startFrom; i < startFrom + arr.length; i++) {
-					ret = dIds.arr[id % dIds.symbols.length] + ret; }}}
+			for (var i = 0; i <= loops; i++ ) {
+				if (i === loops) { ret = dIds.symbols[i + dIds.startFrom ]; }
+				else {
+					id = id - dIds.startFrom;
+					for (var j = 0; j < loops; j++) {
+						ret = dIds.arr[id % dIds.symbols.length] + ret; }}}}
 		return ret; }}
 
 function arrToUpperCase(arr) {
@@ -1054,7 +1056,7 @@ function createSymbols (dIds) {
 		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
 		case ( "alph" || "alphALPH" || "numAlphALPH" ) : ret = ret.concat( alphabet );
 		case ( "alphALPH" || "numAlphALPH" ) : ret = ret.concat(arrToUpperCase(ret)); break;
-		case "ALPH" : ret = arrToUpperCase(ret); break;
+		case "ALPH" : ret = arrToUpperCase(alphabet); break;
 		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
 		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
 		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
