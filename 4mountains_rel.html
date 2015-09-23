@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 437</title>
+		<title>Four Mountains beta 441</title>
 		<style>
 
 
@@ -2623,20 +2623,43 @@ function getStrategiesOfPerson(person) {
 
 
 function ai(agent) { if(s.Basic.maxDebug) {console.log("AI"); }
-	var i = 0;
+	//var i = 0;
 	var moves = availableSlots(agent);
 	var strats = getStrategiesOfPerson(agent);
 	moves = _.shuffle(moves);
-	while ((moves.length > i) && (i < strats.length)) { // this function has been changed! probably fucked up! BUG ALERT NB BUG!!! NB!
+	for(var i = 0; i < strats.length; i++ ) {
+	//while ((moves.length > i) && (i < strats.length)) { // this function has been changed! probably fucked up! BUG ALERT NB BUG!!! NB!
 		moves = strats[i].rule(moves);
-		i++; }
+		/*i++;*/ }
+	for (var i = 1; i < moves.length; i++ ) {
+		if (moves[i].totsPersonVal < moves[i - 1].totsPersonVal) {
+			moves = moves.slice(0, i);
+			break; }}
 	if (moves.length > 1) { moves = _.shuffle(moves); }
-	return moves[0]; }
+	return { X: moves[0].X, Y: moves[0].Y }; }
+
+function simVal(agent, X, Y, rule) {
+	var moves = availableSlots(agent);
+	var strats = getStrategiesOfPerson(agent);
+	moves = rule(moves);
+	for (var i = 1; i < moves.length; i++ ) {
+		if (moves[i].totsPersonVal < moves[i - 1].totsPersonVal) {
+			moves = moves.slice(0, i);
+			break; }}
+	console.log("moves:");
+	console.log(moves);
+	console.log("findSlot(" + X + "," + Y + ")");
+	console.log(findSlot(X, Y));
+	if (contains(moves, findSlot(X, Y))) {
+		//console.log(moves);
+		//console.log(rule([ findSlot(X, Y) ]));
+		return true; }
+	else { return false; }}
 
 
 
 /*
-THIS FUNCTION IS TOO COMPLICATED
+THIS FUNCTION IS TOO COMPLICATED:
 it evaluates whether A thinks B is dumb or not. I was supposed to write strategry evaluation stuff, not this! FUU
 
 function simAi(agent, target) { if(s.Basic.maxDebug) {console.log("SIMAI"); }
@@ -2714,19 +2737,29 @@ function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) { //remove
 	var thingsTotalVal; //this not yet implemented overall
 	var personsTotalVal = relVal(0,0);
 	var groupsTotalVal = relVal(0,0);
+	var stratGetsReward = [];
 	var stratsDiff = [];
-	//console.log("CALCSTRATVALS:");
-	//console.log("personstotalval:");
+	// calculate the pot:
 	for(var i = 0; i < s.mode.persons.length; i++) {
 		personsTotalVal = sumVal(personsTotalVal, personsDiffs[i].val); }
-	//console.log(personsTotalVal);
 	for(var i = 0; i < s.mode.groups.length; i++) {
 		groupsTotalVal = sumVal(groupsTotalVal, groupsDiffs[i].val); }
+	//select recipients of pot:
 	for (var i = 0; i < s.mode.strategies.length; i++ ) {
-		stratsDiff.push(new Pattern(true, false, relVal(0,0), relVal(4,4), groupsTotalVal, relVal(0,0)));
+		stratGetsReward.push(simVal(personInTurn, X, Y, s.mode.strategies[i].rule )); }
+		console.log("stratGetsReward:")
+		console.log(stratGetsReward);
+	//send the pot:
+	for (var i = 0; i < s.mode.strategies.length; i++ ) {
+		if (stratGetsReward[i]) {
+			stratsDiff.push(new Pattern(true, false, relVal(0,0), personsTotalVal, groupsTotalVal, relVal(0,0))); }
+		else {
+			stratsDiff.push(new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0))); }}
+
+
 		//console.log("stratsDiff[" + i + "].bio:");
 		//console.log(stratsDiff[i].bio);
-	}
+	
 
 	//for (var i = 0; i < stratsDiff.length; i++ ) {
 		//console.log("stratsdiff[" + i + "]:");
@@ -2862,7 +2895,7 @@ function createStrategies(mode) {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfless", "Prefers immediate value for anyone. Ignores benefactors and groups.",
 			false, false,
 			function(moves) {
-				for (var i = 0; i < moves.length; i++) {
+				for (var i = 0; i < moves.length; i++) { //ååå
 					moves[i].totsPersonVal = calcPersons(moves[i].X, moves[i].Y);
 					moves[i].totsPersonVal = totsPersonVal(moves[i].totsPersonVal, moves[i].X, moves[i].Y); }
 				return moves.sort(function(a,b) {
@@ -3233,7 +3266,7 @@ function totsPersonVal(personList, X, Y) {
 	var output = relVal(0,0);
 	for (var i = 0; i < personList.length; i++) {
 		output = sumVal(output, personList[i].val); }
-	return totVal(output); }
+	return totVal(output); } //ååå
 
 
 
