@@ -593,13 +593,17 @@ function nullVal(val) {
 	if((val.Dyn === 0) && (val.abs === 0) && (val.tan === 0) && (val.rat === 0) && (val.nor === 0) && (val.obj === 0) && (val.gno === 0) && (val.mys === 0) && (val.sub === 0)) { return true; }
 	else { return false; }}
 
+function patTotVal(p) {
+	var ret = sumVal(sumVal(p.ino, p.bio), sumVal(p.soc, p.intl));
+	return ret; }
+
 function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
-	var output = a.Dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
-	return output;}
+	var ret = a.Dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
+	return ret;}
 
 function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr relVal is already taken
-	var output = val.obj + val.nor + val.sub + val.mys;
-	return output;}
+	var ret = val.obj + val.nor + val.sub + val.mys;
+	return ret;}
 
 function nullPat() {
 	var ret = new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0));
@@ -1771,7 +1775,7 @@ function drawStratList(hover) {
 
 	var row = table.insertRow(1);
 	for (var i = 0; i < s.mode.persons.length; i++) {
-		for (var j = 0; j < strategies[i].length; j++) { tot = /*tot + totVal(strategies[i][j].vals[i]);*/ "moro" }
+		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(patTotVal(strategies[i][j].val)); }
 		for (var j = 0; j < strategies[i].length; j++) { ino = ino + totVal(strategies[i][j].val.ino); }
 		//console.log(strategies[i][j].val.bio);
 		for (var j = 0; j < strategies[i].length; j++) { bio = bio + totVal(strategies[i][j].val.bio); }
@@ -1791,7 +1795,7 @@ function drawStratList(hover) {
 		row = table.insertRow((2 * i) + 3);
 		for(var j = 0; j < s.mode.persons.length; j++) {
 			if (i < strategies[j].length) {
-				tot = "pöö"; //totVal(strategies[j][i].vals[j]);
+				tot = totVal(patTotVal(strategies[j][i].val));
 				ino = totVal(strategies[j][i].val.ino);
 				bio = totVal(strategies[j][i].val.bio);
 				soc = totVal(strategies[j][i].val.soc);
