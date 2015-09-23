@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 418</title>
+		<title>Four Mountains beta 437</title>
 		<style>
 
 
@@ -358,39 +358,45 @@ function BasicMode() {
 		initBasicModeDisplay();
 		if(!s.Basic.initDone) {
 			s.Basic = {
+				// state:
 				name: "BasicMode", // modes should have ids, too?
 				persons: [],
 				personsDIds: new DIds( "ALPH", false ),
 				groups: [],//yyx
 				strategies: [],
 				patterns: [],
-				res: 9,
-				metaphysics: false,
-				nonrelScale: false,
-				relScale: "sum2",
 				grid: [],
 				slots: [],
+				slotHover: false,
+				latestPersonsDiff: false,
+				latestGroupsDiff: false,
+				latestX: 0,
+				latestY: 0,
+				//environment:
+				res: 9,
+				metaphysics: false,
+				nonrelScale: false, //absVal of nonrelativized slots
+				relScale: "sum2",	//absVal of relativized slots (ie. both X and Y have non-zero value)
+				revertingXp: true,
+				xpRegulation: 1,
+				levCap: true,
+				//config:
 				fancyUI: true,
 				playing: false,
 				personInTurn: false,
 				turn: 0,
 				autoBotTurn: -1, //-1 for none
 				autoBotTurnDefault: 50,
-				logInfoBox: false,
 				disableAutoContinueOnHumanTurn: true,
 				pause: false,
 				moveAttempt: false,
 				simultaneousTurns: false,
+				//output:
+				outputToConsole: 0,
 				maxDebug: false,
-				revertingXp: true,
-				xpRegulation: 1,
-				levCap: true,
 				defaultInfoBox: "",
-				slotHover: false,
-				latestPersonsDiff: false,
-				latestGroupsDiff: false,
-				latestX: 0,
-				latestY: 0,
+				logInfoBox: false,
+				//
 				initDone: false };
 			newPerson(s.Basic,"Rotta",true);
 			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
@@ -472,6 +478,17 @@ function SpatialMode() {
 		
 		
 function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("VAL"); }
+	this.Dyn = Dyn;
+	this.abs = abs;
+	this.tan = tan;
+	this.rat = rat;
+	this.nor = nor;
+	this.obj = obj;
+	this.gno = gno;
+	this.mys = mys;
+	this.sub = sub;}
+
+function PVal(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("PVAL"); } //duplicated from Val in case it ever turns out useful to sumVal values with patterns. Probably not. Can't know.
 	this.Dyn = Dyn;
 	this.abs = abs;
 	this.tan = tan;
@@ -583,6 +600,14 @@ function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
 function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr relVal is already taken
 	var output = val.obj + val.nor + val.sub + val.mys;
 	return output;}
+
+function nullPat() {
+	var ret = new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0));
+	return ret; }
+
+function sumPat(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
+	var c = new Pattern( true, false, sumVal(a.ino, b.ino), sumVal(a.bio, b.bio), sumVal(a.soc, b.soc), sumVal(a.intl, b.intl));
+	return c; }
 	
 function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	var c = new Val(
@@ -695,6 +720,16 @@ function contains(a, obj) {
 
 
 
+function Slot(name,X,Y,color,textColor,alt) { if(s.Basic.maxDebug) {console.log("SLOT"); }
+	this.name = name;
+	this.X = X;
+	this.Y = Y;
+	this.color = color;
+	this.textColor = textColor;
+	this.alt = alt;
+	this.absVal = absVal(X,Y);
+	this.necStaVal = necStaVal(relVal(X,Y));}
+
 function findSlotPos(grid,x,y) { if(s.Basic.maxDebug) {console.log("FINDSLOTPOS:"); }
 	var a = grid[y];
 	var b = a[x]; // THIS LINE generates error message ostensibly because some strategies are buggy and try to move the player to invalid slot!
@@ -713,12 +748,28 @@ function slotAvailable(X, Y, person) { if(s.Basic.maxDebug) {console.log("SLOTAV
 	else if (!(X > maxX) && !(X < minX) && !(Y > maxY) && !(Y < minY)) { return true; }
 	else { return false; }}
 
+function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
+	var res = Math.sqrt(slots.length);
+	var grid = [];
+	var buffer;
+	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
+	for (var i = 0; i < slots.length; i = i + res) {
+		buffer = slots.slice(i, i + res);
+		buffer = buffer.sort(function(a,b) { return parseFloat(a.X) - parseFloat(b.X) } );
+		grid.push(buffer);}
+	return grid;}
 
+
+
+function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
+	if (s.Basic.pause === false) {
+		clearInterval(s.Basic.moveAttempt);
+		move (X, Y); }}
 
 function moveHover(X, Y) { if(s.Basic.maxDebug) {console.log("MOVEHOVER"); }
 	var calcs = { persons : calcPersons(X, Y), groups : [], strategies : [] };
 	calcs.groups = calcGroups(X, Y, calcs.persons);
-	calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
+	//calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
 	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
 	updatePersonList(calcs.persons, true);
 	updateGroupList(calcs.groups, true); }
@@ -732,14 +783,15 @@ function move(X, Y) { if(s.Basic.maxDebug) {console.log("MOVE"); }
 	var calcs = { persons : calcPersons(X, Y), groups : [], strats : [] };
 	calcs.groups = calcGroups(X, Y, calcs.persons);
 	calcs.strats = calcStrategies(X, Y, calcs.persons, calcs.groups); //
-	makeMove(X, Y, calcs.persons, calcs.groups);
+	makeMove(X, Y, calcs.persons, calcs.groups, calcs.strats);
 	changeTurn(calcs); }
 
-function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console.log("MAKEMOVE"); }
+function makeMove(X, Y, personsDiff, groupsDiff, stratsDiff) { if(s.Basic.maxDebug) {console.log("MAKEMOVE"); }
 	s.mode.latestX = X;
 	s.mode.latestY = Y;
 	s.mode.latestPersonsDiff = personsDiff;
 	s.mode.latestGroupsDiff = groupsDiff;
+	var consoleOutput = [];
 	var buffer;
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		s.Basic.persons[i].X = personsDiff[i].X;
@@ -751,13 +803,43 @@ function makeMove(X, Y, personsDiff, groupsDiff) { if(s.Basic.maxDebug) {console
 		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
 		buffer = [];
 		for (var j = 0; j < s.Basic.persons.length; j++) {
-			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j]));}
+			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j])); }
 		s.Basic.persons[i].bens = buffer;}
 	
 	for (var i = 0; i < s.Basic.groups.length; i++) {
 		s.Basic.groups[i].val = sumVal(s.Basic.groups[i].val, groupsDiff[i].val);
 		s.Basic.groups[i].antiVal = sumVal(s.Basic.groups[i].antiVal, groupsDiff[i].antiVal);
-		s.Basic.groups[i].bens = sumBens(s.Basic.groups[i].bens, groupsDiff[i].bens); }}
+		s.Basic.groups[i].bens = sumBens(s.Basic.groups[i].bens, groupsDiff[i].bens); }
+
+	//console.log("STRATSDIFF:");
+
+	for (var i = 0; i < s.Basic.strategies.length; i++ ) {
+
+		/*console.log(s.Basic.strategies[i].val);
+		console.log(stratsDiff[i]);*/
+		//console.log("MAKEMOVE:");
+		//console.log("s.Basic.strategies[i].val:");
+		//console.log(s.Basic.strategies[i].val);
+		//console.log("stratsDiff[i]:");
+		//console.log(stratsDiff[i]);
+		s.Basic.strategies[i].val = sumPat(s.Basic.strategies[i].val, stratsDiff[i]);
+		//console.log("s.Basic.strategies[i].val (after):");
+		/*console.log(s.Basic.strategies[i].val); */
+	}
+
+	//console.log(stratsDiff);
+	//for(var i = 0; i < stratsDiff.length; i++) {
+
+	//	console.log(stratsDiff[i]); }
+	//for (var i = 0; i < s.Basic.strategies.length; i++ ) {
+		//s.Basic.strategies[i].vals = sumValArr(s.Basic.strategies[i].vals, stratsDiff[i].vals); }
+
+	if (s.Basic.outputToConsole === 1) {
+		s.Basic.persons.map(function(person){console.log({ id : person.id, X : person.X, Y : person.Y })}); }}
+
+function outputPersonToConsole(person) {
+	return ("moi"); }
+	//return { id : person.id, X : person.X, Y : person.Y }; }
 
 function devStates() { if(s.Basic.maxDebug) {console.log("DEVSTATES:"); }
 	console.log("Pause: " + s.Basic.pause);}
@@ -790,15 +872,23 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 		if(s.Basic.personInTurn.bot === false) {
 			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
 		else {
-			updateButton("startGame", "Continue (Enter)");}}
-		
+			updateButton("startGame", "Continue (Enter)");}}		
 	if(debug === true) {
 		devStates();}}
 
-function attemptMove(X, Y) { if(s.Basic.maxDebug) {console.log("ATTEMPTMOVE"); }
-	if (s.Basic.pause === false) {
-		clearInterval(s.Basic.moveAttempt);
-		move (X, Y); }}
+
+
+function startButtonLabel() {  if(s.Basic.maxDebug) {console.log("STARTBUTTONLABEL"); }
+	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
+		return "Continue (Enter)";}
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true)) {
+		return "Pause (Enter)";}
+	else if(s.Basic.playing === false) {
+		return "Start (Enter)";}}
+
+function updateButton(id, buttonText) { if(s.Basic.maxDebug) {console.log("UPDATEBUTTON"); }
+	$( "#" + id ).empty();
+	$( "#" + id).append("<div onmouseover='" + id + "Hover();' onmouseout='defaultHover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>"); }
 
 
 
@@ -844,8 +934,6 @@ function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPE
 			drawGroupList(false);
 			$( "#stratTable" ).empty();
 			drawStratList(false); }}}
-
-
 
 function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 	var mode = s.mode;
@@ -901,27 +989,20 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 			$( "#stratTable" ).empty();
 			drawStratList(false); }}}
 	
-
-
 function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
-	var next = nextPerson(s.Basic.personInTurn);
-	
+	var next = nextPerson(s.Basic.personInTurn);	
 	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
 		s.Basic.pause = false;
-		move(false, false);}
-		
+		move(false, false);}		
 	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === true)) {
 		s.Basic.pause = false;
-		move(false, false);}
-		
+		move(false, false);}		
 	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === false)) {
 		s.Basic.pause = true;
 		clearInterval(s.Basic.moveAttempt);
 		updateButton("startGame", "Continue (Enter)");}
-
 	else if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
-		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}
-		
+		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}		
 	else if(s.Basic.playing === false) { // has untested mods
 		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
 		var starter = 0;
@@ -935,21 +1016,14 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 			else {
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
 				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}}
-
-
 		
 function debugVal(val) {  if(s.Basic.maxDebug) {console.log("DEBUGVAL"); }
 	var a = "obj: " + val.obj + ", sub: " + val.sub + ", nor: " + val.nor + ", mys: " + val.mys;
 	return a;}
-		
-		
-		
+				
 function devFunc() { if(s.Basic.maxDebug) {console.log("DEVFUNC"); }
-	console.log("Not in use.");
-}
+	console.log("Not in use."); }
 
-	
-	
 function autoPlay() {
 	if (s.Basic.autoBotTurn >= 0) {
 		if((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
@@ -969,8 +1043,6 @@ function autoPlay() {
 				startGame();
 				startGame();}}
 	if (s.Basic.autoBotTurn === -2) { s.Basic.autoBotTurn = -1 }}
-	
-	
 	
 function restart() {
 	s.initDone = false;
@@ -995,19 +1067,6 @@ window.addEventListener("keydown", checkKeyPressed, false);
 function checkKeyPressed(e) { if(s.Basic.maxDebug) {console.log("CHECKKEYPRESSED"); }
     if (e.keyCode == "13") {
         startGame();}}
-	
-	
-
-function makeSlotGrid(slots) { if(s.Basic.maxDebug) {console.log("MAKESLOTGRID:"); }
-	var res = Math.sqrt(slots.length);
-	var grid = [];
-	var buffer;
-	slots = slots.sort(function(a,b) { return parseFloat(b.Y) - parseFloat(a.Y) } );
-	for (var i = 0; i < slots.length; i = i + res) {
-		buffer = slots.slice(i, i + res);
-		buffer = buffer.sort(function(a,b) { return parseFloat(a.X) - parseFloat(b.X) } );
-		grid.push(buffer);}
-	return grid;}
 
 
 
@@ -1061,34 +1120,23 @@ function createSymbols (dIds) {
 		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
 	//console.log(ret);
 	return ret; }
-	
-	
-
-function startButtonLabel() {  if(s.Basic.maxDebug) {console.log("STARTBUTTONLABEL"); }
-	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
-		return "Continue (Enter)";}
-	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true)) {
-		return "Pause (Enter)";}
-	else if(s.Basic.playing === false) {
-		return "Start (Enter)";}}
-
-
-
-function updateButton(id, buttonText) { if(s.Basic.maxDebug) {console.log("UPDATEBUTTON"); }
-	$( "#" + id ).empty();
-	$( "#" + id).append("<div onmouseover='" + id + "Hover();' onmouseout='defaultHover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>"); }
 
 
 		
 function setDefaultInfoBox(mode, message) { mode.defaultInfoBox = message; }
+function drawInfoBox(text) {  if(s.Basic.maxDebug) {console.log("DRAWINFOBOX"); }
+	if (text === false) { // text === false upon init
+		if (s.Basic.logInfoBox === true) {
+			text = "Any message displayed here is also written in the console. You can access the console by F12.";}
+		else {
+			text = "Welcome";}}
+	//$( "#infoBox" ).empty();
+	//$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
+	var box = document.getElementById("infoBox");
+	box.innerHTML = "<div id='infoBoxText'>" + text + "</div>";
+	if(s.Basic.logInfoBox === true) {
+		console.log(text);}}
 
-function defaultHover() {
-	s.mode.slotHover = false;
-	drawInfoBox(s.mode.defaultInfoBox);
-	updatePersonList(s.mode.latestPersonsDiff, false); }
-		
-	
-	
 function reportTurn() { if(s.Basic.maxDebug) {console.log("REPORTTURN"); }
 	var turn = 1 + s.Basic.turn;
 	var message = (turn + ". " + s.Basic.personInTurn.name + "'s turn");
@@ -1097,24 +1145,266 @@ function reportTurn() { if(s.Basic.maxDebug) {console.log("REPORTTURN"); }
 
 
 
-function Slot(name,X,Y,color,textColor,alt) { if(s.Basic.maxDebug) {console.log("SLOT"); }
+function defaultHover() {
+	s.mode.slotHover = false;
+	drawInfoBox(s.mode.defaultInfoBox);
+	updatePersonList(s.mode.latestPersonsDiff, false); }
+
+function bensHover(id1, id2) {
+	drawInfoBox(s.Basic.persons[id2].name + " (" + id2 + ") has treated " + s.Basic.persons[id1].name + " (" + id1 + ") with a decency of " + dispValDecency(s.Basic.persons[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.persons[id1].bens[id2]) + " by giving " + s.Basic.persons[id1].bens[id2].obj + " &diams;, " + s.Basic.persons[id1].bens[id2].sub + " &hearts;, " + s.Basic.persons[id1].bens[id2].nor + " &spades;, " + s.Basic.persons[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.persons[id1].bens[id2].gno + " gno, " + s.Basic.persons[id1].bens[id2].rat + " rat, " + s.Basic.persons[id1].bens[id2].abs + " abs, " + s.Basic.persons[id1].bens[id2].tan + " tan"); }
+	
+function groupBensHover(id1, id2) { //group.ids is person id array, but these id are number in list... so far
+	//console.log(id1 + " " + id2); }
+	dispIds1 = drawIds(s.Basic.groups[id1]);
+	dispIds2 = drawIds(s.Basic.groups[id2]);
+	drawInfoBox("The group of " + dispIds2 + " has treated the group of " + dispIds1 + " with a decency of " + dispValDecency(s.Basic.groups[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.groups[id1].bens[id2]) + " by giving " + s.Basic.groups[id1].bens[id2].obj + " &diams;, " + s.Basic.groups[id1].bens[id2].sub + " &hearts;, " + s.Basic.groups[id1].bens[id2].nor + " &spades;, " + s.Basic.groups[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.groups[id1].bens[id2].gno + " gno, " + s.Basic.groups[id1].bens[id2].rat + " rat, " + s.Basic.groups[id1].bens[id2].abs + " abs, " + s.Basic.groups[id1].bens[id2].tan + " tan"); }
+
+function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}
+function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human.."); }
+function delPersonHover() { drawInfoBox("Deletes a person."); }
+function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns."); }
+function restartHover() { drawInfoBox("Starts a new game and erases the old one."); }
+function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
+function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
+function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
+
+
+
+function Level(name,X,Y,rank) { if(s.Basic.maxDebug) {console.log("LEVEL"); }
 	this.name = name;
 	this.X = X;
 	this.Y = Y;
-	this.color = color;
-	this.textColor = textColor;
-	this.alt = alt;
-	this.absVal = absVal(X,Y);
-	this.necStaVal = necStaVal(relVal(X,Y));}
+	this.rank = rank; }
+	
+function Cluster(name,Y,number) { if(s.Basic.maxDebug) {console.log("CLUSTER"); }
+	this.name = name;
+	this.Y = Y;
+	this.number = number; }
+
+function describeDecency(slot) {
+	var ret = "";
+	if (Math.abs(slot.X) === Math.abs(slot.Y)) { ret = "excellent" }
+	else if (Math.abs(slot.X) < Math.abs(slot.Y)) { ret = "bad" }
+	else if (Math.abs(slot.X) > Math.abs(slot.Y)) { ret = "decent" }
+	return ret; }
+
+function getClusterName(slot, metaphysics) {
+	var halfRes = metaphysics.nor.length - 1;
+	var ret;
+	if (slot.X > 0) {
+		if (slot.Y > 0) { ret = metaphysics.abs[slot.Y - 1] }
+		else if (slot.Y < 0) { ret = metaphysics.tan[-(slot.Y + 1)] }}
+	else if (slot.X < 0) {
+		if (slot.Y > 0) { ret = metaphysics.abs[halfRes - (slot.Y - 1)] }
+		else if (slot.Y < 0) { ret = metaphysics.tan[halfRes + (slot.Y + 1)] }}
+	return ret.name; }
+	
+function getLevelName(slot, metaphysics) {
+	var ret;
+	var lev = Math.min(Math.abs(slot.X), Math.abs(slot.Y)) - 1;
+	if (slot.X > 0) {
+		if(slot.Y > 0) { ret = metaphysics.nor[lev] }
+		else if(slot.Y < 0) { ret = metaphysics.obj[lev] }}
+	else if (slot.X < 0) {
+		if(slot.Y > 0) { ret = metaphysics.mys[lev] }
+		else if(slot.Y < 0) { ret = metaphysics.sub[lev] }}
+	return ret.name; }
+
+function getPotentialSlot(slot) {
+	var ret = false;
+	if (!(Math.abs(slot.X) === Math.abs(slot.Y))) {
+		if (slot.X > 0) { 
+			if (slot.Y > 0) { ret = findSlot(slot.X, slot.X) }
+			else if (slot.Y < 0) { ret = findSlot(slot.X, -(slot.X)) }}
+		else if (slot.X < 0) {
+			if (slot.Y > 0) { ret = findSlot(slot.X, -(slot.X)) }
+			else if (slot.Y < 0) { ret = findSlot (slot.X, slot.X) }}}
+	return ret; }
+
+function getSlotSymbol(slot) {
+	var ret;
+	if (slot.X < 0) {
+		if (slot.Y < 0) { ret = "&hearts;" }
+		else if (slot.Y > 0) { ret = "&clubs;" }}
+	else if (slot.X > 0) {
+		if (slot.Y < 0) { ret = "&diams;" }
+		else if (slot.Y > 0) { ret = "&spades;" }}
+	return ret; }
+
+function describeStrategy(id) {
+	id = parseInt(id);
+	drawInfoBox(s.mode.strategies[id].desc); }
+	
+function describeQuality(id) {
+	switch (id) {
+	case 0 :
+		drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
+	case 1 :
+		drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
+	case 2 :
+		drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
+	case 3 :
+		drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
+	case 4 :
+		drawInfoBox("The total <em>static value</em> of each person."); break;
+	case 5 :
+		drawInfoBox("Personal <em>decency</em> refers to how much more relativized <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
+	case 6 :
+		drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 7 :
+		drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 8 :
+		drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
+	case 9 :
+		drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break;}}
+
+function describeSlot(slot, metaphysics) {
+	var slotName = slot.name;
+	//console.log(slot.X + "," + slot.Y + "," + slotName);
+	if ((slot.X < 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized gnostic slot."); }
+	else if ((slot.X > 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized rational slot."); }
+	else if (slot.X === 0) {
+		if (slot.Y < 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized tangible slot."); }
+		else if (slot.Y > 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized abstract slot."); }
+		else if (slot.Y === 0) { drawInfoBox("<em>" + slotName + "</em> is the name of the origin of this Cartesian coordinate system."); }}
+	else {
+		var slotSymbol = getSlotSymbol(slot);
+		var dec = describeDecency(slot);
+		var cluster = getClusterName(slot, metaphysics);
+		var level = getLevelName(slot, metaphysics);
+		var potential = getPotentialSlot(slot);
+		if (slot.alt) { slotName = slotName + "</em> (aka. \"" + slot.alt + "\")<em>"; }
+		if (potential) {
+			var potentialName = potential.name;
+			if (potential.alt) { potentialName = potential.name + "</em> (aka. \"" + potential.alt + "\")<em>"; }
+			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is a " + dec + " slot that is romantically/actually " + cluster + ", classically " + level + " and potentially <em>" + potentialName + "</em>."); }
+		else {
+			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is an " + dec + " slot that is romantically " + cluster + " and classically " + level + "."); }}}
 
 
+
+function createMetaphysics(mode, res) {
+	var metaphysics = { nor : [], obj : [], mys : [], sub : [], tan : [], abs : [] };
+	switch(res) {
+	case 9 :
+		var r9l1nor = new Level("Syntactic", 1, 1, 1);
+		var r9l2nor = new Level("Semantic", 1, 1, 2);
+		var r9l3nor = new Level("Metatheoretic", 1, 1, 3);
+		var r9l4nor = new Level("Analogic", 1, 1, 4);
+		
+		var r9l1obj = new Level("Inorganic", 1, -1, 1);
+		var r9l2obj = new Level("Biological", 1, -1, 2);
+		var r9l3obj = new Level("Social", 1, -1, 3);
+		var r9l4obj = new Level("Intellectual", 1, -1, 4);
+		
+		var r9l1mys = new Level("Coincidental", -1, 1, 1);
+		var r9l2mys = new Level("Cultural", -1, 1, 2);
+		var r9l3mys = new Level("Freedom", -1, 1, 3);
+		var r9l4mys = new Level("Aesthetic", -1, 1, 4);
+		
+		var r9l1sub = new Level("Believing", -1, -1, 1);
+		var r9l2sub = new Level("Considering", -1, -1, 2);
+		var r9l3sub = new Level("Visionary", -1, -1, 3);
+		var r9l4sub = new Level("Euphoric", -1, -1, 4);
+		
+		var r9c1abs = new Cluster("Harmony", 1, 1);
+		var r9c2abs = new Cluster("Significance", 1, 2);
+		var r9c3abs = new Cluster("Awareness", 1, 3);
+		var r9c4abs = new Cluster("Unity", 1, 4);
+		
+		var r9c1tan = new Cluster("Sense-data", -1, 1);
+		var r9c2tan = new Cluster("Lower Needs", -1, 2);
+		var r9c3tan = new Cluster("Higher Needs", -1, 3);
+		var r9c4tan = new Cluster("Deliberation", -1, 4);
+		
+		metaphysics.nor = [r9l1nor, r9l2nor, r9l3nor, r9l4nor];
+		metaphysics.obj = [r9l1obj, r9l2obj, r9l3obj, r9l4obj];
+		metaphysics.mys = [r9l1mys, r9l2mys, r9l3mys, r9l4mys];
+		metaphysics.sub = [r9l1sub, r9l2sub, r9l3sub, r9l4sub];
+		metaphysics.abs = [r9c1abs, r9c2abs, r9c3abs, r9c4abs];
+		metaphysics.tan = [r9c1tan, r9c2tan, r9c3tan, r9c4tan];
+		break;
+		
+	default :
+		console.log("createMetaphysics does not support this resolution."); }
+		
+	mode.metaphysics = metaphysics; }
+	
+	
+
+function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPERSONS"); }
+	var population = [];
+	for (var i = 0; i < persons.length; i++) {
+		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
+			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + /*dId(*/ i /*, s.mode.persons, s.mode.personsDIds )*/ + "</strong></div>";}}
+	if(population.length === 0) {
+		population = "&nbsp;";}//yyx ( id, arr, idType )
+	return population;}
+	
+
+
+function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
+	var hex = ("#" + slot.color);
+	var r = hexToRgb(hex).r;
+	var g = hexToRgb(hex).g;
+	var b = hexToRgb(hex).b;
+	var avg = Math.floor((r + b + g) / 3);
+	hex = rgbToHex(avg, avg, avg);
+	return hex;}
+
+function slotHover(X, Y) {
+	var slot = findSlot(X, Y);
+	s.mode.slotHover = slot;
+	describeSlot(slot, s.Basic.metaphysics);
+	if ((s.mode.playing) && slotAvailable(X, Y, s.mode.personInTurn )) { moveHover(X, Y); }
+	else {updatePersonList(s.mode.latestPersonsDiff,false); }}
 
 function slotClick(X,Y) { if(s.Basic.maxDebug) {console.log("SLOTCLICK"); }
 	var available = slotAvailable(X, Y, s.Basic.personInTurn);
 	if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (available === true)) {
 		move(X,Y);}}
 
-	
+function hexToRgb(hex) {  if(s.Basic.maxDebug) {console.log("HEXTORGB"); }
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b; });
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16) } : null; }
+
+function rgbToHex(r, g, b) { if(s.Basic.maxDebug) {console.log("RGBTOHEX"); }
+    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
+
+function melodySlotNameSeq(X, Y) {
+	var seq = "";
+	if (X === Y) {
+		for (var i = 0; i < Math.abs(Y); i++ ) { seq = seq + (i + 1); }}
+	else {
+		var diff = Math.abs(X - Y);
+		if (diff === 0) { seq = Math.abs(X); }
+		if (diff > 1) 	{ seq = "[" + diff + "]"; }}
+	return seq; }
+
+// mark overflow in slot population by coloring bg of id with slot color in personslist
+// outline etc departure slot and destination slot, outlining also moving player in destination slot
+
+function melodySlotName(X, Y) {
+	var name = "";
+	if ((X === 0) && (Y === 0)) { name = "silence"; }
+	else if (Y === 0)			{ name = name + Y; }
+	else						{ name = "0"; }
+	if (0 < X)					{ name = name + noteSlotNameSeq(X, Y); }
+	else if (0 > X)				{ name = noteSlotNameSeq(X, Y) + name; }
+	return name; }
+
+function createMelodySlots() {
+	var ret = [];
+	for (X = 0; X < 7; X++ ) {
+		for (Y = 0; Y < 7; Y++ ) {
+			ret.push(new Slot(noteSlotName(X, Y), X, Y)); }}}
 
 function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CREATEGRID"); }
 	switch(res) {
@@ -1259,6 +1549,9 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		r9xn3y0, r9xn3y1, r9xn3y2, r9xn3y3, r9xn3y4, r9xn3yn1, r9xn3yn2, r9xn3yn3, r9xn3yn4,
 		r9xn4y0, r9xn4y1, r9xn4y2, r9xn4y3, r9xn4y4, r9xn4yn1, r9xn4yn2, r9xn4yn3, r9xn4yn4];
 		break;
+
+	case 7 :
+		var slots = createMelodySlots();
 		
 	default :
 		console.log("createGrid does not support this resolution.");}
@@ -1267,270 +1560,6 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 	mode.grid = makeSlotGrid(slots); }
 
 
-
-function Level(name,X,Y,rank) { if(s.Basic.maxDebug) {console.log("LEVEL"); }
-	this.name = name;
-	this.X = X;
-	this.Y = Y;
-	this.rank = rank; }
-	
-	
-	
-function Cluster(name,Y,number) { if(s.Basic.maxDebug) {console.log("CLUSTER"); }
-	this.name = name;
-	this.Y = Y;
-	this.number = number; }
-
-
-
-function describeDecency(slot) {
-	var ret = "";
-	if (Math.abs(slot.X) === Math.abs(slot.Y)) { ret = "excellent" }
-	else if (Math.abs(slot.X) < Math.abs(slot.Y)) { ret = "bad" }
-	else if (Math.abs(slot.X) > Math.abs(slot.Y)) { ret = "decent" }
-	return ret; }
-
-
-	
-function getClusterName(slot, metaphysics) {
-	var halfRes = metaphysics.nor.length - 1;
-	var ret;
-	if (slot.X > 0) {
-		if (slot.Y > 0) { ret = metaphysics.abs[slot.Y - 1] }
-		else if (slot.Y < 0) { ret = metaphysics.tan[-(slot.Y + 1)] }}
-	else if (slot.X < 0) {
-		if (slot.Y > 0) { ret = metaphysics.abs[halfRes - (slot.Y - 1)] }
-		else if (slot.Y < 0) { ret = metaphysics.tan[halfRes + (slot.Y + 1)] }}
-	return ret.name; }
-	
-	
-
-function getLevelName(slot, metaphysics) {
-	var ret;
-	var lev = Math.min(Math.abs(slot.X), Math.abs(slot.Y)) - 1;
-	if (slot.X > 0) {
-		if(slot.Y > 0) { ret = metaphysics.nor[lev] }
-		else if(slot.Y < 0) { ret = metaphysics.obj[lev] }}
-	else if (slot.X < 0) {
-		if(slot.Y > 0) { ret = metaphysics.mys[lev] }
-		else if(slot.Y < 0) { ret = metaphysics.sub[lev] }}
-	return ret.name; }
-
-
-
-function getPotentialSlot(slot) {
-	var ret = false;
-	if (!(Math.abs(slot.X) === Math.abs(slot.Y))) {
-		if (slot.X > 0) { 
-			if (slot.Y > 0) { ret = findSlot(slot.X, slot.X) }
-			else if (slot.Y < 0) { ret = findSlot(slot.X, -(slot.X)) }}
-		else if (slot.X < 0) {
-			if (slot.Y > 0) { ret = findSlot(slot.X, -(slot.X)) }
-			else if (slot.Y < 0) { ret = findSlot (slot.X, slot.X) }}}
-	return ret; }
-
-	
-	
-function getSlotSymbol(slot) {
-	var ret;
-	if (slot.X < 0) {
-		if (slot.Y < 0) { ret = "&hearts;" }
-		else if (slot.Y > 0) { ret = "&clubs;" }}
-	else if (slot.X > 0) {
-		if (slot.Y < 0) { ret = "&diams;" }
-		else if (slot.Y > 0) { ret = "&spades;" }}
-	return ret; }
-
-
-
-function describeStrategy(id) {
-	id = parseInt(id);
-	drawInfoBox(s.mode.strategies[id].desc); }
-	
-
-
-function describeQuality(id) {
-	switch (id) {
-	case 0 :
-		drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
-	case 1 :
-		drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
-	case 2 :
-		drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
-	case 3 :
-		drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
-	case 4 :
-		drawInfoBox("The total <em>static value</em> of each person."); break;
-	case 5 :
-		drawInfoBox("Personal <em>decency</em> refers to how much more relativized <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
-	case 6 :
-		drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
-	case 7 :
-		drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
-	case 8 :
-		drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
-	case 9 :
-		drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break;}}
-
-
-
-function describeSlot(slot, metaphysics) {
-	var slotName = slot.name;
-	//console.log(slot.X + "," + slot.Y + "," + slotName);
-	if ((slot.X < 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized gnostic slot."); }
-	else if ((slot.X > 0) && (slot.Y === 0)) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized rational slot."); }
-	else if (slot.X === 0) {
-		if (slot.Y < 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized tangible slot."); }
-		else if (slot.Y > 0) { drawInfoBox("<em>" + slotName + "</em> is a nonrelativized abstract slot."); }
-		else if (slot.Y === 0) { drawInfoBox("<em>" + slotName + "</em> is the name of the origin of this Cartesian coordinate system."); }}
-	else {
-		var slotSymbol = getSlotSymbol(slot);
-		var dec = describeDecency(slot);
-		var cluster = getClusterName(slot, metaphysics);
-		var level = getLevelName(slot, metaphysics);
-		var potential = getPotentialSlot(slot);
-		if (slot.alt) { slotName = slotName + "</em> (aka. \"" + slot.alt + "\")<em>"; }
-		if (potential) {
-			var potentialName = potential.name;
-			if (potential.alt) { potentialName = potential.name + "</em> (aka. \"" + potential.alt + "\")<em>"; }
-			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is a " + dec + " slot that is romantically/actually " + cluster + ", classically " + level + " and potentially <em>" + potentialName + "</em>."); }
-		else {
-			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is an " + dec + " slot that is romantically " + cluster + " and classically " + level + "."); }}}
-
-
-
-function createMetaphysics(mode, res) {
-	var metaphysics = { nor : [], obj : [], mys : [], sub : [], tan : [], abs : [] };
-	switch(res) {
-	case 9 :
-		var r9l1nor = new Level("Syntactic", 1, 1, 1);
-		var r9l2nor = new Level("Semantic", 1, 1, 2);
-		var r9l3nor = new Level("Metatheoretic", 1, 1, 3);
-		var r9l4nor = new Level("Analogic", 1, 1, 4);
-		
-		var r9l1obj = new Level("Inorganic", 1, -1, 1);
-		var r9l2obj = new Level("Biological", 1, -1, 2);
-		var r9l3obj = new Level("Social", 1, -1, 3);
-		var r9l4obj = new Level("Intellectual", 1, -1, 4);
-		
-		var r9l1mys = new Level("Coincidental", -1, 1, 1);
-		var r9l2mys = new Level("Cultural", -1, 1, 2);
-		var r9l3mys = new Level("Freedom", -1, 1, 3);
-		var r9l4mys = new Level("Aesthetic", -1, 1, 4);
-		
-		var r9l1sub = new Level("Believing", -1, -1, 1);
-		var r9l2sub = new Level("Considering", -1, -1, 2);
-		var r9l3sub = new Level("Visionary", -1, -1, 3);
-		var r9l4sub = new Level("Euphoric", -1, -1, 4);
-		
-		var r9c1abs = new Cluster("Harmony", 1, 1);
-		var r9c2abs = new Cluster("Significance", 1, 2);
-		var r9c3abs = new Cluster("Awareness", 1, 3);
-		var r9c4abs = new Cluster("Unity", 1, 4);
-		
-		var r9c1tan = new Cluster("Sense-data", -1, 1);
-		var r9c2tan = new Cluster("Lower Needs", -1, 2);
-		var r9c3tan = new Cluster("Higher Needs", -1, 3);
-		var r9c4tan = new Cluster("Deliberation", -1, 4);
-		
-		metaphysics.nor = [r9l1nor, r9l2nor, r9l3nor, r9l4nor];
-		metaphysics.obj = [r9l1obj, r9l2obj, r9l3obj, r9l4obj];
-		metaphysics.mys = [r9l1mys, r9l2mys, r9l3mys, r9l4mys];
-		metaphysics.sub = [r9l1sub, r9l2sub, r9l3sub, r9l4sub];
-		metaphysics.abs = [r9c1abs, r9c2abs, r9c3abs, r9c4abs];
-		metaphysics.tan = [r9c1tan, r9c2tan, r9c3tan, r9c4tan];
-		break;
-		
-	default :
-		console.log("createMetaphysics does not support this resolution."); }
-		
-	mode.metaphysics = metaphysics; }
-	
-	
-
-function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPERSONS"); }
-	var population = [];
-	for (var i = 0; i < persons.length; i++) {
-		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
-			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + /*dId(*/ i /*, s.mode.persons, s.mode.personsDIds )*/ + "</strong></div>";}}
-	if(population.length === 0) {
-		population = "&nbsp;";}//yyx ( id, arr, idType )
-	return population;}
-	
-
-
-function hexToRgb(hex) {  if(s.Basic.maxDebug) {console.log("HEXTORGB"); }
-    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-        return r + r + g + g + b + b; });
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16) } : null; }
-
-function rgbToHex(r, g, b) { if(s.Basic.maxDebug) {console.log("RGBTOHEX"); }
-    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
-
-
-
-function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
-	var hex = ("#" + slot.color);
-	var r = hexToRgb(hex).r;
-	var g = hexToRgb(hex).g;
-	var b = hexToRgb(hex).b;
-	var avg = Math.floor((r + b + g) / 3);
-	hex = rgbToHex(avg, avg, avg);
-	return hex;}
-
-	
-
-function slotHover(X, Y) {
-	var slot = findSlot(X, Y);
-	s.mode.slotHover = slot;
-	describeSlot(slot, s.Basic.metaphysics);
-	if ((s.mode.playing) && slotAvailable(X, Y, s.mode.personInTurn )) { moveHover(X, Y); }
-	else {updatePersonList(s.mode.latestPersonsDiff,false); }}
-
-
-
-function drawInfoBox(text) {  if(s.Basic.maxDebug) {console.log("DRAWINFOBOX"); }
-	if (text === false) { // text === false upon init
-		if (s.Basic.logInfoBox === true) {
-			text = "Any message displayed here is also written in the console. You can access the console by F12.";}
-		else {
-			text = "Welcome";}}
-	//$( "#infoBox" ).empty();
-	//$( "#infoBox" ).append("<div id='infoBoxText'>" + text + "</div>");
-	var box = document.getElementById("infoBox");
-	box.innerHTML = "<div id='infoBoxText'>" + text + "</div>";
-	if(s.Basic.logInfoBox === true) {
-		console.log(text);}}
-
-
-
-function bensHover(id1, id2) {
-	drawInfoBox(s.Basic.persons[id2].name + " (" + id2 + ") has treated " + s.Basic.persons[id1].name + " (" + id1 + ") with a decency of " + dispValDecency(s.Basic.persons[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.persons[id1].bens[id2]) + " by giving " + s.Basic.persons[id1].bens[id2].obj + " &diams;, " + s.Basic.persons[id1].bens[id2].sub + " &hearts;, " + s.Basic.persons[id1].bens[id2].nor + " &spades;, " + s.Basic.persons[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.persons[id1].bens[id2].gno + " gno, " + s.Basic.persons[id1].bens[id2].rat + " rat, " + s.Basic.persons[id1].bens[id2].abs + " abs, " + s.Basic.persons[id1].bens[id2].tan + " tan"); }
-	
-function groupBensHover(id1, id2) { //group.ids is person id array, but these id are number in list... so far
-	//console.log(id1 + " " + id2); }
-	dispIds1 = drawIds(s.Basic.groups[id1]);
-	dispIds2 = drawIds(s.Basic.groups[id2]);
-	drawInfoBox("The group of " + dispIds2 + " has treated the group of " + dispIds1 + " with a decency of " + dispValDecency(s.Basic.groups[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.groups[id1].bens[id2]) + " by giving " + s.Basic.groups[id1].bens[id2].obj + " &diams;, " + s.Basic.groups[id1].bens[id2].sub + " &hearts;, " + s.Basic.groups[id1].bens[id2].nor + " &spades;, " + s.Basic.groups[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.groups[id1].bens[id2].gno + " gno, " + s.Basic.groups[id1].bens[id2].rat + " rat, " + s.Basic.groups[id1].bens[id2].abs + " abs, " + s.Basic.groups[id1].bens[id2].tan + " tan"); }
-
-
-
-function startGameHover() {	drawInfoBox("(Hotkey: Enter) This button starts the game! It also works as Pause and Continue.");}
-function newPersonHover() {	drawInfoBox("Click here to create a new person, either bot or human.."); }
-function delPersonHover() { drawInfoBox("Deletes a person."); }
-function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns."); }
-function restartHover() { drawInfoBox("Starts a new game and erases the old one."); }
-function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
-function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
-function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
-	
-		
 
 function initBasicModeDisplay() {
 	$( "#container" ).empty();
@@ -1562,9 +1591,7 @@ function initBasicModeDisplay() {
 		</div>\
 		<div id='options'></div>");
 	drawModeSelector("BasicMode"); }
-		
-
-		
+			
 function initSpatialModeDisplay() {
 	$ ( "#container" ).empty();
 	$( "#container" ).append("<canvas id='plane' width='500' height='500'></canvas><canvas id='space' width='500' height='500'></canvas><div style='clear:both; height:0px;'>&nbsp;</div><table id='personTable'></table><button id='startGame' class='amoqButton'></button><button id='autoPlay' class='amoqButton'></button><button id='newPerson' class='amoqButton'></button><button id='delPerson' class='amoqButton'></button><button id='restart' class='amoqButton'></button><div style='clear:both; height:0px;'>&nbsp;</div><div id='groupList'></div><table id='groupTable'></table>");
@@ -1727,10 +1754,10 @@ function drawStratList(hover) {
 	var buffer;
 	var rowsToDo = 0;
 	var tot = 0;
-	var obj = 0;
-	var sub = 0;
-	var nor = 0;
-	var mys = 0;
+	var ino = 0;
+	var bio = 0;
+	var soc = 0;
+	var intl = 0;
 
 	var row = table.insertRow(0);
 	for(var i = 0; i < s.mode.persons.length; i++) {
@@ -1744,15 +1771,16 @@ function drawStratList(hover) {
 
 	var row = table.insertRow(1);
 	for (var i = 0; i < s.mode.persons.length; i++) {
-		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(strategies[i][j].vals[i]); }
-		for (var j = 0; j < strategies[i].length; j++) { obj = obj + strategies[i][j].vals[i].obj; }
-		for (var j = 0; j < strategies[i].length; j++) { sub = sub + strategies[i][j].vals[i].sub; }
-		for (var j = 0; j < strategies[i].length; j++) { nor = nor + strategies[i][j].vals[i].nor; }
-		for (var j = 0; j < strategies[i].length; j++) { mys = mys + strategies[i][j].vals[i].mys; }
+		for (var j = 0; j < strategies[i].length; j++) { tot = /*tot + totVal(strategies[i][j].vals[i]);*/ "moro" }
+		for (var j = 0; j < strategies[i].length; j++) { ino = ino + totVal(strategies[i][j].val.ino); }
+		//console.log(strategies[i][j].val.bio);
+		for (var j = 0; j < strategies[i].length; j++) { bio = bio + totVal(strategies[i][j].val.bio); }
+		for (var j = 0; j < strategies[i].length; j++) { soc = soc + totVal(strategies[i][j].val.soc); }
+		for (var j = 0; j < strategies[i].length; j++) { intl = intl + totVal(strategies[i][j].val.intl); }
 		cell = row.insertCell(i);//xyz
 		if (s.mode.fancyUI)	{ cell.className = "fancyUIstratValsAll"}
-		cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>";
-		tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+		cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + ino + "</td><td>" + bio + "</td><td>" + soc + "</td><td>" + intl + "</td></tr></table>";
+		tot = 0; ino = 0; bio = 0; soc = 0; intl = 0; }
 
 	for(var i = 0; i < rowsToDo; i++) {
 		row = table.insertRow((2 * i) + 2);
@@ -1763,15 +1791,15 @@ function drawStratList(hover) {
 		row = table.insertRow((2 * i) + 3);
 		for(var j = 0; j < s.mode.persons.length; j++) {
 			if (i < strategies[j].length) {
-				tot = totVal(strategies[j][i].vals[j]);
-				obj = strategies[j][i].vals[j].obj;
-				sub = strategies[j][i].vals[j].sub;
-				nor = strategies[j][i].vals[j].nor;
-				mys = strategies[j][i].vals[j].mys; }
-			else { tot = 0; obj = 0; sub = 0; nor = 0; mys = 0; }
+				tot = "pöö"; //totVal(strategies[j][i].vals[j]);
+				ino = totVal(strategies[j][i].val.ino);
+				bio = totVal(strategies[j][i].val.bio);
+				soc = totVal(strategies[j][i].val.soc);
+				intl = totVal(strategies[j][i].val.intl); }
+			else { tot = 0; ino = 0; bio = 0; soc = 0; intl = 0; }
 			cell = row.insertCell(j);
 			if (s.mode.fancyUI)	{ cell.className = "fancyUIstratVals"}
-			cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + obj + "</td><td>" + sub + "</td><td>" + nor + "</td><td>" + mys + "</td></tr></table>"; }}}
+			cell.innerHTML = "<table class='stratValTable'><tr><td>" + tot + "</td><td>" + ino + "</td><td>" + bio + "</td><td>" + soc + "</td><td>" + intl + "</td></tr></table>"; }}}
 
 
 
@@ -1880,7 +1908,7 @@ function updatePersonList(diffs, hover) {
 
 		if (!(diffs)) {clubs.innerHTML = s.Basic.persons[i - 1].val.mys;}
 		else { clubs.innerHTML = reportValDiff(s.Basic.persons[i - 1].val.mys, diffs[i - 1].val.mys, hover); }
-		if (s.Basic.persons[i - 1].val.mys < 0) { diams.style.backgroundColor = "#" + findSlot(-1,2).color; }
+		if (s.Basic.persons[i - 1].val.mys < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
 		
 		if (!(diffs)) {	left.innerHTML = s.Basic.persons[i - 1].xp.gno; }
@@ -2536,7 +2564,7 @@ function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
 
 
 
-function Strategy(mode, id, name, desc, vals, priors, rule) {
+function Strategy(mode, id, name, desc, val, priors, rule) {
 	this.mode = mode;
 	if (!id) { this.id = mode.strategies.length; }
 	else { this.id = id; }
@@ -2544,8 +2572,10 @@ function Strategy(mode, id, name, desc, vals, priors, rule) {
 	else { this.name = name; }
 	if (!name) { this.desc = getStrategyDescById(id); }
 	else { this.desc = desc; }
-	if (!vals) { this.vals = valForEach(relVal(0,0), mode.persons); }
-	else { this.vals = vals; }
+	if(val === false) { this.val = nullPat(); }
+	else { this.val = val; }
+	/*if (!vals) { this.vals = valForEach(relVal(0,0), mode.persons); }
+	else { this.vals = vals; }*/
 	if (!priors) { this.priors = valForEach(mode.strategies.length, mode.persons); } //change len to -1 when time to teach
 	else { this.priors = priors; }
 	if (!rule) { this.rule = getStrategyRuleById(id);}
@@ -2588,50 +2618,155 @@ function getStrategiesOfPerson(person) {
 
 
 
-function ai(subject) { if(s.Basic.maxDebug) {console.log("AI"); }
+function ai(agent) { if(s.Basic.maxDebug) {console.log("AI"); }
 	var i = 0;
-	var moves = availableSlots(subject);
-	var strats = getStrategiesOfPerson(subject);
+	var moves = availableSlots(agent);
+	var strats = getStrategiesOfPerson(agent);
 	moves = _.shuffle(moves);
-	while ((moves.length > i) && (i < strats.length)) {
+	while ((moves.length > i) && (i < strats.length)) { // this function has been changed! probably fucked up! BUG ALERT NB BUG!!! NB!
 		moves = strats[i].rule(moves);
 		i++; }
 	if (moves.length > 1) { moves = _.shuffle(moves); }
 	return moves[0]; }
 
-function simAi(subject, object) { if(s.Basic.maxDebug) {console.log("AI"); }
-	var i = 0;
-	var moves = availableSlots(object);
-	var strats = getStrategiesOfPerson(subject);
+
+
+/*
+THIS FUNCTION IS TOO COMPLICATED
+it evaluates whether A thinks B is dumb or not. I was supposed to write strategry evaluation stuff, not this! FUU
+
+function simAi(agent, target) { if(s.Basic.maxDebug) {console.log("SIMAI"); }
+	var moves = availableSlots(target);
+	var strats = getStrategiesOfPerson(agent);
 	moves = _.shuffle(moves);
-	while ((moves.length > i) && (i < strats.length)) {
-		moves = strats[i].rule(moves);
-		strats[i].valsDiff = calcPersons(moves[i].X, moves[i].Y);
-		strats[i].valsDiff = strats[i].valsDiff[i].val;
-		i++; }
-	if (moves.length > 1) { moves = _.shuffle(moves); }
-	return strats; }
+	movesMat = [];
+	for (var i = 0; i < strats.length; i++) {
+		movesMat.push(strats[i].rule(moves)); // NB! could optimize after this line by evaluating only the move(s) with the highest strategic val
+		for (var j = 0; j < movesMat[i].length; j++) {
+			movesMat[i][j].stratValsDiff = calcPersons(movesMat[i][j].X, movesMat[i][j].Y); // NB! could optimize here by calling specific person
+			movesMat[i][j].stratValsDiff = movesMat[i][j].stratValsDiff[i].val; }}
+	//console.log(movesMat);
+	return movesMat; }*/
+
+/*function movesMatCopy(function, mat) {
+	var output = [];
+	for (var i = 0; i < mat.length; i++) {
+		output.push(mat[i].map(copy))*/
+
+//BUG!!! bens report nonrelz value even for player who has experienced no levelup?
+
+
+/*function getGroupIdByIds(ids) {
+	for (var i = 0; i < s.mode.groups.length; i++) {
+		if(ids === s.mode.groups[i].ids) { return s.mode.groups[i].id; }}}*/
+
+
+function simAiGroups(personStrats, personInTurn) {
+	var memberOfGroups;
+	var groupStrats = [];
+	var buffer;
+	var buffer2;
+	for (var i = 0; i < personStrats.length; i++) {
+		for (var j = 0; j < personStrats[i].length; j++ ) {
+			//buffer = [];
+			for (var k = 0; k < s.mode.groups.length; k++ ) {
+				/*if (contains(s.mode.groups[k].ids, personInTurn.id )) {
+					buffer.push(personStrats[i][j]); }*/
+				/*else {
+					buffer2 = [];
+					for (var l = 0; l < personStrats[i][j].length; l++ ) {
+						buffer2.push(relVal(0,0)); }
+						buffer.push(buffer2);}*/}
+			groupStrats.push(buffer);}}
+	console.log(groupStrats);}
+
+
+
+		/*
+		memberOfGroups = findAllGroupsOfPerson(s.mode.persons[i]);
+		for (var j = 0; j < personStrats[i].length; j++) {
+			buffer = calcGroups(personStrats[i][j].X, personStrats[i][j].Y);
+			for (var k = 0; k < memberOfGroups.length; k++) {
+				memberOfGroups[k].stratGValsDiff = sumVal(memberOfGroups[k].stratGValsDiff, personStrats[i][j].stratValsDiff[i].val); }}}}*/
+
+
+	/*			if(contains(s.Basic.groups[i].ids, j)) {
+
+	var memberOf;
+	for (var i = 0; i < s.Basic.groups.length; i++ ) {
+		for (var j = 0; j < personStrats.length; j++) {
+			memberOf
+			for (var k = 0; k < personStrats[j].length; k++) {
+				if(contains(s.Basic.groups[i].ids, j)) {
+
+}*/
+
+//xyy
 
 
 
 // separate ino, bio, soc and int val around here. define pattern as an object of four vals. this way the core learn to process classical quality (properly)
-function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) {
-	var strats = [];
-	for (var i = 0; i < s.mode.persons.length; i++ ) {
-		strats.push(simAi(s.mode.persons[i], personInTurn)); }
-	return strats;
-}
+function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) { //remove x and y?
+	var thingsTotalVal; //this not yet implemented overall
+	var personsTotalVal = relVal(0,0);
+	var groupsTotalVal = relVal(0,0);
+	var stratsDiff = [];
+	//console.log("CALCSTRATVALS:");
+	//console.log("personstotalval:");
+	for(var i = 0; i < s.mode.persons.length; i++) {
+		personsTotalVal = sumVal(personsTotalVal, personsDiffs[i].val); }
+	//console.log(personsTotalVal);
+	for(var i = 0; i < s.mode.groups.length; i++) {
+		groupsTotalVal = sumVal(groupsTotalVal, groupsDiffs[i].val); }
+	for (var i = 0; i < s.mode.strategies.length; i++ ) {
+		stratsDiff.push(new Pattern(true, false, relVal(0,0), relVal(4,4), groupsTotalVal, relVal(0,0)));
+		//console.log("stratsDiff[" + i + "].bio:");
+		//console.log(stratsDiff[i].bio);
+	}
+
+	//for (var i = 0; i < stratsDiff.length; i++ ) {
+		//console.log("stratsdiff[" + i + "]:");
+		//console.log(stratsDiff[i]); }
+
+	return stratsDiff; }
+	
+
+	/*for (var i = 0; i < personsDiffs.length; i++) {
+		personStrats.push(stratVal)
+	}*/
+
+	//for (var i = 0; i < s.mode.persons.length; i++ ) {
+		//personStrats.push(simAi(s.mode.persons[i], personInTurn)); }
+	//simAiGroups(personStrats, personInTurn);
+	/*for (var i = 0; i < s.mode.groups.length; i++ ) {
+		groupStrats.push(simAiGroups(personStrats, personInTurn)); }*/
+	/*for (var i = 0; i < s.mode.groups.length; i+0 ) {
+		console.log (s.mode.groups[i].stratGValsDiff);
+	}*/
+
+	//return personStrats; }
 
 
 
 function calcStrategies(X, Y, personsDiffs, groupsDiffs) {
-	var stratsDiff = { vals : calcStratVals(s.mode.personInTurn, X, Y, personsDiffs, groupsDiffs), gVals : [], priors : [] };
-	//stratsDiff.gVals = calcStratGVals(groupsDiffs);
+	//var ret = [];
+	var calcs = calcStratVals(s.mode.personInTurn, X, Y, personsDiffs, groupsDiffs);  //, gVals : [], priors : [] };
+	//for (var i = 0; i < calcs.length; i++) {
+	//	ret.push(calcs[i])
+	/*var ret = [];
+	for (var i = 0; i < s.mode.strategies.length; i++) {
+		//yhyy en jaksa :D
+	}*/
+	//console.log(calcs);
+	return calcs; }
+	//stratsDiff.gVals =
+
+	//calcStratGVals(groupsDiffs);
 	//stratsDiff.vals = addGVals(stratsDiff.gVals);
 	//calcStratPriors(stratsDiff.vals);
-	console.log(stratsDiff);
-	console.log(stratsDiff.vals);
-	return stratsDiff; }
+	//console.log(stratsDiff);
+	//console.log(stratsDiff.vals);
+	//return calcs; }
 
 
 
@@ -2753,17 +2888,26 @@ console.log("CREATESTRATS end");*/
 
 
 
-	
+
+
+/*function mapMat(func, matX, matY) {
+	var XLen = 
+	var output = [];
+	for (var i = 0; i < matY; i++) {
+		output.push()*/
+
+
+
 	
 
 /*function findAllGroupsOfPerson(person) {
 	var memberships = [];
 	for(var i = 0; i < s.Basic.groups.length; i++) {
 		if(contains(s.Basic.groups.ids, person.id)) {
-			memberships.push(s.Basic.groups[i]); }}
-	return memberships; }
+			memberships.push(i); }}
+	return memberships; }*/
 
-
+/*
 	
 function groupNecStaVal(val) {
 	var groups = findAllGroupsOfPerson(s.Basic.personInTurn);
@@ -3212,15 +3356,21 @@ function devBens(persons) { if(s.Basic.maxDebug) {console.log("DEVBENS:"); }
 
 
 
-function Pattern(name, ino, bio, soc, intl) {
-	this.id = s.Basic.patterns.length;
-	this.name = name;
-	this.val = makePVal(ino, bio, soc, intl);
-	this.bens = valForEach(relVal(0,0), s.Basic.patterns); }
+function Pattern(id, name, ino, bio, soc, intl) {
+	if (!this.id) { this.id = s.Basic.patterns.length; } // set id as true when calling this function if you DON'T want to add this to any list in the UI as a pattern... ?
+	else { this.id = false; } // does this even work .
+	if (!this.name) { this.name = ""; }
+	else { this.name = name; }
+	this.ino = ino;
+	this.bio = bio;
+	this.soc = soc;
+	this.intl = intl; }
 
 function makePVal(ino, bio, soc, intl) {
-	ret = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
-	return ret; }
+	this.asValue = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
+
+	ret = new PVal(0, 0, 0, 0, soc, ino, 0, intl, bio);
+	return ret; } //zyy
 
 function personIntoPattern(person) {
 	var pat = new Pattern(person.name, person.body.val, person.val, relVal(0,0), relVal(0,0) );
