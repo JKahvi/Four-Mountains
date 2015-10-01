@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 441</title>
+		<title>Four Mountains beta 449</title>
 		<style>
 
 
@@ -405,11 +405,12 @@ function BasicMode() {
 			newPerson(s.Basic,"Kaniini",true);
 			//newPerson(s.Basic,"Zippomiäs",true);
 			newPerson(s.Basic,"Länsigootti",true);
+			newPerson(s.Basic,"AdolPh.D", false);
 			createMetaphysics(s.Basic, s.Basic.res);
 			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
 			drawGrid(s.Basic.grid, s.Basic.persons, false); }
 		s.mode = s.Basic;
-		createStrategies(s.Basic);
+		createStrategies(s.Basic); //priors not randomized or utilized, can't change strats reasonably before this is done
 		if(s.mode.playing) {drawGrid(s.mode.grid, s.mode.persons, s.mode.personInTurn);}
 		drawInfoBox(false);
 		drawPersonList(false, false);
@@ -609,6 +610,14 @@ function nullPat() {
 	var ret = new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0));
 	return ret; }
 
+function sumPatArr(a,b) {
+	var ret = [];
+	if(a.length === b.length) {
+		for (var i = 0; i < a.length; i++) {
+			ret.push(sumPat(a[i],b[i])); }}
+	return ret; }
+
+
 function sumPat(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	var c = new Pattern( true, false, sumVal(a.ino, b.ino), sumVal(a.bio, b.bio), sumVal(a.soc, b.soc), sumVal(a.intl, b.intl));
 	return c; }
@@ -805,10 +814,11 @@ function makeMove(X, Y, personsDiff, groupsDiff, stratsDiff) { if(s.Basic.maxDeb
 		s.Basic.persons[i].val = sumVal(s.Basic.persons[i].val, personsDiff[i].val);
 		s.Basic.persons[i].antiVal = sumVal(s.Basic.persons[i].antiVal, personsDiff[i].antiVal);
 		s.Basic.persons[i].xp = sumVal(s.Basic.persons[i].xp, personsDiff[i].xp);
+		s.Basic.persons[i].preventXpChange = personsDiff[i].preventXpChange;
 		buffer = [];
 		for (var j = 0; j < s.Basic.persons.length; j++) {
 			buffer.push(sumVal(s.Basic.persons[i].bens[j],personsDiff[i].bens[j])); }
-		s.Basic.persons[i].bens = buffer;}
+		s.Basic.persons[i].bens = buffer; }
 	
 	for (var i = 0; i < s.Basic.groups.length; i++) {
 		s.Basic.groups[i].val = sumVal(s.Basic.groups[i].val, groupsDiff[i].val);
@@ -817,8 +827,14 @@ function makeMove(X, Y, personsDiff, groupsDiff, stratsDiff) { if(s.Basic.maxDeb
 
 	//console.log("STRATSDIFF:");
 
-	for (var i = 0; i < s.Basic.strategies.length; i++ ) {
-
+	for (var i = 0; i < s.Basic.strategies.length; i++) {
+		s.Basic.strategies[i].val = sumPat(s.Basic.strategies[i].val, stratsDiff.vals[i]);
+		for (var j = 0; j < s.Basic.persons.length; j++) {
+			s.Basic.strategies[i].perVals[j] = sumPatArr(s.Basic.strategies[i].perVals[j], stratsDiff.perVals[i]); }}
+			//ööö
+	if (s.Basic.outputToConsole === 1) {
+		s.Basic.persons.map(function(person){console.log({ id : person.id, X : person.X, Y : person.Y })}); }}
+		
 		/*console.log(s.Basic.strategies[i].val);
 		console.log(stratsDiff[i]);*/
 		//console.log("MAKEMOVE:");
@@ -826,10 +842,10 @@ function makeMove(X, Y, personsDiff, groupsDiff, stratsDiff) { if(s.Basic.maxDeb
 		//console.log(s.Basic.strategies[i].val);
 		//console.log("stratsDiff[i]:");
 		//console.log(stratsDiff[i]);
-		s.Basic.strategies[i].val = sumPat(s.Basic.strategies[i].val, stratsDiff[i]);
+		
 		//console.log("s.Basic.strategies[i].val (after):");
 		/*console.log(s.Basic.strategies[i].val); */
-	}
+	
 
 	//console.log(stratsDiff);
 	//for(var i = 0; i < stratsDiff.length; i++) {
@@ -838,8 +854,7 @@ function makeMove(X, Y, personsDiff, groupsDiff, stratsDiff) { if(s.Basic.maxDeb
 	//for (var i = 0; i < s.Basic.strategies.length; i++ ) {
 		//s.Basic.strategies[i].vals = sumValArr(s.Basic.strategies[i].vals, stratsDiff[i].vals); }
 
-	if (s.Basic.outputToConsole === 1) {
-		s.Basic.persons.map(function(person){console.log({ id : person.id, X : person.X, Y : person.Y })}); }}
+
 
 function outputPersonToConsole(person) {
 	return ("moi"); }
@@ -1285,8 +1300,6 @@ function describeSlot(slot, metaphysics) {
 		else {
 			drawInfoBox(slotSymbol + " <em>" + slotName + "</em> is an " + dec + " slot that is romantically " + cluster + " and classically " + level + "."); }}}
 
-
-
 function createMetaphysics(mode, res) {
 	var metaphysics = { nor : [], obj : [], mys : [], sub : [], tan : [], abs : [] };
 	switch(res) {
@@ -1344,8 +1357,6 @@ function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPER
 	if(population.length === 0) {
 		population = "&nbsp;";}//yyx ( id, arr, idType )
 	return population;}
-	
-
 
 function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
 	var hex = ("#" + slot.color);
@@ -1777,7 +1788,7 @@ function drawStratList(hover) {
 	for (var i = 0; i < s.mode.persons.length; i++) {
 		for (var j = 0; j < strategies[i].length; j++) { tot = tot + totVal(patTotVal(strategies[i][j].val)); }
 		for (var j = 0; j < strategies[i].length; j++) { ino = ino + totVal(strategies[i][j].val.ino); }
-		//console.log(strategies[i][j].val.bio);
+		console.log(strategies);
 		for (var j = 0; j < strategies[i].length; j++) { bio = bio + totVal(strategies[i][j].val.bio); }
 		for (var j = 0; j < strategies[i].length; j++) { soc = soc + totVal(strategies[i][j].val.soc); }
 		for (var j = 0; j < strategies[i].length; j++) { intl = intl + totVal(strategies[i][j].val.intl); }
@@ -2568,7 +2579,7 @@ function drawButton(id) { if(s.Basic.maxDebug) {console.log("DRAWBUTTON"); }
 
 
 
-function Strategy(mode, id, name, desc, val, priors, rule) {
+function Strategy(mode, id, name, desc, val, perVals, priors, rule) {
 	this.mode = mode;
 	if (!id) { this.id = mode.strategies.length; }
 	else { this.id = id; }
@@ -2578,6 +2589,8 @@ function Strategy(mode, id, name, desc, val, priors, rule) {
 	else { this.desc = desc; }
 	if(val === false) { this.val = nullPat(); }
 	else { this.val = val; }
+	if(perVals === false) { this.perVals = valForEach(relVal(0,0), mode.persons); } //äöå
+	else { this.perVals = perVals; }
 	/*if (!vals) { this.vals = valForEach(relVal(0,0), mode.persons); }
 	else { this.vals = vals; }*/
 	if (!priors) { this.priors = valForEach(mode.strategies.length, mode.persons); } //change len to -1 when time to teach
@@ -2623,14 +2636,10 @@ function getStrategiesOfPerson(person) {
 
 
 function ai(agent) { if(s.Basic.maxDebug) {console.log("AI"); }
-	//var i = 0;
-	var moves = availableSlots(agent);
+	var moves = _.shuffle(availableSlots(agent));
 	var strats = getStrategiesOfPerson(agent);
-	moves = _.shuffle(moves);
-	for(var i = 0; i < strats.length; i++ ) {
-	//while ((moves.length > i) && (i < strats.length)) { // this function has been changed! probably fucked up! BUG ALERT NB BUG!!! NB!
-		moves = strats[i].rule(moves);
-		/*i++;*/ }
+	for (var i = 0; i < strats.length; i++ ) {
+		moves = strats[i].rule(moves); }
 	for (var i = 1; i < moves.length; i++ ) {
 		if (moves[i].totsPersonVal < moves[i - 1].totsPersonVal) {
 			moves = moves.slice(0, i);
@@ -2638,22 +2647,14 @@ function ai(agent) { if(s.Basic.maxDebug) {console.log("AI"); }
 	if (moves.length > 1) { moves = _.shuffle(moves); }
 	return { X: moves[0].X, Y: moves[0].Y }; }
 
-function simVal(agent, X, Y, rule) {
-	var moves = availableSlots(agent);
+function justifyMoveForPerson(agent, X, Y, rule) { // IRREregardless of whether agent is personInTurn, this function tells whether moving to (X, Y) is justified by rule for agent
+	var moves = rule(availableSlots(agent));
 	var strats = getStrategiesOfPerson(agent);
-	moves = rule(moves);
 	for (var i = 1; i < moves.length; i++ ) {
 		if (moves[i].totsPersonVal < moves[i - 1].totsPersonVal) {
 			moves = moves.slice(0, i);
 			break; }}
-	console.log("moves:");
-	console.log(moves);
-	console.log("findSlot(" + X + "," + Y + ")");
-	console.log(findSlot(X, Y));
-	if (contains(moves, findSlot(X, Y))) {
-		//console.log(moves);
-		//console.log(rule([ findSlot(X, Y) ]));
-		return true; }
+	if (contains(moves, findSlot(X, Y))) { return true; }
 	else { return false; }}
 
 
@@ -2734,27 +2735,44 @@ function simAiGroups(personStrats, personInTurn) {
 
 // separate ino, bio, soc and int val around here. define pattern as an object of four vals. this way the core learn to process classical quality (properly)
 function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) { //remove x and y?
-	var thingsTotalVal; //this not yet implemented overall
+	var thingsTotalVal = relVal(0,0);
 	var personsTotalVal = relVal(0,0);
 	var groupsTotalVal = relVal(0,0);
+	var personGetsReward = [];
 	var stratGetsReward = [];
-	var stratsDiff = [];
-	// calculate the pot:
+	var personGetsReward = [];
+	var stratsDiff = { vals: [], perVals: []}
+	var buffer;
+	// calculate the pot :
 	for(var i = 0; i < s.mode.persons.length; i++) {
 		personsTotalVal = sumVal(personsTotalVal, personsDiffs[i].val); }
 	for(var i = 0; i < s.mode.groups.length; i++) {
 		groupsTotalVal = sumVal(groupsTotalVal, groupsDiffs[i].val); }
-	//select recipients of pot:
-	for (var i = 0; i < s.mode.strategies.length; i++ ) {
-		stratGetsReward.push(simVal(personInTurn, X, Y, s.mode.strategies[i].rule )); }
-		console.log("stratGetsReward:")
-		console.log(stratGetsReward);
-	//send the pot:
+	// select recipients of pot :
+	for (var i = 0; i < s.mode.strategies.length; i++) {
+		stratGetsReward.push(justifyMoveForPerson(personInTurn, X, Y, s.mode.strategies[i].rule ));
+		buffer = [];
+		for (var j = 0; j < s.mode.persons.length; j++) {
+			buffer.push(justifyMoveForPerson(s.mode.persons[j], X, Y, s.mode.strategies[i].rule)); }
+		personGetsReward.push(buffer); }
+	console.log(personGetsReward);
+	// send the pot :
 	for (var i = 0; i < s.mode.strategies.length; i++ ) {
 		if (stratGetsReward[i]) {
-			stratsDiff.push(new Pattern(true, false, relVal(0,0), personsTotalVal, groupsTotalVal, relVal(0,0))); }
+			stratsDiff.vals.push(new Pattern(true, false, thingsTotalVal, personsTotalVal, groupsTotalVal, relVal(0,0))); }
 		else {
-			stratsDiff.push(new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0))); }}
+			stratsDiff.vals.push(new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0))); }}
+	for (var i = 0; i < s.mode.strategies.length; i++) {
+		buffer = [];
+		for (var j = 0; j < s.mode.persons.length; j++) {
+			if(personGetsReward[j] && stratGetsReward[i]) {
+				buffer.push(new Pattern(true, false, thingsTotalVal, personsTotalVal, groupsTotalVal, relVal(0,0))); }
+			else {
+				buffer.push(new Pattern(true, false, relVal(0,0), relVal(0,0), relVal(0,0), relVal(0,0))); }
+			stratsDiff.perVals.push(buffer); }}
+	console.log(stratsDiff);
+	return stratsDiff; }
+
 
 
 		//console.log("stratsDiff[" + i + "].bio:");
@@ -2764,9 +2782,6 @@ function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) { //remove
 	//for (var i = 0; i < stratsDiff.length; i++ ) {
 		//console.log("stratsdiff[" + i + "]:");
 		//console.log(stratsDiff[i]); }
-
-	return stratsDiff; }
-	
 
 	/*for (var i = 0; i < personsDiffs.length; i++) {
 		personStrats.push(stratVal)
@@ -2786,8 +2801,10 @@ function calcStratVals(personInTurn, X, Y, personsDiffs, groupsDiffs) { //remove
 
 
 function calcStrategies(X, Y, personsDiffs, groupsDiffs) {
+	var calcs = calcStratVals(s.mode.personInTurn, X, Y, personsDiffs, groupsDiffs); 
+	return calcs; }
 	//var ret = [];
-	var calcs = calcStratVals(s.mode.personInTurn, X, Y, personsDiffs, groupsDiffs);  //, gVals : [], priors : [] };
+	//, gVals : [], priors : [] };
 	//for (var i = 0; i < calcs.length; i++) {
 	//	ret.push(calcs[i])
 	/*var ret = [];
@@ -2795,7 +2812,6 @@ function calcStrategies(X, Y, personsDiffs, groupsDiffs) {
 		//yhyy en jaksa :D
 	}*/
 	//console.log(calcs);
-	return calcs; }
 	//stratsDiff.gVals =
 
 	//calcStratGVals(groupsDiffs);
@@ -2893,7 +2909,7 @@ function createStrategies(mode) {
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfless", "Prefers immediate value for anyone. Ignores benefactors and groups.",
-			false, false,
+			false, false, false,
 			function(moves) {
 				for (var i = 0; i < moves.length; i++) { //ååå
 					moves[i].totsPersonVal = calcPersons(moves[i].X, moves[i].Y);
@@ -2903,7 +2919,7 @@ function createStrategies(mode) {
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfish", "Prefers immediate value for self. Ignores others and groups.",
-			false, false,
+			false, false, false,
 			function(moves) {
 				for (var i = 0; i < moves.length; i++) {
 					moves[i].totsPersonVal = calcPersons(moves[i].X, moves[i].Y);
@@ -2914,7 +2930,7 @@ function createStrategies(mode) {
 
 	if(mode.name === "BasicMode") {
 		mode.strategies.push(new Strategy (mode, false, "naiveSelfishNS", "Prefers immediate necessarily static value for self. Ignores others and groups.",
-			false, false,
+			false, false, false,
 			function(moves) {
 				return moves.sort(function(a,b) {
 					return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
@@ -3206,20 +3222,22 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.val = relVal(0,0);
 	this.antiVal = relVal(0,0);
 	this.bens = [relVal(0,0)];
-	this.xp = new Val(0,1,1,1,0,0,1,0,0); }
+	this.xp = new Val(0,1,1,1,0,0,1,0,0);
+	this.preventXpChange = false; }
 	
-function Role(id, name, bot, X, Y, visX, visY, val, antiVal, bens, xp) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
+function Role(id, name, bot, X, Y, visX, visY, val, antiVal, bens, xp, preventXpChange) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
 	this.id = id;
 	this.name = name;
 	this.bot = bot;
 	this.X = X;
 	this.Y = Y;
-	this.visX = visX;  // deprecated, should replace visualization with Markover-style solution
-	this.visY = visY;  // deprecated, should replace visualization with Markover-style solution
+	this.visX = visX;  // should replace visualization with Markover-style solution
+	this.visY = visY;  // should replace visualization with Markover-style solution
 	this.val = val;
 	this.antiVal = antiVal;
 	this.bens = bens;
-	this.xp = xp; }
+	this.xp = xp;
+	this.preventXpChange = preventXpChange; }
 
 
 
@@ -3292,7 +3310,7 @@ function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHEC
 			else if (X < 0) { xp2.gno = -(X + xp.gno); }
 			else if (Y > 0) { xp2.abs = Y - xp.abs; }
 			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
-	if ((totVal(xp2) > s.mode.xpRegulation) || (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.res / 2))) { xp2 = makeXp(0, 0, 0, 0); }
+	if ((Math.abs(totVal(xp2)) > s.mode.xpRegulation) || (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.res / 2))) { xp2 = makeXp(0, 0, 0, 0); }
 	return xp2;}
 
 
@@ -3319,7 +3337,8 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 	var antiValDiff;
 	var bensDiff = [];
 	var levelUp;
-	var currBen;
+	var preventXpChange;
+
 	var stratsDiff;
 	var buffer;
 	
@@ -3338,13 +3357,19 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 		if (!((newX === 0) || (newY === 0))) { 
 			valDiff = relVal(newX, newY); }
 
-		levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
-		if (!nullVal(levelUp)) { valDiff = relVal(newX, newY); }
+		if (!s.Basic.persons[i].preventXpChange) {
+			levelUp = levelUpCheck(s.Basic.persons[i].xp, newX, newY);
+			if (!nullVal(levelUp)) {
+				valDiff = relVal(newX, newY);
+				preventXpChange = true;	}}
+		else {
+			levelUp = makeXp(0, 0, 0, 0);
+			preventXpChange = false; }
 
 		if (totVal(valDiff) < 0) { antiValDiff = valDiff; }
 		else { antiValDiff = relVal(0,0); }
 
-		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, antiValDiff, bensDiff, levelUp)); }
+		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, antiValDiff, bensDiff, levelUp, preventXpChange)); }
 
 	for (var i = 0; i < personsDiff.length; i++) {
 		buffer = [];		
