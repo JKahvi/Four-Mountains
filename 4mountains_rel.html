@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 463</title>
+		<title>Four Mountains beta 468</title>
 		<style>
 
 
@@ -878,8 +878,11 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	reportTurn();
 	if(s.Basic.autoBotTurn >= 0) {
 		if(s.Basic.pause === false) {
-			if (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) {
+			if (s.Basic.personInTurn.bot) {
 				updateButton("startGame", "Pause (Enter)");
+				s.Basic.moveAttempt = setInterval(function() { attemptMove(false, false); }, s.Basic.autoBotTurn); }
+			else if (s.Basic.personInTurn.hybrid) {
+				updateButton("startGame", "Continue (Enter)");
 				s.Basic.moveAttempt = setInterval(function() { attemptMove(false, false); }, s.Basic.autoBotTurn); }
 			else {
 				clearInterval(s.Basic.moveAttempt);
@@ -1033,13 +1036,15 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 		s.Basic.pause = false;
 		move(false, false); }		
-	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && (s.Basic.pause === true)) {
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === true)) {
 		s.Basic.pause = false;
 		move(false, false); }		
 	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && (s.Basic.pause === false)) {
 		s.Basic.pause = true;
 		clearInterval(s.Basic.moveAttempt);
 		updateButton("startGame", "Continue (Enter)"); }
+	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.hybrid) && (s.Basic.pause === false)) {
+		attemptMove(false, false); } //zyyy
 	else if(s.Basic.playing && s.Basic.disableAutoContinueOnHumanTurn && ((!s.Basic.personInTurn.bot) && (!s.Basic.personInTurn.hybrid))) {
 		drawInfoBox("This feature has been disabled in order to prevent a non-hybrid human from accidentally skipping his or her turn."); }
 	else if(s.Basic.playing === false) { // has untested mods
@@ -1065,12 +1070,12 @@ function devFunc() { if(s.Basic.maxDebug) {console.log("DEVFUNC"); }
 
 function autoPlay() {
 	if (s.Basic.autoBotTurn >= 0) {
-		if((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
+		if((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.playing === true)) {
 			s.Basic.turn = s.Basic.turn--;
 			clearInterval(s.Basic.moveAttempt); }
 		s.Basic.autoBotTurn = -2;
 		updateButton("autoPlay", "Autoplay: Off");
-		if ((s.Basic.personInTurn.bot === true) && (s.Basic.playing === true)) {
+		if ((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.playing === true)) {
 			updateButton("startGame", "Continue (Enter)"); }}
 	if (s.Basic.autoBotTurn === -1) {
 		var speed = parseInt(prompt("Delay between bot turns in milliseconds:",s.Basic.autoBotTurnDefault));
@@ -1078,7 +1083,7 @@ function autoPlay() {
 			s.Basic.autoBotTurn = speed;
 			s.Basic.autoBotTurnDefault = speed;
 			updateButton("autoPlay", "Autoplay: On"); }
-			if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot === true)) {
+			if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 				startGame();
 				startGame();}}
 	if (s.Basic.autoBotTurn === -2) { s.Basic.autoBotTurn = -1 }}
