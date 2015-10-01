@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 468</title>
+		<title>Four Mountains beta 469</title>
 		<style>
 
 
@@ -1211,8 +1211,10 @@ function restartHover() { drawInfoBox("Starts a new game and erases the old one.
 function BasicModeHover() {	drawInfoBox("Basic mode illustrates the workings of Four Mountains."); }
 function compStratModeHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
 function SpatialModeHover() { drawInfoBox("Spatial mode illustrates how Four Mountains can be applied in artificial intelligence."); }
-
-
+function NonHybridBotHover() { drawInfoBox("Non-hybrid bots cannot be moved by user."); }
+function HybridBotHover() { drawInfoBox("Hybrid bots can be moved by user."); }
+function HybridHumanHover() { drawInfoBox("Hybrid humans can be moved automatically."); }
+function NonHybridHumanHover() { drawInfoBox("Non-hybrid humans cannot be moved automatically."); }
 
 function Level(name,X,Y,rank) { if(s.Basic.maxDebug) {console.log("LEVEL"); }
 	this.name = name;
@@ -1897,17 +1899,12 @@ function updatePersonList(diffs, hover) {
 		
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 
-		if (s.Basic.persons[i - 1].bot) {
-			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Th</div>" }
-			else { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }}
-		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Fh</div>" }
-			else { bot.innerHTML = "<div style='text-align:center !important'></div>" }
-
 		if(!hover) {
 			if (prevPerson(s.mode.personInTurn).id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			else if (s.mode.personInTurn.id === (i - 1)) { name.innerHTML = "<em>" + s.Basic.persons[i - 1].name + "</em>"; }
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
 		else {
-			if (s.mode.personInTurn.id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
+			if (s.mode.personInTurn.id === (i - 1)) { name.innerHTML = "<strong><em>" + s.Basic.persons[i - 1].name + "</em></strong>"; }
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
 
 		if (!hover) { X.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].X + "</div>"; }
@@ -2098,10 +2095,10 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 
 		if (s.Basic.persons[i - 1].bot) {
-			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Th</div>" }
-			else { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }}
-		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Fh</div>" }
-			else { bot.innerHTML = "<div style='text-align:center !important'></div>" }
+			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridBotHover();' style='text-align:center !important'>Th</div>" }
+			else { bot.innerHTML = "<div onmouseover='NonHybridBotHover();' style='text-align:center !important'>T</div>" }}
+		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridHumanHover();' style='text-align:center !important'>Fh</div>" }
+			else { bot.innerHTML = "<div onmouseover='NonHybridHumanHover();' style='text-align:center !important'>&nbsp;</div>" }
 
 		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
 		else { name.innerHTML = s.Basic.persons[i - 1].name; }
