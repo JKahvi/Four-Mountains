@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 456</title>
+		<title>Four Mountains beta 463</title>
 		<style>
 
 
@@ -404,10 +404,10 @@ function BasicMode() {
 			newPerson(s.Basic,"Rotta",false,true);
 			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
 			s.Basic.personInTurn = s.Basic.persons[0];
-			newPerson(s.Basic,"Siiseli",false,true);
-			newPerson(s.Basic,"Kaniini",false,true);
+			newPerson(s.Basic,"Siiseli",true,true);
+			newPerson(s.Basic,"Kaniini",true,false);
 			//newPerson(s.Basic,"Zippomiäs",true);
-			newPerson(s.Basic,"Länsigootti",false,true);
+			newPerson(s.Basic,"Länsigootti",false,false);
 			newPerson(s.Basic,"AdolPh.D", false,true);
 			createMetaphysics(s.Basic, s.Basic.res);
 			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
@@ -878,9 +878,9 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	reportTurn();
 	if(s.Basic.autoBotTurn >= 0) {
 		if(s.Basic.pause === false) {
-			if((s.Basic.personInTurn.bot) || (s.Basic.personInTurn.hybrid)) {
+			if (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) {
 				updateButton("startGame", "Pause (Enter)");
-				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
+				s.Basic.moveAttempt = setInterval(function() { attemptMove(false, false); }, s.Basic.autoBotTurn); }
 			else {
 				clearInterval(s.Basic.moveAttempt);
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
@@ -919,7 +919,7 @@ function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.
 		var mode = s.mode; }
 	var hidden = false;
 	var fill = 0;
-	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean")) && ((typeof isHybrid) === "boolean")) {
+	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean") && ((typeof isHybrid) === "boolean"))) {
 		hidden = true;} // hidden should be "not hidden"? it means "hidden from the coder"
 	var cancel = false;
 	if (hidden) {
@@ -927,7 +927,7 @@ function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.
 		if (!name) { cancel = true; }}
 	if (hidden && (!(cancel))) {
 		var isBot = confirm("Click OK for bot, Cancel for human.");
-		var isHybrid = confirm("Click OK for hybrid."); }
+		var isHybrid = confirm("Click OK for hybrid.\nHybrid bots can be moved by user and hybrid humans can be automoved."); }
 	if (!cancel) {
 		var oldGroups = copyGroups(mode.groups);
 		mode.persons.push(new Person(name, isBot, isHybrid, mode.persons.length));
@@ -1012,20 +1012,36 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 			$( "#stratTable" ).empty();
 			drawStratList(false); }}}
 	
+	/*
+if autoplay:
+hybrid bots PLAY
+hybrid humans PLAY
+bots PLAY
+humans PLAY
+
+no autoplay:
+hybrid bots PLAY
+hybrid humans PLAY
+bots PLAY
+humans NOT PLAY
+
+
+autoplay and false hybrid: possible to click button but no autoclick
+	*/
 function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
 	var next = nextPerson(s.Basic.personInTurn);	
 	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 		s.Basic.pause = false;
-		move(false, false);}		
-	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === true)) {
+		move(false, false); }		
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && (s.Basic.pause === true)) {
 		s.Basic.pause = false;
-		move(false, false);}		
-	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === false)) {
+		move(false, false); }		
+	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && (s.Basic.pause === false)) {
 		s.Basic.pause = true;
 		clearInterval(s.Basic.moveAttempt);
-		updateButton("startGame", "Continue (Enter)");}
-	else if((s.Basic.playing === true) && (!(s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
-		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}		
+		updateButton("startGame", "Continue (Enter)"); }
+	else if(s.Basic.playing && s.Basic.disableAutoContinueOnHumanTurn && ((!s.Basic.personInTurn.bot) && (!s.Basic.personInTurn.hybrid))) {
+		drawInfoBox("This feature has been disabled in order to prevent a non-hybrid human from accidentally skipping his or her turn."); }
 	else if(s.Basic.playing === false) { // has untested mods
 		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
 		var starter = 0;
@@ -1035,7 +1051,7 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 				updateButton("startGame", "Play (Enter)"); }
 			reportTurn();
 			s.Basic.personInTurn = s.Basic.persons[starter];
-			if (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) { move(false, false); }
+			if (s.Basic.personInTurn.bot || (s.Basic.personInTurn.hybrid && (s.Basic.autoBotTurn === -1))) { move(false, false); }
 			else {
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
 				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}}
