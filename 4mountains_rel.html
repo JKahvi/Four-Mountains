@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 449</title>
+		<title>Four Mountains beta 454</title>
 		<style>
 
 
@@ -337,6 +337,8 @@ Do these modules, metaphysically, emerge from each other?
 
 // BUG if create new person, amoq will think that was previous person when visualizing turn
 
+// BUG INFO: delperson does not cause bug if delete last person in list so that person is in turn
+
 // dec is miscalculated. shoud account for x y diff instead of just absval
 
 
@@ -381,16 +383,17 @@ function BasicMode() {
 				xpRegulation: 1,
 				levCap: true,
 				//config:
-				fancyUI: true,
 				playing: false,
 				personInTurn: false,
 				turn: 0,
 				autoBotTurn: -1, //-1 for none
 				autoBotTurnDefault: 50,
+				autoPlayFirstTurn: true,
 				disableAutoContinueOnHumanTurn: true,
 				pause: false,
 				moveAttempt: false,
 				simultaneousTurns: false,
+				fancyUI: true,
 				//output:
 				outputToConsole: 0,
 				maxDebug: false,
@@ -398,14 +401,14 @@ function BasicMode() {
 				logInfoBox: false,
 				//
 				initDone: false };
-			newPerson(s.Basic,"Rotta",true);
+			newPerson(s.Basic,"Rotta",false,true);
 			//s.Basic.persons[0].xp = makeXp(2, 2, 2, 2);
 			s.Basic.personInTurn = s.Basic.persons[0];
-			newPerson(s.Basic,"Siiseli",true);
-			newPerson(s.Basic,"Kaniini",true);
+			newPerson(s.Basic,"Siiseli",false,true);
+			newPerson(s.Basic,"Kaniini",false,true);
 			//newPerson(s.Basic,"Zippomiäs",true);
-			newPerson(s.Basic,"Länsigootti",true);
-			newPerson(s.Basic,"AdolPh.D", false);
+			newPerson(s.Basic,"Länsigootti",false,true);
+			newPerson(s.Basic,"AdolPh.D", false,true);
 			createMetaphysics(s.Basic, s.Basic.res);
 			createGrid(s.Basic, s.Basic.res, s.Basic.persons);
 			drawGrid(s.Basic.grid, s.Basic.persons, false); }
@@ -875,7 +878,7 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	reportTurn();
 	if(s.Basic.autoBotTurn >= 0) {
 		if(s.Basic.pause === false) {
-			if(s.Basic.personInTurn.bot === true) {
+			if((s.Basic.personInTurn.bot) || (s.Basic.personInTurn.hybrid)) {
 				updateButton("startGame", "Pause (Enter)");
 				s.Basic.moveAttempt = setInterval(function() {attemptMove(false, false);}, s.Basic.autoBotTurn);}
 			else {
@@ -883,16 +886,16 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");}}
 		else { //pause is on
 			clearInterval(s.Basic.moveAttempt);
-			if(s.Basic.personInTurn.bot === true) {
+			if(s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) {
 				updateButton("startGame", "Continue (Enter)");}
 			else { //no reason to pause on human turn
 				s.Basic.pause = false;}}}
 	else {
-		if(s.Basic.personInTurn.bot === false) {
+		if((!s.Basic.personInTurn.bot) && (!s.Basic.personInTurn.hybrid)) {
 			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
 		else {
 			updateButton("startGame", "Continue (Enter)");}}		
-	if(debug === true) {
+	if(debug) {
 		devStates();}}
 
 
@@ -911,22 +914,23 @@ function updateButton(id, buttonText) { if(s.Basic.maxDebug) {console.log("UPDAT
 
 
 
-function newPerson(mode, name, isBot) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
+function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
 	if(!((typeof mode) === "object")) {
 		var mode = s.mode; }
 	var hidden = false;
 	var fill = 0;
-	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean"))) {
+	if (!(((typeof name) === "string") && ((typeof isBot) === "boolean")) && ((typeof isHybrid) === "boolean")) {
 		hidden = true;} // hidden should be "not hidden"? it means "hidden from the coder"
 	var cancel = false;
 	if (hidden) {
 		var name = prompt("Name","");
 		if (!name) { cancel = true; }}
 	if (hidden && (!(cancel))) {
-		var isBot = confirm("Click OK for bot, Cancel for human.");}
+		var isBot = confirm("Click OK for bot, Cancel for human.");
+		var isHybrid = confirm("Click OK for hybrid."); }
 	if (!cancel) {
 		var oldGroups = copyGroups(mode.groups);
-		mode.persons.push(new Person(name, isBot, mode.persons.length));
+		mode.persons.push(new Person(name, isBot, isHybrid, mode.persons.length));
 		for (var i = 0; i < mode.persons.length; i++) {
 			fill = mode.persons.length - mode.persons[i].bens.length;
 			for (var j = 0; j < fill; j++) {
@@ -1010,17 +1014,17 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 	
 function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
 	var next = nextPerson(s.Basic.personInTurn);	
-	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot === true)) {
+	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 		s.Basic.pause = false;
 		move(false, false);}		
-	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === true)) {
+	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === true)) {
 		s.Basic.pause = false;
 		move(false, false);}		
-	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot === true) && (s.Basic.pause === false)) {
+	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === false)) {
 		s.Basic.pause = true;
 		clearInterval(s.Basic.moveAttempt);
 		updateButton("startGame", "Continue (Enter)");}
-	else if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
+	else if((s.Basic.playing === true) && (!(s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) && (s.Basic.disableAutoContinueOnHumanTurn === true)) {
 		drawInfoBox("This feature has not been enabled, probably to prevent a human from accidentally skipping his or her turn.");}		
 	else if(s.Basic.playing === false) { // has untested mods
 		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Basic.personInTurn)));
@@ -1031,7 +1035,7 @@ function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has
 				updateButton("startGame", "Play (Enter)"); }
 			reportTurn();
 			s.Basic.personInTurn = s.Basic.persons[starter];
-			if (s.Basic.personInTurn.bot === true) { move(false, false); }
+			if (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) { move(false, false); }
 			else {
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
 				drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);}}}}
@@ -1869,6 +1873,12 @@ function updatePersonList(diffs, hover) {
 		
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 
+		if (s.Basic.persons[i - 1].bot) {
+			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Th</div>" }
+			else { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }}
+		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Fh</div>" }
+			else { bot.innerHTML = "<div style='text-align:center !important'></div>" }
+
 		if(!hover) {
 			if (prevPerson(s.mode.personInTurn).id === (i - 1)) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
 			else { name.innerHTML = s.Basic.persons[i - 1].name; }}
@@ -2063,8 +2073,11 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 	
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 
-		if (s.Basic.persons[i -1].bot) { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }
-		else { bot.innerHTML = "" }
+		if (s.Basic.persons[i - 1].bot) {
+			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Th</div>" }
+			else { bot.innerHTML = "<div style='text-align:center !important'>T</div>" }}
+		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div style='text-align:center !important'>Fh</div>" }
+			else { bot.innerHTML = "<div style='text-align:center !important'></div>" }
 
 		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
 		else { name.innerHTML = s.Basic.persons[i - 1].name; }
@@ -3071,7 +3084,7 @@ function copyPersonById(id) {
 	var copy;
 	for (var i = 0; i < s.Basic.persons.length; i++) {
 		if(id === s.Basic.persons[i].id) {
-			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].antiVal, s.Basic.persons[i].bens, s.Basic.persons[i].xp); }}
+			copy = new Role(i, s.Basic.persons[i].name, s.Basic.persons[i].bot, s.Basic.persons[i].hybrid, s.Basic.persons[i].X, s.Basic.persons[i].Y, s.Basic.persons[i].visX, s.Basic.persons[i].visY, s.Basic.persons[i].val, s.Basic.persons[i].antiVal, s.Basic.persons[i].bens, s.Basic.persons[i].xp, s.Basic.persons[i].preventXpChange); }}
 	return copy; }
 	
 function makeGroupFromIds(ids) {
@@ -3210,10 +3223,11 @@ function addGroups(mode, oldGroups) { if(s.Basic.maxDebug) {console.log("ADDGROU
 
 
 
-function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
+function Person(name, bot, hybrid) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.id = s.Basic.persons.length;
 	this.name = name;
 	this.bot = bot;
+	this.hybrid = hybrid;
 	this.X = 0;
 	this.Y = 0;
 	this.visX = 0;
@@ -3225,10 +3239,11 @@ function Person(name, bot) { if(s.Basic.maxDebug) {console.log("PERSON"); }
 	this.xp = new Val(0,1,1,1,0,0,1,0,0);
 	this.preventXpChange = false; }
 	
-function Role(id, name, bot, X, Y, visX, visY, val, antiVal, bens, xp, preventXpChange) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
+function Role(id, name, bot, hybrid, X, Y, visX, visY, val, antiVal, bens, xp, preventXpChange) {  if(s.Basic.maxDebug) {console.log("ROLE"); } //i would have merged this entire function with Person if I had known how at the time
 	this.id = id;
 	this.name = name;
 	this.bot = bot;
+	this.hybrid = hybrid;
 	this.X = X;
 	this.Y = Y;
 	this.visX = visX;  // should replace visualization with Markover-style solution
@@ -3369,7 +3384,7 @@ function calcPersons(X, Y) { if(s.Basic.maxDebug) {console.log("CALCPERSONS:"); 
 		if (totVal(valDiff) < 0) { antiValDiff = valDiff; }
 		else { antiValDiff = relVal(0,0); }
 
-		personsDiff.push(new Role(i, false, false, newX, newY, newVisX, newVisY, valDiff, antiValDiff, bensDiff, levelUp, preventXpChange)); }
+		personsDiff.push(new Role(i, false, false, false, newX, newY, newVisX, newVisY, valDiff, antiValDiff, bensDiff, levelUp, preventXpChange)); }
 
 	for (var i = 0; i < personsDiff.length; i++) {
 		buffer = [];		
@@ -3456,7 +3471,7 @@ function init() {
 	s.Spatial = { initDone : false };
 	BasicMode();
 	s.initDone = true;
-	startGame(); }
+	if (s.mode.autoPlayFirstTurn) { startGame(); }}
 	
 	
 	//for(var i = 0; i < s.Basic.persons.length; i++) {
