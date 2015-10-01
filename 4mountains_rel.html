@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 454</title>
+		<title>Four Mountains beta 456</title>
 		<style>
 
 
@@ -1380,8 +1380,11 @@ function slotHover(X, Y) {
 
 function slotClick(X,Y) { if(s.Basic.maxDebug) {console.log("SLOTCLICK"); }
 	var available = slotAvailable(X, Y, s.Basic.personInTurn);
-	if((s.Basic.playing === true) && (s.Basic.personInTurn.bot === false) && (available === true)) {
-		move(X,Y);}}
+	if(s.Basic.autoBotTurn === -1) {
+		if((s.Basic.playing === true) && ((!s.Basic.personInTurn.bot) || s.Basic.personInTurn.hybrid) && (available === true)) {
+			move(X,Y);}}
+	else if((s.Basic.playing === true) && ((!s.Basic.personInTurn.bot) || s.Basic.personInTurn.hybrid) && (available === true)) {
+			attemptMove(X,Y);}}
 
 function hexToRgb(hex) {  if(s.Basic.maxDebug) {console.log("HEXTORGB"); }
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
