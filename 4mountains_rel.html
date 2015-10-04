@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 469</title>
+		<title>Four Mountains beta 474</title>
 		<style>
 
 
@@ -380,8 +380,8 @@ function BasicMode() {
 				nonrelScale: false, //absVal of nonrelativized slots
 				relScale: "sum2",	//absVal of relativized slots (ie. both X and Y have non-zero value)
 				revertingXp: true,
-				xpRegulation: 1,
-				levCap: true,
+				xpRegulation: 1, //-1 for none
+				xpCap: true, //-1 for none, true for half res, number for other
 				//config:
 				playing: false,
 				personInTurn: false,
@@ -877,7 +877,7 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	var next = nextPerson(s.Basic.personInTurn);
 	reportTurn();
 	if(s.Basic.autoBotTurn >= 0) {
-		if(s.Basic.pause === false) {
+		if(!s.Basic.pause) {
 			if (s.Basic.personInTurn.bot) {
 				updateButton("startGame", "Pause (Enter)");
 				s.Basic.moveAttempt = setInterval(function() { attemptMove(false, false); }, s.Basic.autoBotTurn); }
@@ -1014,36 +1014,20 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 			drawGroupList(false);
 			$( "#stratTable" ).empty();
 			drawStratList(false); }}}
-	
-	/*
-if autoplay:
-hybrid bots PLAY
-hybrid humans PLAY
-bots PLAY
-humans PLAY
 
-no autoplay:
-hybrid bots PLAY
-hybrid humans PLAY
-bots PLAY
-humans NOT PLAY
-
-
-autoplay and false hybrid: possible to click button but no autoclick
-	*/
 function startGame() {  if(s.Basic.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
 	var next = nextPerson(s.Basic.personInTurn);	
-	if((s.Basic.playing === true) && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
+	if(s.Basic.playing && (s.Basic.autoBotTurn === -1) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 		s.Basic.pause = false;
 		move(false, false); }		
-	else if((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.pause === true)) {
+	else if(s.Basic.playing && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && s.Basic.pause) {
 		s.Basic.pause = false;
 		move(false, false); }		
-	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && (s.Basic.pause === false)) {
+	else if (s.Basic.playing && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.bot) && s.Basic.pause) {
 		s.Basic.pause = true;
 		clearInterval(s.Basic.moveAttempt);
 		updateButton("startGame", "Continue (Enter)"); }
-	else if ((s.Basic.playing === true) && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.hybrid) && (s.Basic.pause === false)) {
+	else if (s.Basic.playing && (s.Basic.autoBotTurn >= 0) && (s.Basic.personInTurn.hybrid) && (!s.Basic.pause)) {
 		attemptMove(false, false); } //zyyy
 	else if(s.Basic.playing && s.Basic.disableAutoContinueOnHumanTurn && ((!s.Basic.personInTurn.bot) && (!s.Basic.personInTurn.hybrid))) {
 		drawInfoBox("This feature has been disabled in order to prevent a non-hybrid human from accidentally skipping his or her turn."); }
@@ -1070,12 +1054,12 @@ function devFunc() { if(s.Basic.maxDebug) {console.log("DEVFUNC"); }
 
 function autoPlay() {
 	if (s.Basic.autoBotTurn >= 0) {
-		if((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.playing === true)) {
+		if((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && s.Basic.playing) {
 			s.Basic.turn = s.Basic.turn--;
 			clearInterval(s.Basic.moveAttempt); }
 		s.Basic.autoBotTurn = -2;
 		updateButton("autoPlay", "Autoplay: Off");
-		if ((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && (s.Basic.playing === true)) {
+		if ((s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid) && s.Basic.playing) {
 			updateButton("startGame", "Continue (Enter)"); }}
 	if (s.Basic.autoBotTurn === -1) {
 		var speed = parseInt(prompt("Delay between bot turns in milliseconds:",s.Basic.autoBotTurnDefault));
@@ -1083,7 +1067,7 @@ function autoPlay() {
 			s.Basic.autoBotTurn = speed;
 			s.Basic.autoBotTurnDefault = speed;
 			updateButton("autoPlay", "Autoplay: On"); }
-			if((s.Basic.pause === false) && (s.Basic.playing === true) && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
+			if((!s.Basic.pause) && s.Basic.playing && (s.Basic.personInTurn.bot || s.Basic.personInTurn.hybrid)) {
 				startGame();
 				startGame();}}
 	if (s.Basic.autoBotTurn === -2) { s.Basic.autoBotTurn = -1 }}
@@ -1479,7 +1463,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r5xn1yn2 = new Slot("Pain",		-1, -2);
 
 		var r5xn2y0 = new Slot("Champion",	-2,  0);
-		var r5xn2y1 = new Slot("Who?",		-2,  1);
+		var r5xn2y1 = new Slot("Who,when?", -2,  1);
 		var r5xn2y2 = new Slot("Esthetic",	-2,  2);
 		var r5xn2yn1 = new Slot("What?",	-2, -1);
 		var r5xn2yn2 = new Slot("Pleasure",	-2, -2);
@@ -1516,7 +1500,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9x2y0 = new Slot("Adept", 			 2,  0, "666666", "FFF", false);
 		var r9x2y1 = new Slot("Think",			 2,  1, "C68C5E", "000", "parsing");
 		var r9x2y2 = new Slot("Purpose", 		 2,  2, "FFBB7C", "000", "semantic");
-		var r9x2y3 = new Slot("Doubt", 			 2,  3, "769EFF", "000", "jumping to conclusions");
+		var r9x2y3 = new Slot("Risk", 			 2,  3, "769EFF", "000", "jumping to conclusions");
 		var r9x2y4 = new Slot("Must", 			 2,  4, "0034BE", "FFF", "obsessing");
 		var r9x2yn1 = new Slot("Need", 			 2, -1, "C68C8D", "000", "sustaining");
 		var r9x2yn2 = new Slot("Life", 			 2, -2, "FF797D", "000", "biological");
@@ -1526,7 +1510,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9x3y0 = new Slot("Master", 		 3,  0, "333333", "FFF", false);
 		var r9x3y1 = new Slot("Choice",			 3,  1, "874F23", "FFF", "recursive");
 		var r9x3y2 = new Slot("Reason", 		 3,  2, "C97430", "000", "proving");
-		var r9x3y3 = new Slot("Understand",		 3,  3, "FF993D", "000", "metatheoretic");
+		var r9x3y3 = new Slot("Infer",			 3,  3, "FF993D", "000", "metatheoretic");
 		var r9x3y4 = new Slot("Lie", 			 3,  4, "0043FF", "000", "confusing");
 		var r9x3yn1 = new Slot("Tool", 			 3, -1, "845F5F", "FFF", "infrastructural");
 		var r9x3yn2 = new Slot("Belong", 		 3, -2, "CC5B5F", "000", "working");
@@ -1574,7 +1558,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9xn3yn4 = new Slot("Shock", 		-3, -4, "2EFF62", "000", "hurrying");
 
 		var r9xn4y0 = new Slot("Champion",		-4,  0, "000000", "FFF", false);
-		var r9xn4y1 = new Slot("Who?",			-4,  1, "424100", "FFF", "innocent");
+		var r9xn4y1 = new Slot("Who?",			-4,  1, "424100", "FFF", "innocent\", \"when?\", \"where?");
 		var r9xn4y2 = new Slot("Can", 			-4,  2, "7D7E00", "FFF", "ritualistic");
 		var r9xn4y3 = new Slot("Magical",		-4,  3, "BDBD00", "000", false);
 		var r9xn4y4 = new Slot("Esthetic",		-4,  4, "FFFE00", "000", false);
@@ -2095,9 +2079,9 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
 
 		if (s.Basic.persons[i - 1].bot) {
-			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridBotHover();' style='text-align:center !important'>Th</div>" }
+			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridBotHover();' style='text-align:center !important'>T*</div>" }
 			else { bot.innerHTML = "<div onmouseover='NonHybridBotHover();' style='text-align:center !important'>T</div>" }}
-		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridHumanHover();' style='text-align:center !important'>Fh</div>" }
+		else if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridHumanHover();' style='text-align:center !important'>F*</div>" }
 			else { bot.innerHTML = "<div onmouseover='NonHybridHumanHover();' style='text-align:center !important'>&nbsp;</div>" }
 
 		if((s.mode.playing) && (s.mode.personInTurn.id === (i - 1))) { name.innerHTML = "<strong>" + s.Basic.persons[i - 1].name + "</strong>"; }
@@ -3346,8 +3330,12 @@ function levelUpCheck(xp, X, Y) { if(s.Basic.maxDebug) {console.log("LEVELUPCHEC
 			else if (X < 0) { xp2.gno = -(X + xp.gno); }
 			else if (Y > 0) { xp2.abs = Y - xp.abs; }
 			else if (Y < 0) { xp2.tan = -(Y + xp.tan); }}}
-	if ((Math.abs(totVal(xp2)) > s.mode.xpRegulation) || (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.res / 2))) { xp2 = makeXp(0, 0, 0, 0); }
-	return xp2;}
+	if (!(s.mode.xpRegulation === -1)) {
+		if (Math.abs(totVal(xp2)) > s.mode.xpRegulation) { xp2 = makeXp(0, 0, 0, 0); }}
+	else if (!(s.mode.xpCap === -1)) {
+		if (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.xpCap)) { xp2 = makeXp(0, 0, 0, 0); }
+		else if (maxVal(sumVal(xp, xp2)) > Math.floor(s.mode.res / 2)) { xp2 = makeXp(0, 0, 0, 0); }}
+	return xp2; }
 
 
 
