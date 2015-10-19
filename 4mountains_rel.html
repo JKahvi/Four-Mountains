@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 474</title>
+		<title>Four Mountains beta 480</title>
 		<style>
 
 
@@ -424,6 +424,7 @@ function BasicMode() {
 		drawButton("delPerson");
 		drawButton("restart");
 		drawButton("devFunc");
+		drawPatternList(false);
 		drawGroupList(false, false);
 		s.mode.initDone = true; }}
 
@@ -481,8 +482,8 @@ function SpatialMode() {
 		
 		
 		
-function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("VAL"); }
-	this.Dyn = Dyn;
+function Val(dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("VAL"); }
+	this.dyn = dyn;
 	this.abs = abs;
 	this.tan = tan;
 	this.rat = rat;
@@ -492,8 +493,8 @@ function Val(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {conso
 	this.mys = mys;
 	this.sub = sub;}
 
-function PVal(Dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("PVAL"); } //duplicated from Val in case it ever turns out useful to sumVal values with patterns. Probably not. Can't know.
-	this.Dyn = Dyn;
+function PVal(dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Basic.maxDebug) {console.log("PVAL"); } //duplicated from Val in case it ever turns out useful to sumVal values with patterns. Probably not. Can't know.
+	this.dyn = dyn;
 	this.abs = abs;
 	this.tan = tan;
 	this.rat = rat;
@@ -550,7 +551,7 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change 
 function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
 	var a = absVal(X,Y);
 	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
-	if		(X === 0 && Y === 0) {  //Dyn
+	if		(X === 0 && Y === 0) {  //dyn
 		relativized = new Val(0,0,0,0,0,0,0,0,0);}
 	else if (X === 0 && Y > 0) {  //abs
 		relativized = new Val(0,a,0,0,0,0,0,0,0);}
@@ -573,7 +574,7 @@ function relVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // "Relati
 function devVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // IDEA visval would be visibility... as val object
 	var a = absVal(X,Y);
 	var relativized;
-	if		(X === 0 && Y === 0) {  //Dyn
+	if		(X === 0 && Y === 0) {  //dyn
 		relativized = new Val(a,0,0,0,0,0,0,0,0);}
 	else if (X === 0 && Y > 0) {  //abs
 		relativized = new Val(0,Y,0,0,0,0,0,0,0);}
@@ -594,7 +595,7 @@ function devVal(X,Y) { if(s.Basic.maxDebug) {console.log("RELVAL"); } // IDEA vi
 	return relativized;}
 
 function nullVal(val) {
-	if((val.Dyn === 0) && (val.abs === 0) && (val.tan === 0) && (val.rat === 0) && (val.nor === 0) && (val.obj === 0) && (val.gno === 0) && (val.mys === 0) && (val.sub === 0)) { return true; }
+	if((val.dyn === 0) && (val.abs === 0) && (val.tan === 0) && (val.rat === 0) && (val.nor === 0) && (val.obj === 0) && (val.gno === 0) && (val.mys === 0) && (val.sub === 0)) { return true; }
 	else { return false; }}
 
 function patTotVal(p) {
@@ -602,7 +603,7 @@ function patTotVal(p) {
 	return ret; }
 
 function totVal(a) { if(s.Basic.maxDebug) {console.log("TOTVAL"); }
-	var ret = a.Dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
+	var ret = a.dyn + a.abs + a.rat + a.tan + a.gno + a.obj + a.nor + a.sub + a.mys;
 	return ret;}
 
 function necStaVal(val) { if(s.Basic.maxDebug) {console.log("NECSTAVAL"); } // "Necessarily static value", I guess this could as well be called "relativized value" but the abbr relVal is already taken
@@ -627,7 +628,7 @@ function sumPat(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	
 function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	var c = new Val(
-		a.Dyn + b.Dyn,
+		a.dyn + b.dyn,
 		a.abs + b.abs,
 		a.tan + b.tan,
 		a.rat + b.rat,
@@ -639,11 +640,11 @@ function sumVal(a,b) { if(s.Basic.maxDebug) {console.log("SUMVAL"); }
 	return c;}
 
 function invVal(val) {
-	var ret = new Val(-val.Dyn, -val.abs, -val.tan, -val.rat, -val.nor, -val.obj, -val.gno, -val.mys, -val.sub);
+	var ret = new Val(-val.dyn, -val.abs, -val.tan, -val.rat, -val.nor, -val.obj, -val.gno, -val.mys, -val.sub);
 	return ret; }
 
 function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPAREVAL:"); } //unused
-	var DynDiff = guestVal.Dyn - hostVal.Dyn;
+	var dynDiff = guestVal.dyn - hostVal.dyn;
 	var absDiff = guestVal.abs - hostVal.abs;
 	var tanDiff = guestVal.tan - hostVal.tan;
 	var ratDiff = guestVal.rat - hostVal.rat;
@@ -656,7 +657,7 @@ function compareVal(hostVal,guestVal) { if(s.Basic.maxDebug) {console.log("COMPA
 	return valDiff; }
 
 function maxVal(val) {
-	var vals = [val.Dyn, val.gno, val.rat, val.abs, val.tan, val.obj, val.sub, val.nor, val.mys];
+	var vals = [val.dyn, val.gno, val.rat, val.abs, val.tan, val.obj, val.sub, val.nor, val.mys];
 	vals = vals.sort(function(a,b) { return parseFloat(a) - parseFloat(b) } );
 	return vals[0]; }
 
@@ -1126,6 +1127,7 @@ function dId ( id, arr, dIds ) {
 				else {
 					for (var j = 0; j < loops; j++) {
 						ret = dIds.arr[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
+		//console.log(ret);
 		return ret; }}
 
 function arrToUpperCase(arr) {
@@ -1176,7 +1178,8 @@ function reportTurn() { if(s.Basic.maxDebug) {console.log("REPORTTURN"); }
 function defaultHover() {
 	s.mode.slotHover = false;
 	drawInfoBox(s.mode.defaultInfoBox);
-	updatePersonList(s.mode.latestPersonsDiff, false); }
+	updatePersonList(s.mode.latestPersonsDiff, false);
+	updateGroupList(s.mode.latestGroupsDiff, false); }
 
 function bensHover(id1, id2) {
 	drawInfoBox(s.Basic.persons[id2].name + " (" + id2 + ") has treated " + s.Basic.persons[id1].name + " (" + id1 + ") with a decency of " + dispValDecency(s.Basic.persons[id1].bens[id2]) + " and value of " + necStaVal(s.Basic.persons[id1].bens[id2]) + " by giving " + s.Basic.persons[id1].bens[id2].obj + " &diams;, " + s.Basic.persons[id1].bens[id2].sub + " &hearts;, " + s.Basic.persons[id1].bens[id2].nor + " &spades;, " + s.Basic.persons[id1].bens[id2].mys + " &clubs; composed of " + s.Basic.persons[id1].bens[id2].gno + " gno, " + s.Basic.persons[id1].bens[id2].rat + " rat, " + s.Basic.persons[id1].bens[id2].abs + " abs, " + s.Basic.persons[id1].bens[id2].tan + " tan"); }
@@ -1478,9 +1481,9 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		
 	case 9 :
 		var r9x0y0 = new Slot("Nothing", 		 0,  0, "FFFFFF", "000", false);
-		var r9x0y1 = new Slot("Vulgar", 		 0,  1, "AAAAAA", "000", false);
-		var r9x0y2 = new Slot("Refined", 		 0,  2, "BBBBBB", "000", false);
-		var r9x0y3 = new Slot("Reverent", 		 0,  3, "CCCCCC", "000", false);
+		var r9x0y1 = new Slot("Simple", 		 0,  1, "AAAAAA", "000", "vulgar, obvious"); // BUG!!! nonrelativized alt names not shown
+		var r9x0y2 = new Slot("Complex", 		 0,  2, "BBBBBB", "000", "refined");
+		var r9x0y3 = new Slot("Pure", 			 0,  3, "CCCCCC", "000", false);
 		var r9x0y4 = new Slot("Holy", 			 0,  4, "DDDDDD", "000", false);
 		var r9x0yn1 = new Slot("Naive", 		 0, -1, "AAAAAA", "000", false);
 		var r9x0yn2 = new Slot("Mature", 		 0, -2, "BBBBBB", "000", false);
@@ -1505,17 +1508,17 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9x2yn1 = new Slot("Need", 			 2, -1, "C68C8D", "000", "sustaining");
 		var r9x2yn2 = new Slot("Life", 			 2, -2, "FF797D", "000", "biological");
 		var r9x2yn3 = new Slot("Poverty",		 2, -3, "75FFFF", "000", "feral");
-		var r9x2yn4 = new Slot("Decline",		 2, -4, "24BFBF", "FFF", "failing");
+		var r9x2yn4 = new Slot("Subvert",		 2, -4, "24BFBF", "FFF", "failing");
 
 		var r9x3y0 = new Slot("Master", 		 3,  0, "333333", "FFF", false);
 		var r9x3y1 = new Slot("Choice",			 3,  1, "874F23", "FFF", "recursive");
-		var r9x3y2 = new Slot("Reason", 		 3,  2, "C97430", "000", "proving");
+		var r9x3y2 = new Slot("Expect", 		 3,  2, "C97430", "000", "proving");
 		var r9x3y3 = new Slot("Infer",			 3,  3, "FF993D", "000", "metatheoretic");
 		var r9x3y4 = new Slot("Lie", 			 3,  4, "0043FF", "000", "confusing");
 		var r9x3yn1 = new Slot("Tool", 			 3, -1, "845F5F", "FFF", "infrastructural");
 		var r9x3yn2 = new Slot("Belong", 		 3, -2, "CC5B5F", "000", "working");
 		var r9x3yn3 = new Slot("Honor", 		 3, -3, "FF303F", "000", "social");
-		var r9x3yn4 = new Slot("Bondage",		 3, -4, "2EFFFF", "000", "oppressive");
+		var r9x3yn4 = new Slot("Slavery",		 3, -4, "2EFFFF", "000", "oppressive");
 
 		var r9x4y0 = new Slot("Ruler", 			 4,  0, "000000", "FFF", false);
 		var r9x4y1 = new Slot("Why?",			 4,  1, "462300", "FFF", "structural");
@@ -1542,7 +1545,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9xn2y2 = new Slot("Harmony", 		-2,  2, "FFFE7A", "000", "cultural");
 		var r9xn2y3 = new Slot("Boredom",		-2,  3, "AB3DFE", "000", "corruptive");
 		var r9xn2y4 = new Slot("Regret", 		-2,  4, "8900BD", "FFF", "ignoring");
-		var r9xn2yn1 = new Slot("Hope", 		-2, -1, "C68CB1", "000", "expecting");
+		var r9xn2yn1 = new Slot("Hope", 		-2, -1, "C68CB1", "000", false);
 		var r9xn2yn2 = new Slot("Love", 		-2, -2, "FF78DE", "000", "considerative");
 		var r9xn2yn3 = new Slot("Burden",		-2, -3, "75FF98", "000", "arbitrary");
 		var r9xn2yn4 = new Slot("Despair",		-2, -4, "24BF4B", "FFF", "desperation");
@@ -1562,7 +1565,7 @@ function createGrid(mode, res, persons) { if(s.Basic.maxDebug) {console.log("CRE
 		var r9xn4y2 = new Slot("Can", 			-4,  2, "7D7E00", "FFF", "ritualistic");
 		var r9xn4y3 = new Slot("Magical",		-4,  3, "BDBD00", "000", false);
 		var r9xn4y4 = new Slot("Esthetic",		-4,  4, "FFFE00", "000", false);
-		var r9xn4yn1 = new Slot("What?", 		-4, -1, "44323E", "FFF", "obvious");
+		var r9xn4yn1 = new Slot("What?", 		-4, -1, "44323E", "FFF", "apparent");
 		var r9xn4yn2 = new Slot("Be", 			-4, -2, "883F6F", "FFF", "customary");
 		var r9xn4yn3 = new Slot("Fun", 			-4, -3, "CF2799", "000", "recreational");
 		var r9xn4yn4 = new Slot("Euphoria", 	-4, -4, "FF00BF", "000", "epiphanic");
@@ -2076,7 +2079,13 @@ function drawPersonList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPERSONLI
 		spacer2 = row.insertCell(17);
 		spacer2.style.backgroundColor = "#ccc";
 	
-		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+		//on dId ( id, arr, dIds ) 
+		//id.innerHTML = "<div style='text-align:center;'>" + s.Basic.persons[i - 1].id + "</div>";
+		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.personsDIds[i - 1] + "</div>"; //qwe
+		console.log(s.Basic.personsDIds);
+		console.log("dId:");
+		console.log((i - 1), s.Basic.persons, s.Basic.personsDIds);
+		console.log("" + s.Basic.personsDIds[i - 1]);
 
 		if (s.Basic.persons[i - 1].bot) {
 			if(s.Basic.persons[i - 1].hybrid) { bot.innerHTML = "<div onmouseover='HybridBotHover();' style='text-align:center !important'>T*</div>" }
@@ -2854,7 +2863,7 @@ function totsVal(valList, type) {
 				case "tan" : output = sumVal(output, valList[i].tan); break;
 				case "gno" : output = sumVal(output, valList[i].gno); break;
 				case "rat" : output = sumVal(output, valList[i].rat); break;
-				case "Dyn" : output = sumVal(output, valList[i].Dyn); break;}}}
+				case "dyn" : output = sumVal(output, valList[i].dyn); break;}}}
 	else {
 		for (var i = 0; i < valList.length; i++) {
 			output = sumVal(output, valList[i]); }}
