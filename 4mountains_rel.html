@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 480</title>
+		<title>Four Mountains beta 486</title>
 		<style>
 
 
@@ -362,27 +362,6 @@ function BasicMode() {
 			s.Basic = {
 				// state:
 				name: "BasicMode", // modes should have ids, too?
-				persons: [],
-				personsDIds: new DIds( "ALPH", false ),
-				groups: [],//yyx
-				strategies: [],
-				patterns: [],
-				grid: [],
-				slots: [],
-				slotHover: false,
-				latestPersonsDiff: false,
-				latestGroupsDiff: false,
-				latestX: 0,
-				latestY: 0,
-				//environment:
-				res: 9,
-				metaphysics: false,
-				nonrelScale: false, //absVal of nonrelativized slots
-				relScale: "sum2",	//absVal of relativized slots (ie. both X and Y have non-zero value)
-				revertingXp: true,
-				xpRegulation: 1, //-1 for none
-				xpCap: true, //-1 for none, true for half res, number for other
-				//config:
 				playing: false,
 				personInTurn: false,
 				turn: 0,
@@ -394,7 +373,32 @@ function BasicMode() {
 				moveAttempt: false,
 				simultaneousTurns: false,
 				fancyUI: true,
-				//output:
+				randomizeIntl: 1,
+				// environment:
+				res: 9,
+				metaphysics: false,
+				nonrelScale: false, //absVal of nonrelativized slots
+				relScale: "intersect",	//absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
+				revertingXp: true,
+				xpRegulation: 1, //-1 for none
+				xpCap: true, //-1 for none, true for half res, number for other
+				defaultFont: "tahoma",
+				personsDIds: new DIds( "ALPH", false ),
+				// data:
+				persons: [],
+				groups: [],
+				intl: [],
+				strategies: [],
+				patterns: [],
+				grid: [],
+				slots: [],
+				slotHover: false,
+				latestPersonsDiff: false,
+				latestGroupsDiff: false,
+				latestX: 0,
+				latestY: 0,
+				val: relVal(0,0),
+				// output:
 				outputToConsole: 0,
 				maxDebug: false,
 				defaultInfoBox: "",
@@ -537,7 +541,7 @@ function absVal(X,Y) { if(s.Basic.maxDebug) {console.log("ABSVAL"); } // change 
 			intrinsic = -intrinsic;}		
 		if (Math.abs(Y) === 0) {
 			intrinsic = Math.abs(X);}}
-	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful
+	if (s.Basic.nonrelScale === "exp") { // nonrelativized slots can be evaluated in different ways. I am not yet sure which ones are useful, if any of them are. Maybe nonrel value shouldn't be used except for speed... it should just be calculated by ai according to situation
 		if ((Math.abs(X) === 0) || (Math.abs(Y) === 0)) {
 			intrinsic = Math.pow(2,intrinsic); }}
 	if (s.Basic.nonrelScale === "exp1") {
@@ -868,7 +872,6 @@ function devStates() { if(s.Basic.maxDebug) {console.log("DEVSTATES:"); }
 	console.log("Pause: " + s.Basic.pause);}
 
 function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
-	var debug = false;
 	s.Basic.personInTurn = nextPerson(s.Basic.personInTurn);
 	drawGrid(s.Basic.grid, s.Basic.persons, s.Basic.personInTurn);
 	updatePersonList(calcs.persons, false);
@@ -877,6 +880,9 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 	drawStratList(false); //yzx
 	var next = nextPerson(s.Basic.personInTurn);
 	reportTurn();
+	updateStartButton(); }
+
+function updateStartButton() {
 	if(s.Basic.autoBotTurn >= 0) {
 		if(!s.Basic.pause) {
 			if (s.Basic.personInTurn.bot) {
@@ -898,9 +904,7 @@ function changeTurn(calcs) { if(s.Basic.maxDebug) {console.log("CHANGETURN"); }
 		if((!s.Basic.personInTurn.bot) && (!s.Basic.personInTurn.hybrid)) {
 			updateButton("startGame", "<span style='color:#888'>Disabled</span>");}
 		else {
-			updateButton("startGame", "Continue (Enter)");}}		
-	if(debug) {
-		devStates();}}
+			updateButton("startGame", "Continue (Enter)");}}}
 
 
 
@@ -919,6 +923,7 @@ function updateButton(id, buttonText) { if(s.Basic.maxDebug) {console.log("UPDAT
 
 
 function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.log("NEWPERSON"); }
+	// UI SNIPPET:
 	if(!((typeof mode) === "object")) {
 		var mode = s.mode; }
 	var hidden = false;
@@ -933,14 +938,15 @@ function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.
 		var isBot = confirm("Click OK for bot, Cancel for human.");
 		var isHybrid = confirm("Click OK for hybrid.\nHybrid bots can be moved by user and hybrid humans can be automoved."); }
 	if (!cancel) {
-		var oldGroups = copyGroups(mode.groups);
-		mode.persons.push(new Person(name, isBot, isHybrid, mode.persons.length));
-		for (var i = 0; i < mode.persons.length; i++) {
+	// ACTUAL FUNCTION:
+		var oldGroups = copyGroups(mode.groups); // copy old group data
+		mode.persons.push(new Person(name, isBot, isHybrid, mode.persons.length)); // push person to mode array
+		for (var i = 0; i < mode.persons.length; i++) { // append 1 element to bens of each person
 			fill = mode.persons.length - mode.persons[i].bens.length;
 			for (var j = 0; j < fill; j++) {
 				mode.persons[i].bens.push(relVal(0,0));}}
-		addGroups(mode, oldGroups, mode.persons);
-		personIntoPattern(mode.persons[mode.persons.length - 1]);
+		addGroups(mode, oldGroups, mode.persons); // makes new groups
+		personIntoPattern(mode.persons[mode.persons.length - 1]); // creates a body for the person
 		if(hidden) { 
 			//mode.latestPersonsDiff.push(mode.persons[mode.persons.length -1]);
 			//mode.latestPersonsDiff.push(new Person(name, isBot, mode.persons.length - 1));
@@ -948,6 +954,8 @@ function newPerson(mode, name, isBot, isHybrid) { if(s.Basic.maxDebug) {console.
 				drawGrid(mode.grid, mode.persons, mode.personInTurn); }
 			else {
 				drawGrid(mode.grid, mode.persons, false); }}
+		if(mode.randomizeIntl === 1) {
+			console.log("moi"); }
 		if(s.initDone) {
 			var calcs = { persons : calcPersons(mode.latestX, mode.latestY), groups : [] };
 			calcs.groups = calcGroups(mode.latestX, mode.latestY, calcs.persons);
@@ -968,14 +976,15 @@ function delPerson() { if(s.Basic.maxDebug) {console.log("DELPERSON"); }
 	var delArr = [];
 	var delArrCopy;
 	if((id > -1) && (id < mode.persons.length)) {
-		if(mode.personInTurn.id === id) {
+		if(mode.personInTurn.id === id) { // if delete person in turn
 			mode.personInTurn = nextPerson(mode.personInTurn);
 			var turn = 1 + mode.turn;
 			var message = (turn + ". " + mode.personInTurn.name + "'s turn"); 
-			setDefaultInfoBox(mode, message);	} //yyy reportturn
-		mode.persons.splice(id, 1);		
-		for(var i = 0; i < mode.persons.length; i++) {
-			mode.persons[i].bens.splice(id, 1); }			
+			setDefaultInfoBox(mode, message);
+			updateStartButton(); }
+		mode.persons.splice(id, 1);	// remove person from persons array
+		for(var i = 0; i < mode.persons.length; i++) { // remove person ben value from each person bens array
+			mode.persons[i].bens.splice(id, 1); }
 		for(var i = 0; i < mode.groups.length; i++) {
 			if(contains(mode.groups[i].ids, id)) {
 				mode.groups.splice(i, 1);
@@ -1103,9 +1112,9 @@ function DIds (symbols, numeric, startFrom, font) {
 	this.symbols = createSymbols(symbols);
 	this.name = symbols;
 	this.numeric = numeric;
-	if (!(startFrom === false)) { this.startFrom = startFrom; }
+	if (startFrom) { this.startFrom = startFrom; }
 	else { this.startFrom = 0; }
-	if (!(font === false)) { this.font = font; }
+	if (font) { this.font = font; }
 	else { this.font = s.mode.defaultFont; }}
 
 function dId ( id, arr, dIds ) {
@@ -1369,8 +1378,8 @@ function drawPersons(slot, persons) { if(s.Basic.maxDebug) {console.log("DRAWPER
 		if(slot.X === persons[i].X && slot.Y === persons[i].Y) {
 			population = population + "<div style='background-color: #" + slot.textColor + "; display: inline; color: #" + slot.color + "; padding: 1px 2px; font-size: 11px; margin-right: 2px; margin-top: -2px;'><strong>" + /*dId(*/ i /*, s.mode.persons, s.mode.personsDIds )*/ + "</strong></div>";}}
 	if(population.length === 0) {
-		population = "&nbsp;";}//yyx ( id, arr, idType )
-	return population;}
+		population = "&nbsp;"; }
+	return population;} //popxxxx
 
 function fadeUnavailableSlot(slot) { if(s.Basic.maxDebug) {console.log("FADEUNAVAILABLESLOT"); }
 	var hex = ("#" + slot.color);
@@ -2168,6 +2177,8 @@ function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERN
 	var hearts;
 	var spades;
 	var clubs;
+	var frm;
+	var sbstc;
 	var bens;
 	var spacer1;
 	var spacer2;
@@ -2188,6 +2199,9 @@ function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERN
 	spades = row.insertCell(9);
 	clubs = row.insertCell(10);
 	spacer1 = row.insertCell(11);
+	frm = row.insertCell(12);
+	sbstc = row.insertCell(13);
+	spacer2 = row.insertCell(14);
 	
 	id.innerHTML = "sym";
 	id.style.backgroundColor = "#ccc";
@@ -2213,9 +2227,16 @@ function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERN
 	clubs.style.backgroundColor = "#FFFEBC";
 	spacer1.innerHTML = "&nbsp;";
 	spacer1.style.backgroundColor = "#ccc";
+	frm.innerHTML = "form";
+	frm.style.backgroundColor = "#ccc";
+	sbstc.innerHTML = "substance";
+	sbstc.style.backgroundColor = "#ccc";
+	spacer2.innerHTML = "&nbsp;";
+	spacer2.style.backgroundColor = "#ccc";
+
 	
 	for (var i = 0; i < s.Basic.patterns.length; i++) {
-		bens = row.insertCell(i + 11);
+		bens = row.insertCell(i + 14);
 		bens.innerHTML = "<div style='text-align:center !important;'>" + s.Basic.patterns[i].id + "</div>";
 		bens.style.backgroundColor = "#ccc"; }
 	
@@ -2239,6 +2260,10 @@ function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERN
 		clubs.style.backgroundColor = "#FFFEBC";
 		spacer1 = row.insertCell(11);
 		spacer1.style.backgroundColor = "#ccc";
+		frm = row.insertCell(12);
+		sbstc = row.insertCell(13);
+		spacer2 = row.insertCell(14);
+		spacer2.style.backgroundColor = "#ccc";
 	
 		id.innerHTML = "<div style='text-align:center;'>" + s.Basic.patterns[i - 1].id + "</div>";
 
@@ -2282,13 +2307,16 @@ function drawPatternList(diffs) { if(s.Basic.maxDebug) {console.log("DRAWPATTERN
 		clubs.innerHTML = buffer;
 		if (buffer < 0) { clubs.style.backgroundColor = "#" + findSlot(-1,2).color; }
 		else { clubs.style.backgroundColor = "#" + findSlot(-1,1).color; }
-			
-		for (var j = 11; j < s.Basic.patterns[i - 1].bens.length + 11; j++) {
+
+		frm.innerHTML = s.Basic.patterns[i - 1].frm;
+		sbstc.innerHTML = s.Basic.patterns[i - 1].sbstc;
+		
+		for (var j = 14; j < s.Basic.patterns[i - 1].bens.length + 14; j++) {
 			bens = row.insertCell(j);
-			colors = colorBenTableCell(s.Basic.patterns[i - 1].bens[j - 11], limit);
+			colors = colorBenTableCell(s.Basic.patterns[i - 1].bens[j - 14], limit);
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
-			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 11] + ");'>" + totVal(s.Basic.patterns[i - 1].bens[j - 11]) + "</div>"; }}}
+			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='bensHover(" + [i - 1] + ", " + [j - 14] + ");'>" + totVal(s.Basic.patterns[i - 1].bens[j - 14]) + "</div>"; }}}
 
 
 
@@ -2961,6 +2989,8 @@ function createStrategies(mode) {
 			function(moves) {
 				return moves.sort(function(a,b) {
 					return parseFloat(b.necStaVal) - parseFloat(a.necStaVal) }); })); }
+
+	mode.intl.push(mode.strategies[mode.strategies.length]);
 /*console.log("CREATSTRATS:");
 console.log(mode.strategies);
 console.log("CREATESTRATS end");*/
@@ -3459,7 +3489,9 @@ function Pattern(id, name, ino, bio, soc, intl) {
 	this.ino = ino;
 	this.bio = bio;
 	this.soc = soc;
-	this.intl = intl; }
+	this.intl = intl;
+	this.frm = "form";
+	this.sbstc = "substance"; }
 
 function makePVal(ino, bio, soc, intl) {
 	this.asValue = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
@@ -3489,7 +3521,11 @@ function init() {
 	s.Spatial = { initDone : false };
 	BasicMode();
 	s.initDone = true;
-	if (s.mode.autoPlayFirstTurn) { startGame(); }}
+	if (s.mode.autoPlayFirstTurn) {
+		startGame();
+		console.log(s.mode.personsDids);
+		}
+	}
 	
 	
 	//for(var i = 0; i < s.Basic.persons.length; i++) {
