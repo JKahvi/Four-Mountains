@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 498</title>
+		<title>Four Mountains beta 500</title>
 		<style>
 
 
@@ -822,77 +822,106 @@ time as 4th dim?
 dimension as object?
 */
 
+function createRelSlots2(arr) {
+	console.log(arr);
+	return []; }
 
 function createRelSlots(dims) {
 	var ret = [];
+	var appendix = []; // Appendix is for non-metaphysical conceptual slots.
 	for(var i = 0; i < dims.length; i++) {
-		for(var j = 0; j < dims.slots.length; j++) {
+		if(dims[i].metaphysical && (dims[i].slots.length > 0)) { // Skips non-conceptual and non-metaphysical dimensions.
+			ret.push([]);
+			for(var j = 0; j < slotsByDim[i].length; j++) { // Converts DimSlots to RelSlots.
+				ret[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].name, dims[i].slots[j].desc)); }}
+		else if((!dims[i].metaphysical) && (dims[i].slots.length > 0)) { // Adds non-metaphysical conceptual slots to appendix.
+			for(var j = 0; j < slotsByDim[i].length; j++) { // Converts DimSlots to RelSlots.
+				appendix[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].name, dims[i].slots[j].desc)); }}}
+	var buffer = powerSetOf(ret);
+	ret.push(createRelSlots2(buffer));
+	ret.push(appendix);
+	return ret; }
 
-}
 
-function Pos(crds) {
-	this.crds = crds; }
 
-function Crd(dim,dist) {
-	this.dim = dim;
-	this.dist = dist; }
 
-function DimSlot(dimSym,crd,name,desc) {
-	this.dimSym = dimSym;
-	this.crd = crd;
+/*
+	for(var i = 0; i < ret.length; i++) { // Removes synonyms for origin/zero.
+		if(!(ret.crds[0].crd === 0)) {
+			buffer.push(ret[i]); }}
+	for(var i = 0; i < buffer.length; i++) { // Generates properly metaphysical RelSlots.
+		for(var j = 0; j < buffer.length; j++) {
+			if((!(i === j)) &&  { ret.push(createRelSlot(buffer[i], buffer[j])); }}}
+	return ret; }*/
+
+function RelSlot(crds,name,desc) {
+	this.crds = crds;
 	this.name = name;
+	this.desc = desc; }
+
+function Crd(dim,res,crd) {
+	this.dim = dim;
+	this.res = res;
+	this.crd = crd; }
+
+function DimSlot(crd,res,names,desc) {
+	this.crd = crd;
+	this.res = res;
+	this.names = names;
 	this.desc = desc; }
 
 function createDimSlots(sym, res) {
 	var ret = [];
 	if((sym === "X") && (res === 4)) {
-		ret.push(new DimSlot(sym, -4, "Champion", ""));
-		ret.push(new DimSlot(sym, -3, "Charming", ""));
-		ret.push(new DimSlot(sym, -2, "Fancy", ""));
-		ret.push(new DimSlot(sym, -1, "Plain", ""));
-		ret.push(new DimSlot(sym, 0, "Unknown", ""));
-		ret.push(new DimSlot(sym, 1, "Novice", ""));
-		ret.push(new DimSlot(sym, 2, "Adept", ""));
-		ret.push(new DimSlot(sym, 3, "Master", ""));
-		ret.push(new DimSlot(sym, 4, "Ruler", "")); }
+		ret.push(new DimSlot(-4, res, ["Champion"], "everybody wants to be champion"));
+		ret.push(new DimSlot(-3, res, ["Charming"], ""));
+		ret.push(new DimSlot(-2, res, ["Fancy"], ""));
+		ret.push(new DimSlot(-1, res, ["Plain"], ""));
+		ret.push(new DimSlot( 0, res, ["Unknown"], ""));
+		ret.push(new DimSlot( 1, res, ["Novice"], ""));
+		ret.push(new DimSlot( 2, res, ["Adept"], ""));
+		ret.push(new DimSlot( 3, res, ["Master"], ""));
+		ret.push(new DimSlot( 4, res, ["Ruler"], "ruler can do anything")); }
 	else if((dimSym === "Y") && (res === 4)) {
-		ret.push(new DimSlot(sym, -4 "Extreme", ""));
-		ret.push(new DimSlot(sym, -3, "Noble", ""));
-		ret.push(new DimSlot(sym, -2, "Mature", ""));
-		ret.push(new DimSlot(sym, -1, "Naive", ""));
-		ret.push(new DimSlot(sym, 0, "Absent", ""));
-		ret.push(new DimSlot(sym, 1, "Simple", ""));
-		ret.push(new DimSlot(sym, 2, "Complex", ""));
-		ret.push(new DimSlot(sym, 3, "Pure", ""));
-		ret.push(new DimSlot(sym, 4, "Holy", "")); }
+		ret.push(new DimSlot(-4, res, ["Extreme"], ""));
+		ret.push(new DimSlot(-3, res, ["Noble"], ""));
+		ret.push(new DimSlot(-2, res, ["Mature"], ""));
+		ret.push(new DimSlot(-1, res, ["Naive"], ""));
+		ret.push(new DimSlot( 0, res, ["Absent"], ""));
+		ret.push(new DimSlot( 1, res, ["Simple"], ""));
+		ret.push(new DimSlot( 2, res, ["Complex"], ""));
+		ret.push(new DimSlot( 3, res, ["Pure"], ""));
+		ret.push(new DimSlot( 4, res, ["Holy"], "")); }
 	else if((dimSym === "Z") && (res === 4)) {
-		ret.push(new DimSlot(sym, -4, "Subliminal", ""));
-		ret.push(new DimSlot(sym, -3, "Secret", ""));
-		ret.push(new DimSlot(sym, -2, "Private", ""));
-		ret.push(new DimSlot(sym, -1, "Modest", ""));
-		ret.push(new DimSlot(sym, 0, "Averted", ""));
-		ret.push(new DimSlot(sym, 1, "Casual", ""));
-		ret.push(new DimSlot(sym, 2, "Polite", ""));
-		ret.push(new DimSlot(sym, 3, "Loud", ""));
-		ret.push(new DimSlot(sym, 4, "Profuse", "")); }
+		ret.push(new DimSlot(-4, res, ["Subliminal"], ""));
+		ret.push(new DimSlot(-3, res, ["Secret"], ""));
+		ret.push(new DimSlot(-2, res, ["Private"], ""));
+		ret.push(new DimSlot(-1, res, ["Modest"], ""));
+		ret.push(new DimSlot( 0, res, ["Averted"], ""));
+		ret.push(new DimSlot( 1, res, ["Casual"], ""));
+		ret.push(new DimSlot( 2, res, ["Polite"], ""));
+		ret.push(new DimSlot( 3, res, ["Loud"], ""));
+		ret.push(new DimSlot( 4, res, ["Profuse"], "")); }
 	else if((dimSym === "T") && (res === 4)) {
-		ret.push(new DimSlot(sym, -4, "Initial", ""));
-		ret.push(new DimSlot(sym, -3, "Past", ""));
-		ret.push(new DimSlot(sym, -2, "Before", ""));
-		ret.push(new DimSlot(sym, -1, "Previous", ""));
-		ret.push(new DimSlot(sym, 0, "Current", ""));
-		ret.push(new DimSlot(sym, 1, "Next", ""));
-		ret.push(new DimSlot(sym, 2, "After", ""));
-		ret.push(new DimSlot(sym, 3, "Future", ""));
-		ret.push(new DimSlot(sym, 4, "Final", "")); }
+		ret.push(new DimSlot(-4, res, ["Initial"], ""));
+		ret.push(new DimSlot(-3, res, ["Past"], ""));
+		ret.push(new DimSlot(-2, res, ["Before"], ""));
+		ret.push(new DimSlot(-1, res, ["Previous"], ""));
+		ret.push(new DimSlot( 0, res, ["Current"], ""));
+		ret.push(new DimSlot( 1, res, ["Next"], ""));
+		ret.push(new DimSlot( 2, res, ["After"], ""));
+		ret.push(new DimSlot( 3, res, ["Future"], ""));
+		ret.push(new DimSlot( 4, res, ["Final"], "")); }
 	return ret; }
 
-function Dimension(sym,name,desc,res,annotated) {
+function Dimension(sym,names,desc,res,metaphysical,conceptual) { // If you want to rotate a dimension, start here... (Socionics)
 	this.sym = sym;
-	this.name = name;
+	this.names = names;
 	this.desc = desc;
 	this.res = res;
-	if(annotated) {	this.slots = createDimSlots(sym,res); }} // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual.
+	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
+	if(conceptual) { this.slots = createDimSlots(sym,res); } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
+	else { this.slots = []; }}
 
 
 
@@ -1434,26 +1463,16 @@ function describeStrategy(id) {
 	
 function describeQuality(id) {
 	switch (id) {
-	case 0 :
-		drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
-	case 1 :
-		drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
-	case 2 :
-		drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
-	case 3 :
-		drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
-	case 4 :
-		drawInfoBox("The total <em>static value</em> of each person."); break;
-	case 5 :
-		drawInfoBox("Personal <em>decency</em> refers to how much more relativized <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
-	case 6 :
-		drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
-	case 7 :
-		drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
-	case 8 :
-		drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
-	case 9 :
-		drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break;}}
+	case 0 : drawInfoBox("&diams; <em>Objective quality</em> is rational, tangible and external. It corresponds with Sensing, Pentacles, the element Earth and \"I'm Not OK, You're OK\"."); break;
+	case 1 : drawInfoBox("&hearts; <em>Subjective quality</em> is gnostic (aka. associative), tangible and internal. It corresponds with Feeling, Cups, the element Water and \"I'm Not OK, You're Not OK\"."); break;
+	case 2 : drawInfoBox("&spades; <em>Normative quality</em> is rational, abstract and internal. It corresponds with Thinking, Swords, the element Air and \"I'm OK, You're Not OK\"."); break;
+	case 3 : drawInfoBox("&clubs; <em>Mystical quality</em> is gnostic (aka. associative), abstract and external. It corresponds with Intuition, Staves, the element Fire and \"I'm OK, You're OK\"."); break;
+	case 4 : drawInfoBox("The total <em>static value</em> of each person."); break;
+	case 5 : drawInfoBox("Personal <em>decency</em> refers to how much more relativized <em>classical</em> (aka. potential) than <em>romantic</em> (aka. actual) quality is inherent to someone. Decency of 0 is <em>excellence</em> but negative decency is <em>badness</em>."); break;
+	case 6 : drawInfoBox("<em>Gnostic</em> (aka. associative) personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 7 : drawInfoBox("<em>Rational</em> personal authority is a form of epistemological (aka. knowledge-related) authority."); break;
+	case 8 : drawInfoBox("<em>Abstract</em> personal authority is a form of ontological (aka. existential) authority."); break;
+	case 9 : drawInfoBox("<em>Tangible</em> personal authority is a form of ontological (aka. existential) authority."); break; }}
 
 function describeSlot(slot, metaphysics) {
 	var slotName = slot.name;
