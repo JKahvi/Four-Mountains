@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 500</title>
+		<title>Four Mountains beta 504</title>
 		<style>
 
 
@@ -363,7 +363,7 @@ function CoreModule() {
 			s.Core = {
 				// environment: (not supposed to change on run)
 				name: "CoreModule", // Modules should have ids, too?
-				//dims: [new Dimension]
+				dims: createDimensions();
 				res: 9,
 				metaphysics: false,
 				nonrelScale: false, //absVal of nonrelativized slots
@@ -768,9 +768,11 @@ function longestArrInArr(arr) {
 	return len; }
 
 function powerSetOf(arrFull) {  if(s.Core.maxDebug) {console.log("POWERSETOF"); }
-  var ret = [], fullLen = arrFull.length, last = fullLen - 1;
-  function get(arrPrefix, start, lenToFind) {
-    for(lenToFind--; start < fullLen; start++)
+  var ret = [];
+  var fullLen = arrFull.length;
+  var last = fullLen - 1;
+  function get(arrPrefix, start, lenToFind) { 
+    for(lenToFind--; start < fullLen; start++) // possible syntax problem here for unityscript??? no {}
       if(!lenToFind)
         ret.push(arrPrefix.concat([arrFull[start]]));
       else if(start < last)
@@ -781,7 +783,7 @@ function powerSetOf(arrFull) {  if(s.Core.maxDebug) {console.log("POWERSETOF"); 
 	for(var i = 0; i < ret.length; i++) {
 		if(ret[i].length > 1) {
 			buffer.push(ret[i]); }}
-  return buffer;}//.concat([[]]);
+  return buffer; } //.concat([[]]);
 
 function contains(a, obj) {
     for (var i = 0; i < a.length; i++) {
@@ -821,6 +823,14 @@ time as 4th dim?
 
 dimension as object?
 */
+
+
+
+//
+//  DIM SLOT BEGIN
+//
+
+
 
 function createRelSlots2(arr) {
 	console.log(arr);
@@ -870,9 +880,19 @@ function DimSlot(crd,res,names,desc) {
 	this.names = names;
 	this.desc = desc; }
 
-function createDimSlots(sym, res) {
+function Dimension(handle,names,desc,res,metaphysical,conceptual,theologyId) { // If you want to rotate a dimension, modify this function here... (Socionics)
+	this.handle = handle;
+	this.names = names;
+	this.desc = desc;
+	this.res = res;
+	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
+	if(conceptual) { this.slots = createDimSlots(sym,res); } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
+	else { this.slots = []; }
+	this.theology = relativizeDimensionToTheology(theologyId,handle); }
+
+function createDimSlots(handle, res) {
 	var ret = [];
-	if((sym === "X") && (res === 4)) {
+	if((handle === "X(m)") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Champion"], "everybody wants to be champion"));
 		ret.push(new DimSlot(-3, res, ["Charming"], ""));
 		ret.push(new DimSlot(-2, res, ["Fancy"], ""));
@@ -882,7 +902,7 @@ function createDimSlots(sym, res) {
 		ret.push(new DimSlot( 2, res, ["Adept"], ""));
 		ret.push(new DimSlot( 3, res, ["Master"], ""));
 		ret.push(new DimSlot( 4, res, ["Ruler"], "ruler can do anything")); }
-	else if((dimSym === "Y") && (res === 4)) {
+	else if((handle === "Y(m)") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Extreme"], ""));
 		ret.push(new DimSlot(-3, res, ["Noble"], ""));
 		ret.push(new DimSlot(-2, res, ["Mature"], ""));
@@ -892,7 +912,7 @@ function createDimSlots(sym, res) {
 		ret.push(new DimSlot( 2, res, ["Complex"], ""));
 		ret.push(new DimSlot( 3, res, ["Pure"], ""));
 		ret.push(new DimSlot( 4, res, ["Holy"], "")); }
-	else if((dimSym === "Z") && (res === 4)) {
+	else if((handle === "Z(m)") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Subliminal"], ""));
 		ret.push(new DimSlot(-3, res, ["Secret"], ""));
 		ret.push(new DimSlot(-2, res, ["Private"], ""));
@@ -902,7 +922,7 @@ function createDimSlots(sym, res) {
 		ret.push(new DimSlot( 2, res, ["Polite"], ""));
 		ret.push(new DimSlot( 3, res, ["Loud"], ""));
 		ret.push(new DimSlot( 4, res, ["Profuse"], "")); }
-	else if((dimSym === "T") && (res === 4)) {
+	else if((handle === "T(c)") && (res === 4)) { // add more res options later
 		ret.push(new DimSlot(-4, res, ["Initial"], ""));
 		ret.push(new DimSlot(-3, res, ["Past"], ""));
 		ret.push(new DimSlot(-2, res, ["Before"], ""));
@@ -914,14 +934,94 @@ function createDimSlots(sym, res) {
 		ret.push(new DimSlot( 4, res, ["Final"], "")); }
 	return ret; }
 
-function Dimension(sym,names,desc,res,metaphysical,conceptual) { // If you want to rotate a dimension, start here... (Socionics)
-	this.sym = sym;
-	this.names = names;
-	this.desc = desc;
-	this.res = res;
-	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
-	if(conceptual) { this.slots = createDimSlots(sym,res); } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
-	else { this.slots = []; }}
+function defineTheology(metadimension) {
+	var ret;
+	if(typeof metadimension.handle === "string") {
+
+	}
+
+function relativizeDimensionToTheology(priority,dimension) {
+	var ret;
+	if(!(typeof dimension === array)) {
+		if(priority === 0) {
+			switch(dimension.handle) {
+				case "X(m)"   : ret = [["B","P"],["M+-","P+y"],["C--","P-+"],["I","P-y"]];
+				case "Y(m)"   : ret = [["I","P-y"],["B","P"],["C--","P-+"],["M+-","P+y"]];
+				case "Z(m)"   : ret = [["I","P-y"],["C--","P-+"],["B","P"],["M+-","P+y"]];
+				case "T(c)"   : ret = [["I","P-y"],["C--","P-+"],["M+-","P+y"],["B","P"]];
+				case "T(p)"   : ret = ["P"];
+				case "T(ino)" : ret = ["P"];
+				case "X(ino)" : ret = [["I","P+y"],["C--","P-+"],["C","P"],["B","P"],["M+-","P+y"]];
+				case "Y(ino)" : ret = [["I","P+y"],["C--","P-+"],["C","P"],["B","P"],["M+-","P+y"]];
+				case "Z(ino)" : ret = [["I","P+y"],["C--","P-+"],["C","P"],["B","P"],["M+-","P+y"]];
+				case "T(bio)" : ret = [["I","P+y"],["B","P"],["C--","P-+"],["M+-","P+y"]];
+				case "T(soc)" : ret = [["I","P+y"],["C--","P-+"],["M+-","P+y"],["B","P"]];
+				case "T(intl)": ret = [["B","P"],["C--","P-+"],["M+-","P+y"],["I","P+y"]];
+				case "XIII"   : ret = [["I","P+y"],["C--","P-+"],["M+-","P+y"],["B","P"]];
+				case "XIV"    : ret = [["I","P+y"],["B","P"],["C--","P-+"],["M+-","P+y"]];
+				case "XV"     : ret = [["I","P+y"],["B","P"],["C--","P-+"],["M+-","P+y"]];
+				case "XVI"    : ret = [["I","P+y"],["C--","P-+"],["M+-","P+y"],["B","P"]];
+				case "XVII"   : ret = [["I","P+y"],["B","P"],["C--","P-+"],["M+-","P+y"]];
+				case "XVIII"  : ret = [["I","P+y"],["C--","P-+"],["B","P"],["M+-","P+y"]];
+				case "XIX"    : ret = [["M+-","P+y"],["B","P"],["I","P+y"],["C--","P-+"]];
+				case "XX"     : ret = [["I","P-y"],[["M+-","P+y"],["C--","P-+"],["B","P"]]];
+				case "XXI"    : ret = [["I","P-y"],[["M+-","P+y"],["C--","P-+"],["B","P"]]]; }
+		ret = { theology: relativizeDimensionToTheology(ret), handle: "I" }}}
+	else { ret = defineTheology(ret); }
+	return ret; }
+
+	/*
+	function createSymbols (dIds) {
+	var ret = [];
+	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	switch(dIds) {
+		case ( "num" || "numAlph" || "numALPH" || "numAlphALPH" ) : ret = ["0","1","2","3","4","5","6","7","8","9"];
+		case "numAlph" : ret = ret.concat(alphabet); break;
+		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
+		case ( "alph" || "alphALPH" || "numAlphALPH" ) : ret = ret.concat( alphabet );
+		case ( "alphALPH" || "numAlphALPH" ) : ret = ret.concat(arrToUpperCase(ret)); break;
+		case "ALPH" : ret = arrToUpperCase(alphabet); break;
+		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
+		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
+		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
+	//console.log(ret);
+	return ret; }
+*/
+
+function createDimensions(priority,handle) {
+	var ret = [];
+	var theology = relativizeDimensionToTheology(priority,handle),
+		[new Dimension("X(m)",["epistemological", "classical", "metaphysical longitude", "resolution"],"The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge.", 4, true, true, relativizeToTheology(s.Module.theologies[priority], [])),
+		new Dimension("Y(m)",["ontological", "romantic", "metaphysical latitude", "scope"],"The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence.", s.mode.dimensions[0].res, true, true, relativizeToTheology(theology, [])),
+		new Dimension("Z(m)",["folding", "metaphysical depth"],"The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains.", s.mode.dimensions[0].res, true, true, relativizeToTheology(theology, [])),
+		new Dimension("T(c)",["conceptual time"],"The T(c)-axis measures the quantity of conceptual time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor is divisibility, not magnitude of timespan.", -1 /*supposed to be dynamic*/, false, true, relativizeToTheology(theology, [])),
+		new Dimension("T(p)",["paraphysical time"],"The T(p)-axis measures the quantity of paraphysical time, which is needed for linking conceptual time to inorganic time in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T(p) is measured as turns.", -1, false, false, false),
+		new Dimension("T(ino)",["inorganic time"],"The T(ino)-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript).", 1000, true, true, false),
+		new Dimension("X(ino)",["width"],"\"Width\" is the lateral extent of something.", 0/*unknown for now*/, false, false),
+		new Dimension("Y(ino)",["height"],"\"Height\" is distance between the base and the top of something.", 0/*unknown for now*/, false, false, false),
+		new Dimension("Z(ino)",["depth"],"\"Depth\" is the extent to which an object extends inwards.", 0/*unknown for now*/, false, false, false,
+		new Dimension("T(bio)",["biological time"],"The T(bio)-axis measures the quantity (and quality?) of biological time, ending in DEATH. Facilitates a \"game of life\" application?", -1, true, true, relativizeToTheology(theology, ["T(c)"])), // this could be a metaphysical dimension
+		new Dimension("T(soc)",["social time"],"The T(soc)-axis measures the quantity (and quality?) of social time, possibly allowing the AMOQ to be used for predicting political events according to empirical evidence.", -1, true, true, relativizeToTheology(theology, ["T(c)"])),
+		new Dimension("T(intl)",["intellectual time"],"The T(intl)-axis measures the quantity (and quality) of intellectual time, possibly allowing the AMOQ to predict its own lifespan.", -1, true, true, relativizeToTheology(theology, ["T(c)"])), // these are probably metaphysical dimensions.
+		new Dimension("XIII",["Death"],"The dimension of death is a theological dimension that stores the deaths of persons.", -1, false, true, relativizeToTheology(theology, [["X(m)","Y(m)","Z(m)","T(c)","T(bio)","T(soc)"],["X(m)","Y(m)","Z(m)","T(c)","T(bio)","T(soc)","T(intl)"]],  )),
+		new Dimension("XIV",["Temperance"],"The dimension of temperance is a theological dimension that models patterns of redeeming sins.", -1, false, true, relativizeToTheology(theology, ["X","Y","Z","T(c)","T(bio)", "T(soc)"])),
+		new Dimension("XV",["Sins"],"The dimension of sins stores sins of persons.", -1, false, true, relativizeToTheology(theology, ["X","Y","Z","T(c)","T(bio)","T(soc)", "T(intl)"])),
+		new Dimension("XVI",["Static quality"],"The dimension of static quality includes all physical and metaphysical dimensions.", -1, false, true, relativizeToTheology(theology, ["X","Y","Z","T(c)","T(bio)","T(soc)","T(intl)"])),
+		new Dimension("XVII",["Holiness"],"The dimension of holiness includes all theological dimensions.", -1, false, true, relativizeToTheology(theology, [])),
+		new Dimension("XVIII",["Gnosis"],"The gnostic dimension is a theological interpretation of the negative X axis.", -1, false, true, relativizeToTheology(theology, [])),
+		new Dimension("XIX",["Rationality"],"The rational dimension is a theological interpretation of the positive X axis, that possibly includes secularity.", -1, false, true, relativizeToTheology(theology, [])),
+		new Dimension("XX",["Judgement"],"The dimension of judgement is a theological dimension that models predictions of the afterlifes of persons.", -1, false, true, relativizeToTheology(theology, [])),
+		new Dimension("XXI",["Quality"],"The dimension of Quality is a theological dimension that models all other dimensions.", -1, false, true, relativizeToTheology(theology, [])),
+		];
+	return ret; }
+
+
+//metadimension
+
+
+//
+//   DIM STUFF END
+//
 
 
 
