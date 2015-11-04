@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 516</title>
+		<title>Four Mountains beta 517</title>
 		<style>
 
 
@@ -850,6 +850,15 @@ function imposeRole(role,subject,object) {}
 
 
 
+function makeNames(names) {
+	var ret; if(!names) { ret = [""]; } else { ret = names; }
+	return { proper : names[0], alts : names }}
+
+function addTypeHandle(o,handle) { if(!(contains( o.typeHandles, handle ))) { o.typeHandles.push(handle); }}
+
+
+
+
 function createRelSlots2(arr) {
 	console.log(arr);
 	return []; }
@@ -876,14 +885,13 @@ function RelSlot(crds,name,desc) {
 	this.desc = desc;
 	this.conActs = []; }
 
-function Crd(dim,res,crd) {
+function DimCrd(dim,res,crd) {
 	this.dim = dim;
 	this.res = res;
 	this.crd = crd; }
 
-function DimSlot(crd,res,names,desc) {
-	this.crd = crd;
-	this.res = res;
+function DimSlot(dimCrd,names,desc) {
+	this.dimCrd = dimCrd;
 	this.names = names;
 	this.desc = desc; }
 
@@ -961,33 +969,89 @@ function Motive(role,context,outcome) {
 	this.context = context;
 	this.outcome = outcome; }
 
+function Direction(planarDirections) {}
 
+function PlaDir(planeHandle,xSign,ySign,) {
+	this.planeHandle = planeHandle;
+	this.xSign = xSign;
+	this.ySign = ySign; }
 
 function Context(relSlot,planarOrder,planarRelations) {
 	this.relSlot = relSlot;
 	this.planarOrder = planarOrder;
 	this.planarRelations = planarRelations; } 
 
-function PlanarRelation(agents,targets,relation) {
-	this.agents = agents;
-	this.targets = targets;
-	this.relation = relation; }
 
-function Plane(handle,xDim,yDim) {
+
+
+
+function makePlanarRelations() {}
+
+function makeSemanticRelation(handle) {
+	var ret; switch(handle) {
+		case "Syn" : ret = new Relation( handle,["Rel"],["Rel"],["somerel"],["synonymy"],["means same thing; same names"] );
+		addTypeHandle( ret, "Semantic" ); break; }
+	return ret; }
+
+function makeSyntacticRelation(handle) {
+	var ret; switch(handle) {
+		case "Idn" : ret = new Relation( handle,["Var"],["Var"],["somerel"],["idn"],["moronnääs"] ); break;	}
+	return ret; }
+
+function defineRelation(agents,targets,relationHandle) {
+	var conforms = true; var relation = getRelationByHandle(relationHandle);
+	while(conforms) {
+		for(var i = 0; i < agents.length; i++) { if(!(_.intersection( relation.agentTypes, agents[i].typeHandles ))) { conforms = false; }}
+		for(var i = 0; i < agents.length; i++) { if(!(_.intersection( relation.targetTypes, targets[i].typeHandles ))) { conforms = false; }}
+		relation.agents.push(agents); relation.targets.push(targets); break; }}
+
+function Relation(handle,agentTypes,targetTypes,relation,names,descs) {
+	this.typeHandles = ["Rel"];
 	this.handle = handle;
-	this.xDim = xDim;
-	this.yDim = yDim; }
+	this.agentTypes = agentTypes; this.agentType = agentTypes[0];
+	this.targetTypes = this.targetTypes; this.targetType = targetTypes[0];
+	this.agents = []; this.targets = [];
+	this.rel = relation;
+	this.names = makeNames(names).alts; this.name = makeNames(names).proper;
+	this.descs = makeNames(descs).alts; this.desc = makeNames(descs).proper; }
+
+
+
+
+
+function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysNames) {
+	this.typeHandle = "Pln";
+	this.handle = handle;
+	this.xHandle = xHandle;
+	this.yHandle = yHandle;
+	this.planeNames = makeNames(planeNames).alts; this.planeName = makeNames(planeNames).proper
+	this.objNames = makeNames(objNames).alts; this.objName = makeNames(objNames).proper
+	this.subNames = makeNames(subNames).alts; this.subName = makeNames(subNames).proper
+	this.norNames = makeNames(norNames).alts; this.norName = makeNames(norNames).proper
+	this.mysNames = makeNames(mysNames).alts; this.mysName = makeNames(mysNames).proper }
+
+function makePlanes(handle) {
+	var ret; switch(handle) {
+		// METAPHYSICAL PLANES :
+		case "Idn" : ret = new Plane( handle,"X","S",["identity"],["inductive"],["emergent"],["deductive"],["reductive"] ); break;
+		case "Pat" : ret = new Plane( handle,"X","Y",["pattern"],["objective"],["subjective"],["normative"],["mystical"] ); break;
+		case "Dec" : ret = new Plane( handle,"X","J",["decision"],["inductive"],["emergent"],["deductive"],["reductive"] ); break;
+		// THEOLOGICAL PLANES :
+		case "M" : ret = new Plane( handle,"X","Y",["AMOQ"],["objective"],["subjective"],["normative"],["mystical"] ); break;
+		case "N" : ret = new Plane( handle,"X","Y",["AMOQ"],["objective"],["subjective"],["normative"],["mystical"] ); break;
+		case "I" : ret = new Plane( handle,"X","Y",["AMOQ"],["objective"],["subjective"],["normative"],["mystical"] ); break;
+		case "C" : ret = new Plane( handle,"X","Y",["AMOQ"],["objective"],["subjective"],["normative"],["mystical"] ); break; }
+	return ret; }
 
 
 
 function Dimension(handle,objectHandles,res,metaphysical,conceptual,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
+	this.typeHandle = "Dim";
 	this.handle = handle;
-	if(objectHandles) { this.objectHandles = objectHandles }
-	else { this.objectHandles = []; }
+	if(objectHandles) { this.objectHandles = objectHandles } else { this.objectHandles = []; } // object dimensions
 	this.res = res;
 	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
-	if(conceptual && metaphysical) { this.slots = createDimSlots(sym,res); } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
-	else { this.slots = []; }
+	if(conceptual && metaphysical) { this.slots = createDimSlots(sym,res); } else { this.slots = []; } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
 	this.names = names;
 	this.desc = desc; }
 
