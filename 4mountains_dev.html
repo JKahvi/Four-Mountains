@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 517</title>
+		<title>Four Mountains beta 520</title>
 		<style>
 
 
@@ -343,11 +343,15 @@ Do these modules, metaphysically, emerge from each other?
 
 
 
-// ==================
-// ENGINE STUFF BEGIN
-// ==================
+// ============
+// ENGINE BEGIN
+// ============
 
 
+
+//
+//  MODULES BEGIN
+//
 
 var s = {
 	initDone: false,
@@ -557,30 +561,65 @@ function SpatialModule() {
 		drawButton("restart");
 		drawButton("devFunc");
 		s.Module.initDone = true; }}
-		
-		
-		
-function Val(dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Core.maxDebug) {console.log("VAL"); }
-	this.dyn = dyn;
-	this.abs = abs;
-	this.tan = tan;
-	this.rat = rat;
-	this.nor = nor;
-	this.obj = obj;
-	this.gno = gno;
-	this.mys = mys;
-	this.sub = sub;}
 
-function PVal(dyn,abs,tan,rat,nor,obj,gno,mys,sub) {  if(s.Core.maxDebug) {console.log("PVAL"); } //duplicated from Val in case it ever turns out useful to sumVal values with patterns. Probably not. Can't know.
-	this.dyn = dyn;
-	this.abs = abs;
-	this.tan = tan;
-	this.rat = rat;
-	this.nor = nor;
-	this.obj = obj;
-	this.gno = gno;
-	this.mys = mys;
-	this.sub = sub;}
+
+
+//
+//  MODULES END
+//
+
+//
+//  CLASS BEGIN
+//		
+
+
+
+function oNum(n) { if(!n) { return 0; } else { return n; }}
+function addTypeHandle(o,handle) { if(!(contains( o.typeHandles, handle ))) { o.typeHandles.push(handle); }}
+function makeNames(names) {
+	var ret; if(!names) { ret = [""]; } else { ret = names; }
+	return { proper : names[0], alts : names }}
+
+function Val(obj,sub,nor,mys,gno,rat,abs,tan) {
+	this.typeHandles = ["Val"];
+	this.obj = oNum(obj); this.sub = oNum(sub); this.nor = oNum(nor); this.mys = oNum(mys);
+	this.gno = oNum(gno); this.rat = oNum(rat); this.nor = oNum(abs); this.mys = oNum(tan); }
+
+function PVal(ino,bio,soc,intl,bel,con,cal,epip) { //duplicated from Val in case it ever turns out useful to sumVal values with patterns. Probably not. Can't know.
+	this.typeHandles = ["PVal"];
+	var Val = new Val(ino,bio,soc,intl,bel,con,cal,epi);
+	this.val = Val;
+	this.obj = Val.obj; this.sub = Val.sub; this.nor = Val.nor; this.mys = Val.mys; this.gno = Val.gno; this.rat = Val.rat; this.abs = Val.abs; this.tan = Val.tan;
+	this.ino = Val.obj; this.bio = Val.sub; this.soc = Val.nor; this.intl = Val.mys;this.bel = Val.gno; this.con = Val.rat; this.cal = Val.abs; this.epip = Val.tan; }
+
+function Crd(dimHandle,crd,res) { // "dimensional" or "absolute" coordinate
+	this.typeHandles = ["Abs"];
+	this.dim = getDimensionByHandle(dimHandle);
+	this.crd = crd;
+	if(!res) { this.res = dim.res; } else { this.res = res; }}
+
+function delXp(person) { var m = s.Module; for(var i = 0; i < m.dims.length; i++) { m.dims[i].xps.splice[ person.id, 1 ]; }}
+function makeXp(person,num,res) {
+	var m = s.Module; var buffer;
+	if(!person) { var ret = []; } if(!num) { var num = 0; }
+	for(var i = 0; i < m.dims.length; i++) {
+		if(!res) { buffer = new Crd(m.dims[i].handle, s.Module.dims[i].res, num); } //num for absolute positioning
+		else     { buffer = new Crd(m.dims[i].handle, res, num); } //num for relative positioning. value of num is relative to resolution.
+		if(!person) { ret.push(buffer); }
+		else        { m.dims[i].xps[person.id] = buffer; }}
+	if(!person) { return ret; }}
+
+
+
+//
+// CLASS END
+//
+
+//
+// MATH BEGIN
+//
+
+
 
 function makeXp(left, right, up, down) { if(s.Core.maxDebug) {console.log("MAKEXP"); }
 	var output;
@@ -791,52 +830,19 @@ function contains(a, obj) {
             return true; }}
     return false; }
 
-	
-
-/*
-02:43 <?> Death -3
-02:45 <kahvi> ai TOI numero
-02:46 <kahvi> se numero indikoi sitä kuinka paljon plussaa tai miinusta tohon ruutuun menemisestä seuraa menijälle
-02:47 <kahvi> plussat tai miinukset rekisteröidään s.Core.persons[i].val -kohtaan
-02:47 <kahvi> mutta tämän kohdan arvo ei ole luku vaan Val-objekti
-02:47 <kahvi> on vielä kirjoittamatta funktio joka summaa kaksi Val-objektia
-02:47 <kahvi> se on kyllä helppo kirjoittaa, voin kirjoittaa kohta
-02:47 <kahvi> Val-objektin "itseisarvo" saadaan totVal-funktiolla
-02:48 <kahvi> Val-objektit ovat siis vähän kuin lukuja, mutta kun luvun merkki on vain joko +, - tai 0 (3 eri vaihtoehtoa, jotka ovat toisensa poissulkevia) niin Val-objektissa on 9 eri vaihtoehtoa jotka eivät ole toisensa poissulkevia
-02:58 <kahvi> joo tossa on: http://a.moq.fi/test8.htm
-02:58 <kahvi> sumVal
-03:01 <kahvi> Val-objektilla on toinenkin "itseisarvo" joka saadaan absVal-funktiolla niin että absVal-funktioon syötetään X- ja Y-koordinaatit
-03:01 <kahvi> totVal eroaa absVal:sta sillä tavalla että totVal:iin syötetään Val-objekti kun taas absVal:iin syötetään koordinaatit
-03:06 <kahvi> s.Core.persons[i].val -kohdan lisäksi ruutuun menemisestä seuraavat plussat tai miinukset rekisteröidään s.Core.persons[i].bens[j] -kohtaan niin että j on pelaajan numero, jonka siirron seurauksena pelaaja nro. i päätyi tähän ruutuun.
-03:06 <kahvi> i === j jos kyseessä on pelaaja joka teki siirron vuorollaan
-03:07 <kahvi> "ben" on lyhenne sanasta "benefactor", hyväntekijä
-03:09 <kahvi> s.Core.persons[i].bens on array Val-objekteja
-03:10 <kahvi> jotka ovat siis samassa järjestyksessä kuin s.Core.persons -arrayn elementit, vaikka tätä ei ole kirjoitettu mihinkään eksplisiittisesti
-*nyt on kirjoitettu eksplisiittisesti koska id:t lisätty
-*/
-
-/*
-3 dim add:
-X and Y replace with coords object
-s needs dimensions var
-time as 4th dim?
-
-dimension as object?
-*/
-
 
 
 //
-//  DIM STUFF BEGIN
+//  MATH END
 //
 
+//
+//  DIM BEGIN
+//
 
 
 
 //context defined by expected motives per person. other rules?
-
-
-
 function contextualizeAction(relSlot,context,action,role) { relslot.conActs.push({ con: context, act: action, role: role }); }
 
 function Motive(role,context,outcome) {
@@ -850,11 +856,7 @@ function imposeRole(role,subject,object) {}
 
 
 
-function makeNames(names) {
-	var ret; if(!names) { ret = [""]; } else { ret = names; }
-	return { proper : names[0], alts : names }}
 
-function addTypeHandle(o,handle) { if(!(contains( o.typeHandles, handle ))) { o.typeHandles.push(handle); }}
 
 
 
@@ -885,11 +887,6 @@ function RelSlot(crds,name,desc) {
 	this.desc = desc;
 	this.conActs = []; }
 
-function DimCrd(dim,res,crd) {
-	this.dim = dim;
-	this.res = res;
-	this.crd = crd; }
-
 function DimSlot(dimCrd,names,desc) {
 	this.dimCrd = dimCrd;
 	this.names = names;
@@ -897,7 +894,7 @@ function DimSlot(dimCrd,names,desc) {
 
 function createDimSlots(handle, res) {
 	var ret = [];
-	if((handle === "X(m)") && (res === 4)) {
+	if((handle === "X") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Champion"], "everybody wants to be champion"));
 		ret.push(new DimSlot(-3, res, ["Charming"], ""));
 		ret.push(new DimSlot(-2, res, ["Fancy"], ""));
@@ -907,7 +904,7 @@ function createDimSlots(handle, res) {
 		ret.push(new DimSlot( 2, res, ["Adept"], ""));
 		ret.push(new DimSlot( 3, res, ["Master"], ""));
 		ret.push(new DimSlot( 4, res, ["Ruler"], "ruler can do anything")); }
-	else if((handle === "Y(m)") && (res === 4)) {
+	else if((handle === "Y") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Extreme"], ""));
 		ret.push(new DimSlot(-3, res, ["Noble"], ""));
 		ret.push(new DimSlot(-2, res, ["Mature"], ""));
@@ -917,7 +914,7 @@ function createDimSlots(handle, res) {
 		ret.push(new DimSlot( 2, res, ["Complex"], ""));
 		ret.push(new DimSlot( 3, res, ["Pure"], ""));
 		ret.push(new DimSlot( 4, res, ["Holy"], "")); }
-	else if((handle === "Z(m)") && (res === 4)) {
+	else if((handle === "Z") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Subliminal"], ""));
 		ret.push(new DimSlot(-3, res, ["Secret"], ""));
 		ret.push(new DimSlot(-2, res, ["Private"], ""));
@@ -927,7 +924,7 @@ function createDimSlots(handle, res) {
 		ret.push(new DimSlot( 2, res, ["Polite"], ""));
 		ret.push(new DimSlot( 3, res, ["Loud"], ""));
 		ret.push(new DimSlot( 4, res, ["Profuse"], "")); }
-	else if((handle === "T(c)") && (res === 4)) { // add more res options later
+	else if((handle === "T") && (res === 4)) { // add more res options later
 		ret.push(new DimSlot(-4, res, ["Initial"], ""));
 		ret.push(new DimSlot(-3, res, ["Past"], ""));
 		ret.push(new DimSlot(-2, res, ["Before"], ""));
@@ -938,29 +935,6 @@ function createDimSlots(handle, res) {
 		ret.push(new DimSlot( 3, res, ["Future"], ""));
 		ret.push(new DimSlot( 4, res, ["Final"], "")); }
 	return ret; }
-
-
-
-
-
-	/*
-	function createSymbols (dIds) {
-	var ret = [];
-	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
-	switch(dIds) {
-		case ( "num" || "numAlph" || "numALPH" || "numAlphALPH" ) : ret = ["0","1","2","3","4","5","6","7","8","9"];
-		case "numAlph" : ret = ret.concat(alphabet); break;
-		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
-		case ( "alph" || "alphALPH" || "numAlphALPH" ) : ret = ret.concat( alphabet );
-		case ( "alphALPH" || "numAlphALPH" ) : ret = ret.concat(arrToUpperCase(ret)); break;
-		case "ALPH" : ret = arrToUpperCase(alphabet); break;
-		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
-		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
-		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
-	//console.log(ret);
-	return ret; }
-*/
-
 
 
 
@@ -1045,51 +1019,71 @@ function makePlanes(handle) {
 
 
 
-function Dimension(handle,objectHandles,res,metaphysical,conceptual,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
+function Dimension(handle,objectHandles,resolution,metaphysical,conceptual,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
 	this.typeHandle = "Dim";
 	this.handle = handle;
 	if(objectHandles) { this.objectHandles = objectHandles } else { this.objectHandles = []; } // object dimensions
-	this.res = res;
+	this.res = resolution;
 	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
 	if(conceptual && metaphysical) { this.slots = createDimSlots(sym,res); } else { this.slots = []; } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
 	this.names = names;
 	this.desc = desc; }
 
-function makeDimension(dimHandle,res,objHandles ) {
-	if(!objHandles) { objHandles = []; } var ret;
-	if(((typeof theoHandle) === "string") && ((typeof dimHandle) === "string") && ((typeof res) === "number")) {
-		switch(dimHandle) {
-			// PHYSICAL DIMENSIONS :
-			case "t" : ret = new Dimension( dimHandle, objHandles, 1000, false, false,
-				["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." );	break;
-			case "x" : ret = new Dimension(	dimHandle, objHandles.concat(["t","y","z"]), 1, /*SI or imperial?*/ false, false,
-				["width"], "\"Width\" is the lateral extent of something." );	break;
-			case "y" : ret = new Dimension( dimHandle, objHandles, 1, false, false,
-				["height"], "\"Height\" is the distance between the base and the top of something.", ); break;
-			case "z" : ret = ret = new Dimension( dimHandle, objHandles, 1, false, false,
-				["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
-			case "T" : ret = new Dimension( dimHandle, objHandles.concat(["t","X"]), 0, /*unary*/ false, false,
-				["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
-			case "Z" : ret = new Dimension( dimHandle, objHandles, res, true, true,
-				["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
-			case "P" : ret = new Dimension( dimHandle, objHandles.concat(["t","T"]), res, false, true,			
-				["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
-			// to do: mass, temperature etc?
-			// METAPHYSICAL DIMENSIONS :
-			case "X" : ret = new Dimension( dimHandle, objHandles.concat(["T","Y","Z"]), res, true, true,
-				["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
-			case "Y" : ret = new Dimension( dimHandle, objHandles, res, true, true,
-				["ontological", "romantic", "metaphysical latitude", "scope"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
-			case "J" : ret = new Dimension( dimHandle, objHandles.concat(["X"]), 1, /*binary*/ true, true,
-				["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
-			case "S" : ret = new Dimension( dimHandle, objHandles.concat(["J"]), res, true, false,
-				["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
-		buffer = theologize(ret.theology.handle, ret.theology.dimensionalHandle, resolution ); // add a dimension
-		return buffer; }
-	else if(((typeof theologicalHandle) === "array") && ((typeof dimensionalHandle) === "array") && ((typeof resolution) === "number")) {
-		ret = patternTheology(theologicalHandle, dimensionalHandle); // add a theological pattern
-		ret = metapatternTheology(theologicalHandle, dimensionalHandle, ret); } // add a theological metapattern
+function makeDimensions() {
+	var ret = [];
+	ret.push(makeDimension("t"));
+	ret.push(makeDimension("x"));
+	ret.push(makeDimension("y"));
+	ret.push(makeDimension("z"));
+	ret.push(makeDimension("T"));
+	ret.push(makeDimension("Z"));
+	ret.push(makeDimension("P"));
+	ret.push(makeDimension("X"));
+	ret.push(makeDimension("Y"));
+	ret.push(makeDimension("J"));
+	ret.push(makeDimension("S"));
+	ret.push(makeDimension("t"));
 	return ret; }
+
+function makeDimension(dimHandle,res,objHandles) {
+	var ret; var m = s.Module; if(!objHandles) { objHandles = []; } if(!res) { res = m.res; }
+	switch(dimHandle) {
+		// PHYSICAL DIMENSIONS :
+		case "t" : ret = new Dimension( dimHandle, objHandles, 1000, false, false,
+			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." );	break;
+		case "x" : ret = new Dimension(	dimHandle, objHandles.concat(["t","y","z"]), 1, /*SI or imperial?*/ false, false,
+			["width"], "\"Width\" is the lateral extent of something." );	break;
+		case "y" : ret = new Dimension( dimHandle, objHandles, 1, false, false,
+			["height"], "\"Height\" is the distance between the base and the top of something.", ); break;
+		case "z" : ret = ret = new Dimension( dimHandle, objHandles, 1, false, false,
+			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
+		case "T" : ret = new Dimension( dimHandle, objHandles.concat(["t","X"]), 0, /*unary*/ false, false,
+			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
+		case "Z" : ret = new Dimension( dimHandle, objHandles, res, true, true,
+			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
+		case "P" : ret = new Dimension( dimHandle, objHandles.concat(["t","T"]), res, false, true,			
+			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
+		// to do: mass, temperature etc?
+		// METAPHYSICAL DIMENSIONS :
+		case "X" : ret = new Dimension( dimHandle, objHandles.concat(["T","Y","Z"]), res, true, true,
+			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
+		case "Y" : ret = new Dimension( dimHandle, objHandles, res, true, true,
+			["ontological", "romantic", "metaphysical latitude", "scope"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
+		case "J" : ret = new Dimension( dimHandle, objHandles.concat(["X"]), 1, /*binary*/ true, true,
+			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
+		case "S" : ret = new Dimension( dimHandle, objHandles.concat(["J"]), res, true, false,
+			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
+	return ret; }
+
+
+
+//
+//   DIM STUFF END
+//
+
+
+
+
 
 function theologize(theologicalHandle,dimensionalHandle,resolution) {
 	var buffer = [];
@@ -1104,6 +1098,71 @@ function theologize(theologicalHandle,dimensionalHandle,resolution) {
 		for(var i = 0; i < theologicalHandle.length; i++) {
 			ret[i] = relativizeTreeToDimension(ret[i].theologicalHandle, ret[i].dimensionalHandle, resolution); }}
 	return ret;	}
+
+function Context(relSlot,planarOrder,planarRelations) {
+	this.relSlot = relSlot;
+	this.planarOrder = planarOrder;
+	this.planarRelations = planarRelations; }
+
+function preferQuadrant(plane,coordStr) {}
+
+function FVar(sym,pos) { this.sym = sym; this.pos = pos; }
+function BVar(sym,pos) { this.sym = sym; this.pos = pos; }
+
+function cStr(str,dimHandles) {
+	var ret = []; var o; var dims; var sym; var hasVar = false;
+	for(var i = 0; i < str.length; i++) {
+		sym = str.slice(i,1);
+		switch(sym) {
+			case "+" : ret.push( 1 ); break;
+			case "0" : ret.push( 0 ); break;
+			case "-" : ret.push(-1 ); break;
+			ret.push(sym);
+			hasVar = true; break; }}
+	if(hasVar) {
+		for(var i = 0; i < ret.length; i++) {
+			if(contains(seqByDIds("alph","i","w"),ret[i])) { ret.push([1,0,-1]); }}}
+	if(!dimHandles) { dims = ["X","Y","Z"]; } else { dims = dimHandles; }
+	for(var i = 0; ((i < dims.length) || (i < str.length)); i++) { o[dims[i]] = ret[i]; }
+	return o; }
+
+
+//		else if(contains(seqByDIds("alph","x","z").concat(seqByDIds("alph","a","h"))), ret[i])) {
+		
+
+	
+
+
+
+function makeContextTree(dimHandle,contextHandle) {
+	var ret;
+	switch(contextHandle) {
+		// METAPHYSICAL :
+		case "normative" : ret = preferQuadrant
+
+		["P++","P+-","P-+"]; break;
+		case "objective" : ret = ["P+-",""]; break;
+		case "mystical"  : ret = ["P-+"]; break;
+		case "subjective": ret = ["P--"]; break;
+		case "classical" : ret = ["P+y","P-y"]; break;
+		case "romantic"  : ret = ["P-y","P+y"]; break;
+		case "abstract"  : ret = ["P+x","P-x"]; break;
+		case "tangible"  : ret = ["P-x","P+x"]; break;
+		// THEOLOGICAL :
+		case "Islam" : switch (dimHandle) {
+			case "t" : ret = ["P+y","P-y"]; break;
+			case "x" : ret = ["P+y","P-y"]; break;
+			case "y" : ret = ["P+y","P-y"]; break;
+			case "z" : ret = ["P+y","P-y"]; break;
+			case "T" : ret = ["P+y","P-y"]; break;
+			case "Z" : ret = ["P+y","P-y"]; break;
+			case "P" : ret = ["P+y","P-y"]; break;
+			case "x" : ret = ["P+y","P-y"]; break;
+		}
+
+	}
+}
+
 
 function relativizeDimensionToTheology(theologicalHandle,dimensionalHandle,resolution) {
 	var tree = []; // Aka. theological template or theological handle. Can be 
@@ -1151,7 +1210,89 @@ function relativizeDimensionToTheology(theologicalHandle,dimensionalHandle,resol
 
 
 //
-//   DIM STUFF END
+//   DIM STUFF END2
+//
+
+
+//
+//  DIDS BEGIN
+//
+
+function dIdToRange(dIds,begin,end) { begin = dIdNum(dIds,begin); end = dIdNum(dIds,end); return { min : begin, max : end; }}
+function seqByDIds(dIds,begin,end) {
+	var ret = [];
+	var lim = dIdToRange(dIds,begin,end);
+	var len = lim.max - lim.min;
+	for(var i = 0; i < len; i++) { ret.push(dId(i,dIds)); }
+	return ret;	}
+
+function dIdNum(dId,dIds) {
+	var ret = 0; var dIdArr = [];
+	for(var i = 0; i < dId.length; i++) { dIdArr.push(dId.slice(i,1)); }
+	if(dIdArr.length > 1) {
+		if(dIds.numeric) { ret = Math.pow(10,i); }
+		else             { ret = dIds.symbols.length * (dIdArr.length - 1); }}
+	for(var i = 0; i < dIds.symbols.length; i++) {
+		if(dIdArr[didArr.length] === dIds.symbols[i]) { ret = ret + i; break; }}
+	ret = ret - dIds.startFrom;
+	return ret; }
+
+function dId ( id, dIds ) {
+	if (!(typeof dIds === "object")) { return id; } //yxy
+	else {
+		var ret = "";
+		var loops = Math.floor((id + dIds.startFrom) / dIds.symbols.length );
+		if (loops === 0) { ret = dIds.symbols[id + dIds.startFrom ]; }
+		else if (dIds.numeric) {
+			for (var i = 0; i <= loops; i++) {
+				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
+				else {
+					for (var j = 0; j < loops; j++) {
+						ret = dIds.symbols[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
+		else if (!dIds.numeric) {
+			loops = Math.floor( id / (loops * loops));
+			for (var i = 0; i <= loops; i++ ) {
+				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
+				else {
+					for (var j = 0; j < loops; j++) {
+						ret = dIds.symbols[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
+		//console.log(ret);
+		return ret; }}
+
+function makeDIds() {
+	var ret;
+	ret.alph = new DIds("alph", false);
+	ret.ALPH = new DIds("ALPH", false);
+	return ret; }
+
+function DIds (handle, numeric, startFrom, font) {
+	var m = s.Module;
+	this.handle = handle;
+	this.symbols = createSymbols(handle);
+	this.numeric = numeric;
+	if (startFrom) { this.startFrom = startFrom; } else { this.startFrom = 0; }
+	if (font) { this.font = font; }}
+
+function arrToUpperCase(arr) { var ret = []; for (var i = 0; i < arr.length; i++) { ret.push(arr[i].toUpperCase()); } return ret; }
+function createSymbols (dIdsHandle) {
+	var ret = [];
+	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	switch(dIdsHandle) {
+		case "num":case "numAlph":case "numALPH":case "numAlphALPH": ret = ["0","1","2","3","4","5","6","7","8","9"];
+		case "numAlph" : ret = ret.concat(alphabet); break;
+		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
+		case "alph":case "alphALPH":case "numAlphALPH": ret = ret.concat( alphabet );
+		case "alphALPH":case "numAlphALPH": ret = ret.concat(arrToUpperCase(ret)); break;
+		case "ALPH" : ret = arrToUpperCase(alphabet); break;
+		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
+		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
+		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
+	//console.log(ret);
+	return ret; }
+
+
+//
+//  DIDS END
 //
 
 
@@ -1201,14 +1342,6 @@ function attemptMove(X, Y) { if(s.Core.maxDebug) {console.log("ATTEMPTMOVE"); }
 	if (s.Core.pause === false) {
 		clearInterval(s.Core.moveAttempt);
 		move (X, Y); }}
-
-function moveHover(X, Y) { if(s.Core.maxDebug) {console.log("MOVEHOVER"); }
-	var calcs = { persons : calcPersons(X, Y), groups : [], strategies : [] };
-	calcs.groups = calcGroups(X, Y, calcs.persons);
-	//calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
-	//drawGrid(s.Core.grid, s.Core.persons, s.Core.personInTurn);
-	updatePersonList(calcs.persons, true);
-	updateGroupList(calcs.groups, true); }
 
 function move(X, Y) { if(s.Core.maxDebug) {console.log("MOVE"); }
 	s.Core.turn++;
@@ -1523,58 +1656,6 @@ function checkKeyPressed(e) { if(s.Core.maxDebug) {console.log("CHECKKEYPRESSED"
 
 
 
-function DIds (symbols, numeric, startFrom, font) {
-	this.symbols = createSymbols(symbols);
-	this.name = symbols;
-	this.numeric = numeric;
-	if (startFrom) { this.startFrom = startFrom; }
-	else { this.startFrom = 0; }
-	if (font) { this.font = font; }
-	else { this.font = s.Module.defaultFont; }}
-
-function dId ( id, arr, dIds ) {
-	if (!(typeof dIds === "object")) { return id; } //yxy
-	else {
-		var ret = "";
-		var loops = Math.floor((id + dIds.startFrom) / dIds.symbols.length );
-		if (loops === 0) { ret = dIds.symbols[id + dIds.startFrom ]; }
-		else if (dIds.numeric) {
-			for (var i = 0; i <= loops; i++) {
-				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
-				else {
-					for (var j = 0; j < loops; j++) {
-						ret = dIds.arr[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
-		else if (!dIds.numeric) {
-			loops = Math.floor( id / (loops * loops));
-			for (var i = 0; i <= loops; i++ ) {
-				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
-				else {
-					for (var j = 0; j < loops; j++) {
-						ret = dIds.arr[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
-		//console.log(ret);
-		return ret; }}
-
-function arrToUpperCase(arr) {
-	var ret = [];
-	for (var i = 0; i < arr.length; i++) { ret.push(arr[i].toUpperCase()); }
-	return ret; }
-
-function createSymbols (dIds) {
-	var ret = [];
-	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
-	switch(dIds) {
-		case ( "num" || "numAlph" || "numALPH" || "numAlphALPH" ) : ret = ["0","1","2","3","4","5","6","7","8","9"];
-		case "numAlph" : ret = ret.concat(alphabet); break;
-		case "numALPH" : ret = ret.concat(arrToUpperCase(alphabet)); break;
-		case ( "alph" || "alphALPH" || "numAlphALPH" ) : ret = ret.concat( alphabet );
-		case ( "alphALPH" || "numAlphALPH" ) : ret = ret.concat(arrToUpperCase(ret)); break;
-		case "ALPH" : ret = arrToUpperCase(alphabet); break;
-		case "hex" : ret = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]; break; 
-		case "tone" : ret = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; break;
-		case "sl" : ret = [ "Ces", "Ges", "Des", "As", "Es", "B", "F", "C", "G", "D", "A", "E", "H", "Fis", "Cis", "as", "es", "b", "f", "c", "g", "d", "a", "e", "h", "fis", "cis", "gis", "dis", "ais" ]; break; }
-	//console.log(ret);
-	return ret; }
-
 
 		
 function setDefaultInfoBox(Module, message) { Module.defaultInfoBox = message; }
@@ -1604,6 +1685,14 @@ function defaultHover() {
 	drawInfoBox(s.Module.defaultInfoBox);
 	updatePersonList(s.Module.latestPersonsDiff, false);
 	updateGroupList(s.Module.latestGroupsDiff, false); }
+
+function moveHover(X, Y) { if(s.Core.maxDebug) {console.log("MOVEHOVER"); }
+	var calcs = { persons : calcPersons(X, Y), groups : [], strategies : [] };
+	calcs.groups = calcGroups(X, Y, calcs.persons);
+	//calcs.strategies = calcStrategies(X, Y, calcs.persons, calcs.groups);
+	//drawGrid(s.Core.grid, s.Core.persons, s.Core.personInTurn);
+	updatePersonList(calcs.persons, true);
+	updateGroupList(calcs.groups, true); }
 
 function bensHover(id1, id2) {
 	drawInfoBox(s.Core.persons[id2].name + " (" + id2 + ") has treated " + s.Core.persons[id1].name + " (" + id1 + ") with a decency of " + dispValDecency(s.Core.persons[id1].bens[id2]) + " and value of " + necStaVal(s.Core.persons[id1].bens[id2]) + " by giving " + s.Core.persons[id1].bens[id2].obj + " &diams;, " + s.Core.persons[id1].bens[id2].sub + " &hearts;, " + s.Core.persons[id1].bens[id2].nor + " &spades;, " + s.Core.persons[id1].bens[id2].mys + " &clubs; composed of " + s.Core.persons[id1].bens[id2].gno + " gno, " + s.Core.persons[id1].bens[id2].rat + " rat, " + s.Core.persons[id1].bens[id2].abs + " abs, " + s.Core.persons[id1].bens[id2].tan + " tan"); }
