@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 520</title>
+		<title>Four Mountains beta 522</title>
 		<style>
 
 
@@ -916,10 +916,10 @@ function createDimSlots(handle, res) {
 		ret.push(new DimSlot( 4, res, ["Holy"], "")); }
 	else if((handle === "Z") && (res === 4)) {
 		ret.push(new DimSlot(-4, res, ["Subliminal"], ""));
-		ret.push(new DimSlot(-3, res, ["Secret"], ""));
-		ret.push(new DimSlot(-2, res, ["Private"], ""));
-		ret.push(new DimSlot(-1, res, ["Modest"], ""));
-		ret.push(new DimSlot( 0, res, ["Averted"], ""));
+		ret.push(new DimSlot(-3, res, ["Secrecy"], ""));
+		ret.push(new DimSlot(-2, res, ["Privacy"], ""));
+		ret.push(new DimSlot(-1, res, ["Modesty"], ""));
+		ret.push(new DimSlot( 0, res, ["Aversion"], ""));
 		ret.push(new DimSlot( 1, res, ["Casual"], ""));
 		ret.push(new DimSlot( 2, res, ["Polite"], ""));
 		ret.push(new DimSlot( 3, res, ["Loud"], ""));
@@ -998,7 +998,7 @@ function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysN
 	this.handle = handle;
 	this.xHandle = xHandle;
 	this.yHandle = yHandle;
-	this.planeNames = makeNames(planeNames).alts; this.planeName = makeNames(planeNames).proper
+	this.planeNames = makeNames(planeNames).alts; this.name = makeNames(planeNames).proper
 	this.objNames = makeNames(objNames).alts; this.objName = makeNames(objNames).proper
 	this.subNames = makeNames(subNames).alts; this.subName = makeNames(subNames).proper
 	this.norNames = makeNames(norNames).alts; this.norName = makeNames(norNames).proper
@@ -1051,27 +1051,27 @@ function makeDimension(dimHandle,res,objHandles) {
 		// PHYSICAL DIMENSIONS :
 		case "t" : ret = new Dimension( dimHandle, objHandles, 1000, false, false,
 			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." );	break;
-		case "x" : ret = new Dimension(	dimHandle, objHandles.concat(["t","y","z"]), 1, /*SI or imperial?*/ false, false,
+		case "x" : ret = new Dimension(	dimHandle, ["t","y","z"].concat(objectHandles), 1, /*SI or imperial?*/ false, false,
 			["width"], "\"Width\" is the lateral extent of something." );	break;
 		case "y" : ret = new Dimension( dimHandle, objHandles, 1, false, false,
 			["height"], "\"Height\" is the distance between the base and the top of something.", ); break;
 		case "z" : ret = ret = new Dimension( dimHandle, objHandles, 1, false, false,
 			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
-		case "T" : ret = new Dimension( dimHandle, objHandles.concat(["t","X"]), 0, /*unary*/ false, false,
+		case "T" : ret = new Dimension( dimHandle, ["t","X"].concat(objectHandles), 0, /*unary*/ false, false,
 			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
 		case "Z" : ret = new Dimension( dimHandle, objHandles, res, true, true,
 			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
-		case "P" : ret = new Dimension( dimHandle, objHandles.concat(["t","T"]), res, false, true,			
+		case "P" : ret = new Dimension( dimHandle, ["t","T"].concat(objectHandles), res, false, true,			
 			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
 		// to do: mass, temperature etc?
 		// METAPHYSICAL DIMENSIONS :
-		case "X" : ret = new Dimension( dimHandle, objHandles.concat(["T","Y","Z"]), res, true, true,
+		case "X" : ret = new Dimension( dimHandle, ["T","Y","Z"].concat(objectHandles), res, true, true,
 			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
 		case "Y" : ret = new Dimension( dimHandle, objHandles, res, true, true,
 			["ontological", "romantic", "metaphysical latitude", "scope"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
-		case "J" : ret = new Dimension( dimHandle, objHandles.concat(["X"]), 1, /*binary*/ true, true,
+		case "J" : ret = new Dimension( dimHandle, ["X"].concat(objectHandles), 1, /*binary*/ true, true,
 			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
-		case "S" : ret = new Dimension( dimHandle, objHandles.concat(["J"]), res, true, false,
+		case "S" : ret = new Dimension( dimHandle, ["J"].concat(objectHandles), res, true, false,
 			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
 	return ret; }
 
@@ -1106,8 +1106,13 @@ function Context(relSlot,planarOrder,planarRelations) {
 
 function preferQuadrant(plane,coordStr) {}
 
-function FVar(sym,pos) { this.sym = sym; this.pos = pos; }
-function BVar(sym,pos) { this.sym = sym; this.pos = pos; }
+
+/*function cStrs(cStrs) { // for bounded variables, unfinished
+	for(var i = 0; i < cStrs.length; i++) {	cStrs[i] = cStr(cStrs[i]); }
+	for(var i = 0; i < cStrs.length; i++) {
+		for(var j = 0; j < cStrs[i].length; j++) {
+			if(contains(seqByDIds("alph","i","w"),cStrs[i][j])) { ret.push([1,0,-1]); }}}
+}*/
 
 function cStr(str,dimHandles) {
 	var ret = []; var o; var dims; var sym; var hasVar = false;
@@ -1121,7 +1126,7 @@ function cStr(str,dimHandles) {
 			hasVar = true; break; }}
 	if(hasVar) {
 		for(var i = 0; i < ret.length; i++) {
-			if(contains(seqByDIds("alph","i","w"),ret[i])) { ret.push([1,0,-1]); }}}
+			if(contains(seqByDIds("alph","a","h").concat(seqByDIds("alph","x","z")),ret[i])) { ret.push([1,0,-1]); }}}
 	if(!dimHandles) { dims = ["X","Y","Z"]; } else { dims = dimHandles; }
 	for(var i = 0; ((i < dims.length) || (i < str.length)); i++) { o[dims[i]] = ret[i]; }
 	return o; }
@@ -1250,7 +1255,7 @@ function dId ( id, dIds ) {
 					for (var j = 0; j < loops; j++) {
 						ret = dIds.symbols[(id + dIds.startFrom) % dIds.symbols.length] + ret; }}}}
 		else if (!dIds.numeric) {
-			loops = Math.floor( id / (loops * loops));
+			loops = Math.floor( id / (loops * loops) );
 			for (var i = 0; i <= loops; i++ ) {
 				if (i === loops) { ret = dIds.symbols[ (id + dIds.startFrom) ]; }
 				else {
@@ -2308,6 +2313,22 @@ function reportValDiff(oldVal, diff, hover) {
 
 
 
+function drawButton(id) { if(s.Core.maxDebug) {console.log("DRAWBUTTON"); }
+	var buttonText;
+	switch(id) {
+		case "newPerson" : { buttonText = "New Person"; break; }
+		case "delPerson" : { buttonText = "Del Person"; break; }
+		case "startGame" : { buttonText = "Play (Enter)"; break; }
+		case "restart" : { buttonText = "Restart"; break; }
+		case "autoPlay" : {
+			if (s.Core.autoBotTurn === -1) { buttonText = "Autoplay: Off"; }
+			else { buttonText = "Autoplay: On"; }
+			break;}
+		case "devFunc" : { buttonText = "dev"; break; }}
+	$("#" + id).append("<div onmouseout='defaultHover();' onmouseover='" + id + "Hover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>");}
+
+
+
 // TABLES STUFF BEGIN
 	
 
@@ -3017,28 +3038,8 @@ function drawGroupList(diffs) { if(s.Core.maxDebug) {console.log("DRAWGROUPLIST"
 			bens.style.backgroundColor = "#" + colors.bg;
 			bens.style.color = "#" + colors.text;
 			bens.innerHTML = "<div style='width:100%; height:100%; padding: 2px; margin: -2px;' onmouseout='defaultHover();' onmouseover='groupBensHover(" + [i - 1] + ", " + [j - 7] + ");'>" + necStaVal(s.Core.groups[i - 1].bens[j - 7]) + "</div>"; }}}
-
-
-
-// TABLES STUFF END
 			
 			
-
-function getBenLimit(context) {
-	var X = [];
-	var Y = [];
-	var curr;
-	for(var i = 0; i < context.length; i++) {
-		for(var j = 0; j < context.length; j++) {
-			curr = context[i].bens[j];
-			X.push(Math.max(curr.gno), (curr.rat));
-			Y.push(Math.max(curr.abs), (curr.tan));}}
-	X.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
-	Y.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
-	var limit = {X : X[0], Y : Y[0]};
-	return limit; }
-	
-	
 
 function findColorsByXY(X, Y) {
 	var colors = {bg : "", text : ""};
@@ -3046,107 +3047,38 @@ function findColorsByXY(X, Y) {
 	colors.bg = slot.color;
 	colors.text = slot.textColor;
 	return colors; }
-	
-	
+
+function getBenLimit(persons) { // works also for groups
+	var X = [];	var Y = [];	var curr;
+	for(var i = 0; i < persons.length; i++) {
+		for(var j = 0; j < persons.length; j++) {
+			curr = persons[i].bens[j];
+			X.push(Math.max((curr.sub + curr.mys), (curr.obj + curr.nor));
+			Y.push(Math.max((curr.mys + curr.nor), (curr.sub + curr.obj));}}
+	X.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
+	Y.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
+	var limit = { X : X[0], Y : Y[0] };
+	return limit; }
 	
 function colorBenTableCell(val, limit) {
+	var m = s.Core;
 	var normalize = false;
 	var colors = {bg : "fff", text : "000"};
-	var X = val.rat - val.gno;
-	var Y = val.abs - val.tan;
+	var X = (val.obj + val.nor) - (val.sub + val.mys);
+	var Y = (val.mys + val.nor) - (val.sub + val.obj);
 	var absX = Math.abs(X);
 	var absY = Math.abs(Y);
-	//var ratio = (Math.min(absX, absY) / Math.max(absX, absY));
-	
-	/*if (!normalize) {
-		X = (X / limit.X) * (s.Core.res / 2);
-		Y = (Y / limit.Y) * (s.Core.res / 2);
-		if (X < 0) { X = Math.ceil(X) }
-		if (X > 0) { X = Math.floor(X) }
-		if (Y < 0) { Y = Math.ceil(Y) }
-		if (Y > 0) { Y = Math.floor(Y) }}
-	else {
-		if(X < Y) {
-			X = smaller;
-			Y = limit; }
-		else {
-			Y = smaller;
-			X = limit; }
-		X = (X / limit) * (s.Core.res / 2);
-		Y = (Y / limit) * (s.Core.res / 2);
-		if (X < 0) { X = Math.ceil(X) }
-		if (X > 0) { X = Math.floor(X) }
-		if (Y < 0) { Y = Math.ceil(Y) }
-		if (Y > 0) { Y = Math.floor(Y) }}*/
-		
-	
-	
-	/*
-		X = val.rat - val.gno;
-		Y = val.abs - val.tan;
-		absX = Math.abs(X);
-		absY = Math.abs(Y);
-		if (!(absX === 0) && (absY === 0)) { prop = (Math.min(absX, absY) / Math.max(absX, absY)); }
-		if (absX < absY) {
-			absY = absY * (Math.floor(limit) / absY);
-			absX = absY * prop;}
-		else {
-			absX = absX * (Math.floor(limit) / absX);
-			absY = absX * prop; }
-		if (X < 0) { X = Math.ceil(-absX) }
-		if (X > 0) { X = Math.floor(absX) }
-		if (Y < 0) { Y = Math.ceil(-absY) }
-		if (Y > 0) { Y = Math.floor(absY) }}
-	console.log("X " + X + " Y " + Y);*/
-	/*
-		X = val.rat - val.gno;
-		Y = val.abs - val.tan;
-		diffXY = X - Y;
-		
-		X = X / limit;
-		Y = Y / limit;
-		diffXY = diffXY / limit;
-		
-		X = X * (s.Core.res / 2);
-		Y = Y * (s.Core.res / 2);
-		diffXY = diffXY * (s.Core.res / 2);
-		
-		console.log(diffXY);*/
-		
-		//X = X / (1 / limit);
-		//Y = Y / (1 / limit);
-		//X = X * (s.Core.res / 2);
-		//Y = Y * (s.Core.res / 2);
-		
-		//X = ((val.rat - val.gno) / limit) * (s.Core.res / 2);
-		//Y = ((val.abs - val.tan) / limit) * (s.Core.res / 2);
-
-	
-	/*if (normalize) {
-		var magn = Math.abs(X) + Math.abs(Y);
-		
-		}*/
-	//console.log("X: " + X + ", Y: " + Y);
-	//if(s.Core.initDone) { return findColorsByXY(X, Y); }
-	//else {
+	X = (X / limit.X) * (m.res);
+	Y = (Y / limit.Y) * (m.res);
+	if (X < 0) { X = Math.ceil(X) }
+	else if (X > 0) { X = Math.floor(X) }
+	else if (Y < 0) { Y = Math.ceil(Y) }
+	else if (Y > 0) { Y = Math.floor(Y) }
 	return colors; }
-//}
-	
 
 
-function drawButton(id) { if(s.Core.maxDebug) {console.log("DRAWBUTTON"); }
-	var buttonText;
-	switch(id) {
-		case "newPerson" : { buttonText = "New Person"; break; }
-		case "delPerson" : { buttonText = "Del Person"; break; }
-		case "startGame" : { buttonText = "Play (Enter)"; break; }
-		case "restart" : { buttonText = "Restart"; break; }
-		case "autoPlay" : {
-			if (s.Core.autoBotTurn === -1) { buttonText = "Autoplay: Off"; }
-			else { buttonText = "Autoplay: On"; }
-			break;}
-		case "devFunc" : { buttonText = "dev"; break; }}
-	$("#" + id).append("<div onmouseout='defaultHover();' onmouseover='" + id + "Hover();' onclick='" + id + "();' class='amoqButton'>" + buttonText + "</div>");}
+
+// TABLES STUFF END
 
 
 
