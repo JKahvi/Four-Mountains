@@ -38,8 +38,7 @@
 				padding-left: 2px;
 				padding-right: 2px;
 				border-top: 1px solid #ccc;
-				border-left: 1px solid #ccc;}
-
+				border-left: 1px solid #ccc;
 
 
 			.wrapper{
@@ -1114,6 +1113,9 @@ function preferQuadrant(plane,coordStr) {}
 			if(contains(seqByDIds("alph","i","w"),cStrs[i][j])) { ret.push([1,0,-1]); }}}
 }*/
 
+function FVar(sym,pos,values) { this.sym = sym; this.pos = pos; this.values; }
+function BVar(sym,pos) { this.sym = sym; this.pos = pos; }
+
 function cStr(str,dimHandles) {
 	var ret = []; var o; var dims; var sym; var hasVar = false;
 	for(var i = 0; i < str.length; i++) {
@@ -1122,11 +1124,8 @@ function cStr(str,dimHandles) {
 			case "+" : ret.push( 1 ); break;
 			case "0" : ret.push( 0 ); break;
 			case "-" : ret.push(-1 ); break;
-			ret.push(sym);
-			hasVar = true; break; }}
-	if(hasVar) {
-		for(var i = 0; i < ret.length; i++) {
-			if(contains(seqByDIds("alph","a","h").concat(seqByDIds("alph","x","z")),ret[i])) { ret.push([1,0,-1]); }}}
+			if(contains(seqByDIds("alph","a","h").concat(seqByDIds("alph","x","z")),ret[i])) { ret.push(new FVar( sym, i, [1,0,-1])); }
+			else { ret.push "cStr syntax error: " + sym; console.log(ret[i]; ) } break; }}
 	if(!dimHandles) { dims = ["X","Y","Z"]; } else { dims = dimHandles; }
 	for(var i = 0; ((i < dims.length) || (i < str.length)); i++) { o[dims[i]] = ret[i]; }
 	return o; }
