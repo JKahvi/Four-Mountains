@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 522</title>
+		<title>Four Mountains beta 523</title>
 		<style>
 
 
@@ -341,6 +341,15 @@ Do these modules, metaphysically, emerge from each other?
 // dec is miscalculated. shoud account for x y diff instead of just absval
 
 
+// MORE NOTES...
+// ~~~~~~~~~~~~~
+
+// intensifying term is one that brings a tepid term closer to excellence?
+// IF we sum tepid relativized vectors whose X coordinates have the same value, but one of them is more excellent, shouldn't the sum be just an increase in Y value?
+// this means once excellence peaks the sum chain is terminated
+// sum chain can also be terminated by quadrant change
+
+
 
 // ============
 // ENGINE BEGIN
@@ -509,9 +518,9 @@ function FoldingModule() {
 		drawGroupList(false, false);
 		s.Module.initDone = true; }}
 
-function compStratModule() {
-	s.Module = "compStratModule";
-	drawModuleSelector("compStratModule"); }
+function MarkoverModule() {
+	s.Module = "MarkoverModule";
+	drawModuleSelector("MarkoverModule"); }
 
 function SpatialModule() {
 	if(!(s.Module.name === "SpatialModule")) {
@@ -1713,7 +1722,7 @@ function delPersonHover() { drawInfoBox("Deletes a person."); }
 function autoPlayHover() { drawInfoBox("When Autoplay is on bots play their turn automatically, otherwise you have to press enter each time. You can also adjust the interval between bot turns."); }
 function restartHover() { drawInfoBox("Starts a new game and erases the old one."); }
 function CoreModuleHover() {	drawInfoBox("Core Module illustrates the workings of Four Mountains."); }
-function compStratModuleHover() { drawInfoBox("compStrat is a statistical comparison tool for strategic analysis."); }
+function MarkoverModuleHover() { drawInfoBox("Markover is used for teaching language to Four Mountains."); }
 function SpatialModuleHover() { drawInfoBox("Spatial Module illustrates how Four Mountains can be applied in artificial intelligence."); }
 function NonHybridBotHover() { drawInfoBox("Non-hybrid bots cannot be moved by user."); }
 function HybridBotHover() { drawInfoBox("Hybrid bots can be moved by user."); }
@@ -2003,7 +2012,7 @@ function createGrid(Module, res, persons) { if(s.Core.maxDebug) {console.log("CR
 		var r9x1y3 = new Slot("Never", 			 1,  3, "2555BE", "FFF", "erroneous");
 		var r9x1y4 = new Slot("Mad", 			 1,  4, "00257F", "FFF", "delusional");
 		var r9x1yn1 = new Slot("Ego", 			 1, -1, "FFBBBD", "000", "inorganic");
-		var r9x1yn2 = new Slot("Pain", 			 1, -2, "BAFFFF", "000", "weak");
+		var r9x1yn2 = new Slot("Pain", 			 1, -2, "BAFFFF", "000", "weak, fear");
 		var r9x1yn3 = new Slot("Shame", 		 1, -3, "5ABFBF", "FFF", "disruptive");
 		var r9x1yn4 = new Slot("Death", 		 1, -4, "1C8080", "FFF", "disastrous");
 
@@ -2175,7 +2184,7 @@ function initSpatialModuleDisplay() {
 function remLast6(str) { return str.slice(0, str.length - 6); }
 function drawModuleSelector(Module) {
 	$( "#ModuleSelector" ).empty();
-	var ids = ["CoreModule", "compStratModule", "SpatialModule"];
+	var ids = ["CoreModule", "MarkoverModule", "SpatialModule"];
 	var Modules = [];
 	for(var i = 0; i < ids.length; i++) {
 		$("#ModuleSelector").append("<input id='" + ids[i] + "' class='amoqSelector' onmouseout='defaultHover();' onmouseover='" + ids[i] + "Hover();' onmouseout='defaultHover();' onclick='" + ids[i] + "();'><span class='amoqSelectorText'>" + remLast6(ids[i]) + "</span></input>"); }
