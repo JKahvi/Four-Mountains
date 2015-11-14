@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 538</title>
+		<title>Four Mountains beta 540</title>
 		<style>
 
 
@@ -306,19 +306,18 @@ function CoreModule() {
 			m.maxDebug = false;
 			m.defaultInfoBox = "";
 			m.logInfoBox = false;
-			//
-			m.initDone = false;
-
+			// generate starting conditions:
 			newPerson(m, "Rotta",false,true);
-			//s.Core.persons[0].xp = makeXp(2, 2, 2, 2);
+				//s.Core.persons[0].xp = makeXp(2, 2, 2, 2);
 			m.personInTurn = s.Core.persons[0];
 			newPerson(m,"Siiseli",true,true);
 			newPerson(m,"Kaniini",true,false);
-			//newPerson(s.Core,"Zippomiäs",true);
+				//newPerson(s.Core,"Zippomiäs",true);
 			newPerson(m,"Länsigootti",false,false);
 			newPerson(m,"AdolPh.D", false,true);
+			//generate UI:
 			createMetaphysics(s.Core, s.Core.res);
-			//createGrid(s.Core, s.Core.res, s.Core.persons);
+				//createGrid(s.Core, s.Core.res, s.Core.persons);
 			drawGrid(s.Core.grid, s.Core.persons, false); }
 		s.Module = s.Core;
 		createStrategies(s.Core); //priors not randomized or utilized, can't change strats reasonably before this is done
@@ -767,10 +766,10 @@ function makeMetaphysSlotRange(slot, otherSlots) {
 function makeMetaphysSlots(slots) {
 	console.log(slots[0].crds);
 	var ret = []; var dimSlots = []; var buffer; var dims = [slots[0].crds[0].dim];
-	for(var i = 1; i < slots.length; i++) {
+	for(var i = 1; i < slots.length; i++) { // How many dimensions?
 		if(!(slots[i].crds[0].dim === slots[i-1].crds[0].dim)) {
 			dims.push(slots[i].crds[0].dim); }}
-	for(var i = 0; i < dims.length; i++) {
+	for(var i = 0; i < dims.length; i++) { // Sorts slots into array by dimensions
 		dimSlots.push([]);
 		for(var j = 0; j < slots.length; j++) {
 			if(dims[i] === slots[j].crds[0].dim) { //origin!! remove duplicates later
@@ -778,7 +777,9 @@ function makeMetaphysSlots(slots) {
 	for(var i = 0; i < dimSlots.length; i++) {
 		for(var j = 0; j < dimSlots[i].length; j++) {
 			console.log("makeMetaphysSlots:");
+			console.log(dimSlots);
 			console.log(_.difference(dimSlots, dimSlots[i]));
+			console.log("end of iteration");
 			buffer = makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
 			ret.push(_.difference(ret, buffer)); }}
 	return ret; }
