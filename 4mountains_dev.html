@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 523</title>
+		<title>Four Mountains beta 531</title>
 		<style>
 
 
@@ -369,68 +369,70 @@ var s = {
 
 
 function CoreModule() {
+	var m = s.Core;
 	if(!(s.Module.name === "CoreModule")) {
-		initCoreModuleDisplay(); // put conditional here to eliminate redundant draws if startup with many modules init
-		if(!s.Core.initDone) {
-			s.Core = {
-				// environment: (not supposed to change on run)
-				name: "CoreModule", // Modules should have ids, too?
-				dims: createDimension();
-				res: 9,
-				metaphysics: false,
-				nonrelScale: false, //absVal of nonrelativized slots
-				relScale: "intersect",	//absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
-				revertingXp: true,
-				xpRegulation: 1, //-1 for none
-				xpCap: true, //-1 for none, true for half res, number for other
-				defaultFont: "tahoma",
-				personsDIds: new DIds( "ALPH", false ),
-				fancyUI: true,
-				randomizeIntl: 1,
-				simultaneousTurns: false,
-				// state: (may be changed by user on run)
-				modules: [],
-				playing: false,
-				personInTurn: false,
-				turn: 0,
-				autoBotTurn: -1, //-1 for none
-				autoBotTurnDefault: 50,
-				autoPlayFirstTurn: true,
-				disableAutoContinueOnHumanTurn: true,
-				pause: false,
-				moveAttempt: false,
-				// data: (supposed to be accessed by program on run)
-				inos: [],
-				persons: [],
-				groups: [],
-				intl: [],
-				strategies: [],
-				patterns: [],
-				grid: [],
-				slots: [],
-				slotHover: false,
-				latestPersonsDiff: false,
-				latestGroupsDiff: false,
-				latestX: 0,
-				latestY: 0,
-				val: relVal(0,0),
-				// output:
-				outputToConsole: 0,
-				maxDebug: false,
-				defaultInfoBox: "",
-				logInfoBox: false,
-				//
-				initDone: false };
-			newPerson(s.Core,"Rotta",false,true);
+		initCoreModuleDisplay(); // to do: put conditional here to eliminate redundant draws if startup with many modules init
+		if(!m.initDone) {
+			// environment: (not supposed to change on run)
+			m.name = "CoreModule"; // Modules should have ids, too?
+			m.res = 4;
+			m.dims = makeDimensions(m.res);
+			m.slots = makeDimSlots(m.dims);
+			m.slots.push(makeRelSlots(m.slots));
+			m.metaphysics = false;
+			m.nonrelScale = false; //absVal of nonrelativized slots
+			m.relScale = "intersect"; //absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
+			m.revertingXp = true;
+			m.xpRegulation = 1; //-1 for none
+			m.xpCap = true; //-1 for none, true for half res, number for other
+			m.defaultFont = "tahoma";
+			m.personsDIds = new DIds( "ALPH", false );
+			m.fancyUI = true;
+			m.randomizeIntl = 1;
+			m.simultaneousTurns = false;
+			// state: (may be changed by user on run)
+			//m.modules = [];
+			m.playing = false;
+			m.personInTurn = false;
+			m.turn = 0;
+			m.autoBotTurn = -1; //-1 for none
+			m.autoBotTurnDefault = 50;
+			m.autoPlayFirstTurn = true;
+			m.disableAutoContinueOnHumanTurn = true;
+			m.pause = false;
+			m.moveAttempt = false;
+			// data: (supposed to be accessed by program on run)
+			m.inos = [];
+			m.persons = [];
+			m.groups = [];
+			m.intl = [];
+			m.strategies = [];
+			m.patterns = [];
+			m.grid = [];
+			m.slotHover = false;
+			m.latestPersonsDiff = false;
+			m.latestGroupsDiff = false;
+			m.latestX = 0;
+			m.latestY = 0;
+			m.val = relVal(0,0);
+			// output:
+			m.outputToConsole = 0;
+			m.maxDebug = false;
+			m.defaultInfoBox = "";
+			m.logInfoBox = false;
+			//
+			m.initDone = false;
+
+			newPerson(m, "Rotta",false,true);
 			//s.Core.persons[0].xp = makeXp(2, 2, 2, 2);
-			s.Core.personInTurn = s.Core.persons[0];
-			newPerson(s.Core,"Siiseli",true,true);
-			newPerson(s.Core,"Kaniini",true,false);
+			m.personInTurn = s.Core.persons[0];
+			newPerson(m,"Siiseli",true,true);
+			newPerson(m,"Kaniini",true,false);
 			//newPerson(s.Core,"Zippomiäs",true);
-			newPerson(s.Core,"Länsigootti",false,false);
-			newPerson(s.Core,"AdolPh.D", false,true);
+			newPerson(m,"Länsigootti",false,false);
+			newPerson(m,"AdolPh.D", false,true);
 			createMetaphysics(s.Core, s.Core.res);
-			createGrid(s.Core, s.Core.res, s.Core.persons);
+			//createGrid(s.Core, s.Core.res, s.Core.persons);
 			drawGrid(s.Core.grid, s.Core.persons, false); }
 		s.Module = s.Core;
 		createStrategies(s.Core); //priors not randomized or utilized, can't change strats reasonably before this is done
@@ -600,11 +602,17 @@ function PVal(ino,bio,soc,intl,bel,con,cal,epip) { //duplicated from Val in case
 	this.obj = Val.obj; this.sub = Val.sub; this.nor = Val.nor; this.mys = Val.mys; this.gno = Val.gno; this.rat = Val.rat; this.abs = Val.abs; this.tan = Val.tan;
 	this.ino = Val.obj; this.bio = Val.sub; this.soc = Val.nor; this.intl = Val.mys;this.bel = Val.gno; this.con = Val.rat; this.cal = Val.abs; this.epip = Val.tan; }
 
+function getDimensionByHandle(handle) {
+	var m = s.Module;
+	for(var i = 0; i < m.dims.length; i++) {
+		if(m.dims[i].handle === handle) {
+			return m.dims[i]; }}}
+
 function Crd(dimHandle,crd,res) { // "dimensional" or "absolute" coordinate
 	this.typeHandles = ["Abs"];
-	this.dim = getDimensionByHandle(dimHandle);
+	this.dim = dimHandle;
 	this.crd = crd;
-	if(!res) { this.res = dim.res; } else { this.res = res; }}
+	this.res = res; }
 
 function delXp(person) { var m = s.Module; for(var i = 0; i < m.dims.length; i++) { m.dims[i].xps.splice[ person.id, 1 ]; }}
 function makeXp(person,num,res) {
@@ -867,81 +875,107 @@ function imposeRole(role,subject,object) {}
 
 
 
+function makeMetaphysSlots(slots) {
+	var ret = []; var dimSlots = []; var dims = [slots[0].crds[0].dim];
+	for(var i = 1; i < slots.length; i++) {
+		if(!(slots[i].crds[0].dim === slots[i-1].crds[0].dim)) {
+			dims.push(slots[i].crds[0].dim); }}
+	for(var i = 0; i < dims.length; i++) {
+		dimSlots.push([]);
+		for(var j = 0; j < slots.length; j++) {
+			if(dims[i] === slots[j].crds[0].dim) { //origin!! remove duplicates later
+				dimSlots[dimSlots.length-1].push(slots[j]);	}}}
+	for(var i = 0; i < dimSlots.length; i++) {
 
+	}
 
-function createRelSlots2(arr) {
-	console.log(arr);
-	return []; }
+	for(var i = 0; i < slots.length; i++) {
+		for(var j = 0; j < dimSlots.length; j++) {
+			for(var k = 0; k < dimSlots[j].length; k++) {
+				if(!(slots[i] === dimSlots[j][k])) {
+					ret.push(makeMetaphysSlotRange(slots[i]));
+				}
+			}
+			ret.push(new RelSlot)
+		}
+	}
 
-function createRelSlots(dims) {
+function makeDimSlots(dims) {
 	var ret = [];
 	var appendix = []; // Appendix is for non-metaphysical conceptual slots.
 	for(var i = 0; i < dims.length; i++) {
 		if(dims[i].metaphysical && (dims[i].slots.length > 0)) { // Skips non-conceptual and non-metaphysical dimensions.
 			ret.push([]);
-			for(var j = 0; j < slotsByDim[i].length; j++) { // Converts DimSlots to RelSlots.
-				ret[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].name, dims[i].slots[j].desc)); }}
-		else if((!dims[i].metaphysical) && (dims[i].slots.length > 0)) { // Adds non-metaphysical conceptual slots to appendix.
-			for(var j = 0; j < slotsByDim[i].length; j++) { // Converts DimSlots to RelSlots.
-				appendix[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].name, dims[i].slots[j].desc)); }}}
+			for(var j = 0; j < dims[i].slots.length; j++) { // Converts DimSlots to RelSlots.
+				ret[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].names, dims[i].slots[j].desc)); }}
+		/*else if((!dims[i].metaphysical) && (dims[i].slots.length > 0)) { // Adds non-metaphysical conceptual slots to appendix.
+			appendix.push([]); // Buggy, disabled...... for now
+			for(var j = 0; j < dims[i].slots.length; j++) { // Converts DimSlots to RelSlots.
+				appendix[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].names, dims[i].slots[j].desc)); }}}*/}
 	var buffer = powerSetOf(ret);
-	ret.push(createRelSlots2(buffer));
 	ret.push(appendix);
 	return ret; }
 
-function RelSlot(crds,name,desc) {
+function RelSlot(crds,names,desc) {
 	this.crds = crds;
-	this.name = name;
+	this.names = names;
 	this.desc = desc;
 	this.conActs = []; }
 
-function DimSlot(dimCrd,names,desc) {
-	this.dimCrd = dimCrd;
+function NonrelSlot(dimHandle,dimCrd,dimRes,names,desc) {
+	this.crd = new Crd(dimHandle, dimCrd, dimRes);
 	this.names = names;
 	this.desc = desc; }
 
-function createDimSlots(handle, res) {
+function makeNonrelSlots(handle, res) {
+	console.log("makeNonrelSlots:");
+	console.log(handle);
+	console.log(res);
 	var ret = [];
-	if((handle === "X") && (res === 4)) {
-		ret.push(new DimSlot(-4, res, ["Champion"], "everybody wants to be champion"));
-		ret.push(new DimSlot(-3, res, ["Charming"], ""));
-		ret.push(new DimSlot(-2, res, ["Fancy"], ""));
-		ret.push(new DimSlot(-1, res, ["Plain"], ""));
-		ret.push(new DimSlot( 0, res, ["Unknown"], ""));
-		ret.push(new DimSlot( 1, res, ["Novice"], ""));
-		ret.push(new DimSlot( 2, res, ["Adept"], ""));
-		ret.push(new DimSlot( 3, res, ["Master"], ""));
-		ret.push(new DimSlot( 4, res, ["Ruler"], "ruler can do anything")); }
+	if((handle === "Z") && (res === 4)) {
+		ret.push(new DimSlot(handle, -4, res, ["Subliminal"], ""));
+		ret.push(new DimSlot(handle, -3, res, ["Secrecy"], ""));
+		ret.push(new DimSlot(handle, -2, res, ["Privacy"], ""));
+		ret.push(new DimSlot(handle, -1, res, ["Modesty"], ""));
+		ret.push(new DimSlot(handle,  0, res, ["Aversion"], ""));
+		ret.push(new DimSlot(handle,  1, res, ["Casual"], ""));
+		ret.push(new DimSlot(handle,  2, res, ["Polite"], ""));
+		ret.push(new DimSlot(handle,  3, res, ["Loud"], ""));
+		ret.push(new DimSlot(handle,  4, res, ["Profuse"], "")); }
+	else if((handle === "P") && (res === 4)) { // add more res options later
+		ret.push(new DimSlot(handle, -4, res, ["Initial"], ""));
+		ret.push(new DimSlot(handle, -3, res, ["Past"], ""));
+		ret.push(new DimSlot(handle, -2, res, ["Before"], ""));
+		ret.push(new DimSlot(handle, -1, res, ["Previous"], ""));
+		ret.push(new DimSlot(handle,  0, res, ["Current"], ""));
+		ret.push(new DimSlot(handle,  1, res, ["Next"], ""));
+		ret.push(new DimSlot(handle,  2, res, ["After"], ""));
+		ret.push(new DimSlot(handle,  3, res, ["Future"], ""));
+		ret.push(new DimSlot(handle,  4, res, ["Final"], "")); }
+	else if((handle === "X") && (res === 4)) {
+		ret.push(new DimSlot(handle, -4, res, ["Champion"], "everyone likes champion"));
+		ret.push(new DimSlot(handle, -3, res, ["Hero"], ""));
+		ret.push(new DimSlot(handle, -2, res, ["Fancy"], ""));
+		ret.push(new DimSlot(handle, -1, res, ["Plain"], ""));
+		ret.push(new DimSlot(handle,  0, res, ["Unknown"], ""));
+		ret.push(new DimSlot(handle,  1, res, ["Novice"], ""));
+		ret.push(new DimSlot(handle,  2, res, ["Adept"], ""));
+		ret.push(new DimSlot(handle,  3, res, ["Master"], ""));
+		ret.push(new DimSlot(handle,  4, res, ["Ruler"], "ruler can do anything")); }
 	else if((handle === "Y") && (res === 4)) {
-		ret.push(new DimSlot(-4, res, ["Extreme"], ""));
-		ret.push(new DimSlot(-3, res, ["Noble"], ""));
-		ret.push(new DimSlot(-2, res, ["Mature"], ""));
-		ret.push(new DimSlot(-1, res, ["Naive"], ""));
-		ret.push(new DimSlot( 0, res, ["Absent"], ""));
-		ret.push(new DimSlot( 1, res, ["Simple"], ""));
-		ret.push(new DimSlot( 2, res, ["Complex"], ""));
-		ret.push(new DimSlot( 3, res, ["Pure"], ""));
-		ret.push(new DimSlot( 4, res, ["Holy"], "")); }
-	else if((handle === "Z") && (res === 4)) {
-		ret.push(new DimSlot(-4, res, ["Subliminal"], ""));
-		ret.push(new DimSlot(-3, res, ["Secrecy"], ""));
-		ret.push(new DimSlot(-2, res, ["Privacy"], ""));
-		ret.push(new DimSlot(-1, res, ["Modesty"], ""));
-		ret.push(new DimSlot( 0, res, ["Aversion"], ""));
-		ret.push(new DimSlot( 1, res, ["Casual"], ""));
-		ret.push(new DimSlot( 2, res, ["Polite"], ""));
-		ret.push(new DimSlot( 3, res, ["Loud"], ""));
-		ret.push(new DimSlot( 4, res, ["Profuse"], "")); }
-	else if((handle === "T") && (res === 4)) { // add more res options later
-		ret.push(new DimSlot(-4, res, ["Initial"], ""));
-		ret.push(new DimSlot(-3, res, ["Past"], ""));
-		ret.push(new DimSlot(-2, res, ["Before"], ""));
-		ret.push(new DimSlot(-1, res, ["Previous"], ""));
-		ret.push(new DimSlot( 0, res, ["Current"], ""));
-		ret.push(new DimSlot( 1, res, ["Next"], ""));
-		ret.push(new DimSlot( 2, res, ["After"], ""));
-		ret.push(new DimSlot( 3, res, ["Future"], ""));
-		ret.push(new DimSlot( 4, res, ["Final"], "")); }
+		ret.push(new DimSlot(handle, -4, res, ["Extreme"], ""));
+		ret.push(new DimSlot(handle, -3, res, ["Noble"], ""));
+		ret.push(new DimSlot(handle, -2, res, ["Mature"], ""));
+		ret.push(new DimSlot(handle, -1, res, ["Naive"], ""));
+		ret.push(new DimSlot(handle,  0, res, ["Absent"], ""));
+		ret.push(new DimSlot(handle,  1, res, ["Simple"], ""));
+		ret.push(new DimSlot(handle,  2, res, ["Complex"], ""));
+		ret.push(new DimSlot(handle,  3, res, ["Pure"], ""));
+		ret.push(new DimSlot(handle,  4, res, ["Holy"], "")); }
+	else if((handle === "J") && (res === 1)) {
+		ret.push(new DimSlot(handle, -1, res, ["A Posteriori"]));
+		ret.push(new DimSlot(handle,  0, res, ["Arbitrary"]));
+		ret.push(new DimSlot(handle,  1, res, ["A Priori"])); }
 	return ret; }
 
 
@@ -953,7 +987,7 @@ function Motive(role,context,outcome) {
 
 function Direction(planarDirections) {}
 
-function PlaDir(planeHandle,xSign,ySign,) {
+function PlaDir(planeHandle,xSign,ySign) {
 	this.planeHandle = planeHandle;
 	this.xSign = xSign;
 	this.ySign = ySign; }
@@ -1027,59 +1061,59 @@ function makePlanes(handle) {
 
 
 
-function Dimension(handle,objectHandles,resolution,metaphysical,conceptual,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
+function Dimension(handle,objectHandles,resolution,slots,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
 	this.typeHandle = "Dim";
 	this.handle = handle;
 	if(objectHandles) { this.objectHandles = objectHandles } else { this.objectHandles = []; } // object dimensions
 	this.res = resolution;
-	this.metaphysical = metaphysical; // Non-metaphysical dimensions will not be used for creating RelSlots. Conceptual time T is one such dimension.
-	if(conceptual && metaphysical) { this.slots = createDimSlots(sym,res); } else { this.slots = []; } // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
+	this.slots = slots; // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
 	this.names = names;
 	this.desc = desc; }
 
-function makeDimensions() {
+function makeDimensions(res) {
 	var ret = [];
-	ret.push(makeDimension("t"));
-	ret.push(makeDimension("x"));
-	ret.push(makeDimension("y"));
-	ret.push(makeDimension("z"));
-	ret.push(makeDimension("T"));
-	ret.push(makeDimension("Z"));
-	ret.push(makeDimension("P"));
-	ret.push(makeDimension("X"));
-	ret.push(makeDimension("Y"));
-	ret.push(makeDimension("J"));
-	ret.push(makeDimension("S"));
-	ret.push(makeDimension("t"));
+	ret.push(makeDimension("t", [], 1000));
+	ret.push(makeDimension("x", ["t","y","z"], 1));
+	ret.push(makeDimension("y", [], 1));
+	ret.push(makeDimension("z", [], 1));
+	ret.push(makeDimension("T", ["t","X"], 0));
+	ret.push(makeDimension("Z", [], res));
+	ret.push(makeDimension("P", ["t","T"], res));
+	ret.push(makeDimension("X", ["T","Y","Z"], res));
+	ret.push(makeDimension("Y", [], res));
+	ret.push(makeDimension("J", [], 1));
+	ret.push(makeDimension("S", [], 1));
+	console.log("MAKEDIMENSIONS:");
+	console.log(ret);
 	return ret; }
 
-function makeDimension(dimHandle,res,objHandles) {
-	var ret; var m = s.Module; if(!objHandles) { objHandles = []; } if(!res) { res = m.res; }
+function makeDimension(dimHandle,objHandles,res) {
+	var ret; var m = s.Module;
 	switch(dimHandle) {
 		// PHYSICAL DIMENSIONS :
-		case "t" : ret = new Dimension( dimHandle, objHandles, 1000, false, false,
-			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." );	break;
-		case "x" : ret = new Dimension(	dimHandle, ["t","y","z"].concat(objectHandles), 1, /*SI or imperial?*/ false, false,
-			["width"], "\"Width\" is the lateral extent of something." );	break;
-		case "y" : ret = new Dimension( dimHandle, objHandles, 1, false, false,
-			["height"], "\"Height\" is the distance between the base and the top of something.", ); break;
-		case "z" : ret = ret = new Dimension( dimHandle, objHandles, 1, false, false,
+		case "t" : ret = new Dimension( dimHandle, objHandles, res, [],
+			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." ); break;
+		case "x" : ret = new Dimension(	dimHandle, objHandles, res, /*SI or imperial?*/ [],
+			["width"], "\"Width\" is the lateral extent of something." ); break;
+		case "y" : ret = new Dimension( dimHandle, objHandles, res, [],
+			["height"], "\"Height\" is the distance between the base and the top of something." ); break;
+		case "z" : ret = ret = new Dimension( dimHandle, objHandles, res, [],
 			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
-		case "T" : ret = new Dimension( dimHandle, ["t","X"].concat(objectHandles), 0, /*unary*/ false, false,
+		case "T" : ret = new Dimension( dimHandle, objHandles, res, /*unary*/ [],
 			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
-		case "Z" : ret = new Dimension( dimHandle, objHandles, res, true, true,
+		case "Z" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Z", res),
 			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
-		case "P" : ret = new Dimension( dimHandle, ["t","T"].concat(objectHandles), res, false, true,			
+		case "P" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("P", res),			
 			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
 		// to do: mass, temperature etc?
 		// METAPHYSICAL DIMENSIONS :
-		case "X" : ret = new Dimension( dimHandle, ["T","Y","Z"].concat(objectHandles), res, true, true,
+		case "X" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("X", res),
 			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
-		case "Y" : ret = new Dimension( dimHandle, objHandles, res, true, true,
-			["ontological", "romantic", "metaphysical latitude", "scope"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
-		case "J" : ret = new Dimension( dimHandle, ["X"].concat(objectHandles), 1, /*binary*/ true, true,
+		case "Y" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Y", res)
+			["ontological", "romantic"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
+		case "J" : ret = new Dimension( dimHandle, objHandles, res, /*binary*/ [],
 			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
-		case "S" : ret = new Dimension( dimHandle, ["J"].concat(objectHandles), res, true, false,
+		case "S" : ret = new Dimension( dimHandle, objHandles, res, [],
 			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
 	return ret; }
 
@@ -1122,8 +1156,8 @@ function preferQuadrant(plane,coordStr) {}
 			if(contains(seqByDIds("alph","i","w"),cStrs[i][j])) { ret.push([1,0,-1]); }}}
 }*/
 
-function FVar(sym,pos,values) { this.sym = sym; this.pos = pos; this.values; }
-function BVar(sym,pos) { this.sym = sym; this.pos = pos; }
+function FVar(sym,pos,values) { this.sym = sym; this.pos = pos; this.values; } // Free variable.
+function BVar(sym,pos) { this.sym = sym; this.pos = pos; } // Bounded variable (same in many cStrs).
 
 function cStr(str,dimHandles) {
 	var ret = []; var o; var dims; var sym; var hasVar = false;
@@ -1133,8 +1167,11 @@ function cStr(str,dimHandles) {
 			case "+" : ret.push( 1 ); break;
 			case "0" : ret.push( 0 ); break;
 			case "-" : ret.push(-1 ); break;
-			if(contains(seqByDIds("alph","a","h").concat(seqByDIds("alph","x","z")),ret[i])) { ret.push(new FVar( sym, i, [1,0,-1])); }
-			else { ret.push "cStr syntax error: " + sym; console.log(ret[i]; ) } break; }}
+			if(contains(seqByDIds("alph","a","h").concat(seqByDIds("alph","x","z")),ret[i])) {
+				for(var j = 0; j < ret.length; j++) {
+					if(typeof ret[j] === "object") { if(ret[j].sym === sym) { ret.push(ret[j]); break; }} // This FVar has already appeared in this str.
+					ret.push(new FVar( sym, i, [1,0,-1])); }} // This FVar hasn't appeared before in this str.
+			else { ret.push("cStr syntax error: " + sym + " at " + i); console.log(ret[i]); } break; }}
 	if(!dimHandles) { dims = ["X","Y","Z"]; } else { dims = dimHandles; }
 	for(var i = 0; ((i < dims.length) || (i < str.length)); i++) { o[dims[i]] = ret[i]; }
 	return o; }
@@ -1231,7 +1268,7 @@ function relativizeDimensionToTheology(theologicalHandle,dimensionalHandle,resol
 //  DIDS BEGIN
 //
 
-function dIdToRange(dIds,begin,end) { begin = dIdNum(dIds,begin); end = dIdNum(dIds,end); return { min : begin, max : end; }}
+function dIdToRange(dIds,begin,end) { begin = dIdNum(dIds,begin); end = dIdNum(dIds,end); return { min : begin, max : end }}
 function seqByDIds(dIds,begin,end) {
 	var ret = [];
 	var lim = dIdToRange(dIds,begin,end);
@@ -1321,6 +1358,7 @@ function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("
 	this.necStaVal = necStaVal(relVal(X,Y));}
 
 function findSlotPos(grid,x,y) { if(s.Core.maxDebug) {console.log("FINDSLOTPOS:"); }
+	console.log("Everything notworks like it actually should!!!");
 	var a = grid[y];
 	var b = a[x]; // THIS LINE generates error message ostensibly because some strategies are buggy and try to move the player to invalid slot!
 	return b;}
@@ -1483,6 +1521,7 @@ function updateButton(id, buttonText) { if(s.Core.maxDebug) {console.log("UPDATE
 
 
 
+
 function newPerson(Module, name, isBot, isHybrid) { if(s.Core.maxDebug) {console.log("NEWPERSON"); }
 	// UI SNIPPET:
 	if(!((typeof Module) === "object")) {
@@ -1587,34 +1626,35 @@ function delPerson() { if(s.Core.maxDebug) {console.log("DELPERSON"); }
 			drawStratList(false); }}}
 
 function startGame() {  if(s.Core.maxDebug) {console.log("STARTGAME"); } // has unverified modifications
-	var next = nextPerson(s.Core.personInTurn);	
-	if(s.Core.playing && (s.Core.autoBotTurn === -1) && (s.Core.personInTurn.bot || s.Core.personInTurn.hybrid)) {
-		s.Core.pause = false;
+	var m = s.Module;
+	var next = nextPerson(m.personInTurn);	
+	if(m.playing && (m.autoBotTurn === -1) && (m.personInTurn.bot || m.personInTurn.hybrid)) {
+		m.pause = false;
 		move(false, false); }		
-	else if(s.Core.playing && (s.Core.autoBotTurn >= 0) && (s.Core.personInTurn.bot || s.Core.personInTurn.hybrid) && s.Core.pause) {
-		s.Core.pause = false;
+	else if(m.playing && (m.autoBotTurn >= 0) && (m.personInTurn.bot || m.personInTurn.hybrid) && m.pause) {
+		m.pause = false;
 		move(false, false); }		
-	else if (s.Core.playing && (s.Core.autoBotTurn >= 0) && (s.Core.personInTurn.bot) && s.Core.pause) {
-		s.Core.pause = true;
-		clearInterval(s.Core.moveAttempt);
+	else if (m.playing && (m.autoBotTurn >= 0) && (m.personInTurn.bot) && m.pause) {
+		m.pause = true;
+		clearInterval(m.moveAttempt);
 		updateButton("startGame", "Continue (Enter)"); }
-	else if (s.Core.playing && (s.Core.autoBotTurn >= 0) && (s.Core.personInTurn.hybrid) && (!s.Core.pause)) {
-		attemptMove(false, false); } //zyyy
-	else if(s.Core.playing && s.Core.disableAutoContinueOnHumanTurn && ((!s.Core.personInTurn.bot) && (!s.Core.personInTurn.hybrid))) {
+	else if (m.playing && (m.autoBotTurn >= 0) && (m.personInTurn.hybrid) && (!m.pause)) {
+		attemptMove(false, false); }
+	else if(m.playing && m.disableAutoContinueOnHumanTurn && ((!m.personInTurn.bot) && (!m.personInTurn.hybrid))) {
 		drawInfoBox("This feature has been disabled in order to prevent a non-hybrid human from accidentally skipping his or her turn."); }
-	else if(s.Core.playing === false) { // has untested mods
-		// var starter = prompt("Starting player id:",(getNumberOfPerson(s.Core.personInTurn)));
+	else if(m.playing === false) { // has untested mods
+		// var starter = prompt("Starting player id:",(getNumberOfPerson(m.personInTurn)));
 		var starter = 0;
-		if ((starter >= 0) && (starter < s.Core.persons.length)) {
-			s.Core.playing = true;
-			if (s.Core.autoBotTurn === -1) {
+		if ((starter >= 0) && (starter < m.persons.length)) {
+			m.playing = true;
+			if (m.autoBotTurn === -1) {
 				updateButton("startGame", "Play (Enter)"); }
 			reportTurn();
-			s.Core.personInTurn = s.Core.persons[starter];
-			if (s.Core.personInTurn.bot || (s.Core.personInTurn.hybrid && (s.Core.autoBotTurn === -1))) { move(false, false); }
+			m.personInTurn = m.persons[starter];
+			if (m.personInTurn.bot || (m.personInTurn.hybrid && (m.autoBotTurn === -1))) { move(false, false); }
 			else {
 				updateButton("startGame", "<span style='color:#888'>Disabled</span>");
-				drawGrid(s.Core.grid, s.Core.persons, s.Core.personInTurn);}}}}
+				drawGrid(m.grid, m.persons, m.personInTurn);}}}}
 		
 function debugVal(val) {  if(s.Core.maxDebug) {console.log("DEBUGVAL"); }
 	var a = "obj: " + val.obj + ", sub: " + val.sub + ", nor: " + val.nor + ", mys: " + val.mys;
@@ -1624,6 +1664,7 @@ function devFunc() { if(s.Core.maxDebug) {console.log("DEVFUNC"); }
 	console.log("Not in use."); }
 
 function autoPlay() {
+	var m = s.Module;
 	if (s.Core.autoBotTurn >= 0) {
 		if((s.Core.personInTurn.bot || s.Core.personInTurn.hybrid) && s.Core.playing) {
 			s.Core.turn = s.Core.turn--;
@@ -2063,7 +2104,7 @@ function createGrid(Module, res, persons) { if(s.Core.maxDebug) {console.log("CR
 		var r9xn2y4 = new Slot("Regret", 		-2,  4, "8900BD", "FFF", "ignoring");
 		var r9xn2yn1 = new Slot("Hope", 		-2, -1, "C68CB1", "000", false);
 		var r9xn2yn2 = new Slot("Love", 		-2, -2, "FF78DE", "000", "considerative");
-		var r9xn2yn3 = new Slot("Burden",		-2, -3, "75FF98", "000", "arbitrary");
+		var r9xn2yn3 = new Slot("Burden",		-2, -3, "75FF98", "000", false);
 		var r9xn2yn4 = new Slot("Despair",		-2, -4, "24BF4B", "FFF", "desperation");
 
 		var r9xn3y0 = new Slot("Charming",		-3,  0, "333333", "FFF", false);
@@ -3061,8 +3102,8 @@ function getBenLimit(persons) { // works also for groups
 	for(var i = 0; i < persons.length; i++) {
 		for(var j = 0; j < persons.length; j++) {
 			curr = persons[i].bens[j];
-			X.push(Math.max((curr.sub + curr.mys), (curr.obj + curr.nor));
-			Y.push(Math.max((curr.mys + curr.nor), (curr.sub + curr.obj));}}
+			X.push(Math.max((curr.sub + curr.mys), (curr.obj + curr.nor)));
+			Y.push(Math.max((curr.mys + curr.nor), (curr.sub + curr.obj)));}}
 	X.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
 	Y.sort(function(a,b) { return parseFloat(b) - parseFloat(a) } );
 	var limit = { X : X[0], Y : Y[0] };
@@ -3963,7 +4004,7 @@ function makePVal(ino, bio, soc, intl) {
 	this.asValue = new Val(0, 0, 0, 0, soc, ino, 0, intl, bio);
 
 	ret = new PVal(0, 0, 0, 0, soc, ino, 0, intl, bio);
-	return ret; } //zyy
+	return ret; }
 
 function Ino(id, frm, sbstc) {
 	this.frm = "form";
