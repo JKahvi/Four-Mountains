@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 535</title>
+		<title>Four Mountains beta 538</title>
 		<style>
 
 
@@ -255,7 +255,7 @@ var s = {
 
 
 function CoreModule() {
-	var m = s.Core;
+	if(s.Core) { var m = s.Core; }
 	if(!(s.Module.name === "CoreModule")) {
 		initCoreModuleDisplay(); // to do: put conditional here to eliminate redundant draws if startup with many modules init
 		if(!m.initDone) {
@@ -264,7 +264,7 @@ function CoreModule() {
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
 			m.slots = makeDimSlots(m.dims);
-			m.slots.push(makeRelSlots(m.slots));
+			m.slots = makeMetaphysSlots(m.slots);
 			m.metaphysics = false;
 			m.nonrelScale = false; //absVal of nonrelativized slots
 			m.relScale = "intersect"; //absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
@@ -765,6 +765,7 @@ function makeMetaphysSlotRange(slot, otherSlots) {
 }
 
 function makeMetaphysSlots(slots) {
+	console.log(slots[0].crds);
 	var ret = []; var dimSlots = []; var buffer; var dims = [slots[0].crds[0].dim];
 	for(var i = 1; i < slots.length; i++) {
 		if(!(slots[i].crds[0].dim === slots[i-1].crds[0].dim)) {
@@ -778,16 +779,15 @@ function makeMetaphysSlots(slots) {
 		for(var j = 0; j < dimSlots[i].length; j++) {
 			console.log("makeMetaphysSlots:");
 			console.log(_.difference(dimSlots, dimSlots[i]));
-			buffer =makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
+			buffer = makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
 			ret.push(_.difference(ret, buffer)); }}
 	return ret; }
 
 function makeDimSlots(dims) {
 	var ret = []; for(var i = 0; i < dims.length; i++) {
-		if(dims[i].slots.length > 0) { // Skips non-conceptual dimensions.
-			ret.push([]);
+		if(dims[i].slots.length > 0) {
 			for(var j = 0; j < dims[i].slots.length; j++) { // Converts DimSlots to RelSlots.
-				ret[i].push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].names, dims[i].slots[j].desc)); }}}	return ret; }
+				ret.push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].names, dims[i].slots[j].desc)); }}} return ret; }
 
 function RelSlot(crds,names,desc) {
 	this.crds = crds;
@@ -802,49 +802,49 @@ function NonrelSlot(dimHandle,dimCrd,dimRes,names,desc) {
 
 function makeNonrelSlots(handle, res) {
 	var ret = []; if((handle === "Z") && (res === 4)) {
-		ret.push(new DimSlot(handle, -4, res, ["Subliminal"], ""));
-		ret.push(new DimSlot(handle, -3, res, ["Secrecy"], ""));
-		ret.push(new DimSlot(handle, -2, res, ["Privacy"], ""));
-		ret.push(new DimSlot(handle, -1, res, ["Modesty"], ""));
-		ret.push(new DimSlot(handle,  0, res, ["Aversion"], ""));
-		ret.push(new DimSlot(handle,  1, res, ["Casual"], ""));
-		ret.push(new DimSlot(handle,  2, res, ["Polite"], ""));
-		ret.push(new DimSlot(handle,  3, res, ["Loud"], ""));
-		ret.push(new DimSlot(handle,  4, res, ["Profuse"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, ["Subliminal"], ""));
+		ret.push(new NonrelSlot(handle, -3, res, ["Secrecy"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, ["Privacy"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, ["Modesty"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, ["Aversion"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, ["Casual"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, ["Polite"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, ["Loud"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, ["Profuse"], "")); }
 	else if((handle === "P") && (res === 4)) { // add more res options later
-		ret.push(new DimSlot(handle, -4, res, ["Initial"], ""));
-		ret.push(new DimSlot(handle, -3, res, ["Past"], ""));
-		ret.push(new DimSlot(handle, -2, res, ["Before"], ""));
-		ret.push(new DimSlot(handle, -1, res, ["Previous"], ""));
-		ret.push(new DimSlot(handle,  0, res, ["Current"], ""));
-		ret.push(new DimSlot(handle,  1, res, ["Next"], ""));
-		ret.push(new DimSlot(handle,  2, res, ["After"], ""));
-		ret.push(new DimSlot(handle,  3, res, ["Future"], ""));
-		ret.push(new DimSlot(handle,  4, res, ["Final"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, ["Initial"], ""));
+		ret.push(new NonrelSlot(handle, -3, res, ["Past"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, ["Before"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, ["Previous"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, ["Current"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, ["Next"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, ["After"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, ["Future"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, ["Final"], "")); }
 	else if((handle === "X") && (res === 4)) {
-		ret.push(new DimSlot(handle, -4, res, ["Champion"], "everyone likes champion"));
-		ret.push(new DimSlot(handle, -3, res, ["Hero"], ""));
-		ret.push(new DimSlot(handle, -2, res, ["Fancy"], ""));
-		ret.push(new DimSlot(handle, -1, res, ["Plain"], ""));
-		ret.push(new DimSlot(handle,  0, res, ["Unknown"], ""));
-		ret.push(new DimSlot(handle,  1, res, ["Novice"], ""));
-		ret.push(new DimSlot(handle,  2, res, ["Adept"], ""));
-		ret.push(new DimSlot(handle,  3, res, ["Master"], ""));
-		ret.push(new DimSlot(handle,  4, res, ["Ruler"], "ruler can do anything")); }
+		ret.push(new NonrelSlot(handle, -4, res, ["Champion"], "everyone likes champion"));
+		ret.push(new NonrelSlot(handle, -3, res, ["Hero"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, ["Fancy"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, ["Plain"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, ["Unknown"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, ["Novice"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, ["Adept"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, ["Master"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, ["Ruler"], "ruler can do anything")); }
 	else if((handle === "Y") && (res === 4)) {
-		ret.push(new DimSlot(handle, -4, res, ["Extreme"], ""));
-		ret.push(new DimSlot(handle, -3, res, ["Noble"], ""));
-		ret.push(new DimSlot(handle, -2, res, ["Mature"], ""));
-		ret.push(new DimSlot(handle, -1, res, ["Naive"], ""));
-		ret.push(new DimSlot(handle,  0, res, ["Absent"], ""));
-		ret.push(new DimSlot(handle,  1, res, ["Simple"], ""));
-		ret.push(new DimSlot(handle,  2, res, ["Complex"], ""));
-		ret.push(new DimSlot(handle,  3, res, ["Pure"], ""));
-		ret.push(new DimSlot(handle,  4, res, ["Holy"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, ["Extreme"], ""));
+		ret.push(new NonrelSlot(handle, -3, res, ["Noble"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, ["Mature"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, ["Naive"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, ["Absent"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, ["Simple"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, ["Complex"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, ["Pure"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, ["Holy"], "")); }
 	else if((handle === "J") && (res === 1)) {
-		ret.push(new DimSlot(handle, -1, res, ["A Posteriori"]));
-		ret.push(new DimSlot(handle,  0, res, ["Arbitrary"]));
-		ret.push(new DimSlot(handle,  1, res, ["A Priori"])); }
+		ret.push(new NonrelSlot(handle, -1, res, ["A Posteriori"]));
+		ret.push(new NonrelSlot(handle,  0, res, ["Arbitrary"]));
+		ret.push(new NonrelSlot(handle,  1, res, ["A Priori"])); }
 	return ret; }
 
 
@@ -952,8 +952,6 @@ function makeDimensions(res) {
 	ret.push(makeDimension("Y", [], res));
 	ret.push(makeDimension("J", [], 1));
 	ret.push(makeDimension("S", [], 1));
-	console.log("MAKEDIMENSIONS:");
-	console.log(ret);
 	return ret; }
 
 function makeDimension(dimHandle,objHandles,res) {
@@ -978,7 +976,7 @@ function makeDimension(dimHandle,objHandles,res) {
 		// METAPHYSICAL DIMENSIONS :
 		case "X" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("X", res),
 			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
-		case "Y" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Y", res)
+		case "Y" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Y", res),
 			["ontological", "romantic"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
 		case "J" : ret = new Dimension( dimHandle, objHandles, res, /*binary*/ [],
 			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
