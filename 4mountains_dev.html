@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 533</title>
+		<title>Four Mountains beta 534</title>
 		<style>
 
 
@@ -235,120 +235,6 @@
 		<script src="4mountains_files/jquery-2.js"></script>
 		<script src="4mountains_files/underscore-min.js"></script>
 		<script>
-
-
-
-// piirtofunktioita on kiva tehdä, ne ei oo niin mielenkiintosen näköisiä
-// engine funktiot on vaikea tehdä ja niistä on ylpeä
-// jotkut käyttöliittymän veemäisyydet ovat ihania tehdä kun tajuaa miten monimutkainen joku yksinkertainen asia on. esim. changeTurn
-// newPersonin (sis. addGroups alifunktioineen) ja delPersonin tekemistä ei ole tapana muistella
-// relValin tekeminen oli helppoa ja se on kaunis
-
-
-
-// TO DO
-// -----
-//
-// Metaphor-X ja Metaphor-Y ja Metaphor-diag
-// Toimintalogiikka: pätee kaikkiin pelaajiin jotka ovat siirtävän pelaajan xp:llä
-// Toimintaehto: siirtävän pelaajan xp:n tulee sisältää myös ruutu, johon siirretään (rohkaisee symmetriaan)
-//
-// AI implementation. Strategies can be intellectual patterns but mere identification algorithms can be those, too. Should we differentiate between them in some way? Not sure.
-//
-// Magic The Gathering analogy: xp should be like land, not like xp. This means you get 1 of each land at start. (???) Or draw stuff from deck?
-// Tarot expansion: 13 number cards per deck. odd are bad, even decent, high excellent. hmm. 16 is better.
-//
-// No level decrease when a player voluntarily enters a nonrelativized slot that would lower his xp. Levels affected only when a player IS MOVED to a slot.
-//
-// Math aspect: relativized slot closest to origin should have a value of 2, and so on.
-//
-// MTG aspect as debate simulator
-//
-// Polysemylator for real-time observation of one player?
-//
-// to do: beliefs as personality, use same tech as for int?
-// considerations, same tech as soc
-// calculations, priorities
-// revelations, insert new priority
-//
-// biological patterns may suggest new rules (intellectual patterns). in this case the rule bestows as much quality upon inventor as everyone who uses it
-//
-// calculative patterns personified as deities or spiritual beings?????? revolutionary philosophyical insight if true
-//
-// Modulel personality as normative quality?
-//
-// Modulel mysticality with symmetry and golden ration in power set of objects? other rules? need lots of pattern recognition for this...?
-
-/*
-
-
-
-SpatialModule is objective world
-- persons have radius (culturally determined) of friendzone, intimatezone etc. and approaching someone is a vector, ie. if you go too near someone it is LUST and if he isn't in the mood you can't even be FRIEND
-- any game actions should be defined in terms of these slots, perhaps allowing for polysemy
-
-ESPgrid is subjective world
-- oddly, there is ESPgrid and objective tables now but no subjective tables
-- considerations, as a whole, are CONDUCT
-- calculations involve ponderings about whether others will imitate my conduct or how others will react to my conduct
-- euphoria involves a low value for all calculations...
-- beliefs should probably include hard-wired reactions such as hugging feels good (of course autistic person would require hugbox(this is very important))
-
-normative is personality and SUPEREGO
-- syntactic level involves automated actions (ie. don't touch electric appliance when wet etc.)
-- who am I? own xp system for WHO I OUGHT TO BE whereas objective is WHAT I REALLY AM
-- metatheoretic level ponders components of identities regardless of who possesses said identity, ie. it might decide a certain kind of identity should be collectively established
-- analogy level involves ...
-
-mystical is esthetic
-- search for golden ratio and symmetry in *all* data is probably the best we can do. this involves
- - player size/weight differences
- - distance between players
- - distance between groups
- - temporal distance
-
-
-
- ATTACH MODULE
- - insert button for attaching a Module as module to current Module
- benefit: allows to split overflowing UI into many windows, perhaps on several screens.
- modules can also be used in isolation
- when module is attached, all player and group and other data is copied to the current module
-
-
-
-Do these modules, metaphysically, emerge from each other? 
-
-
-
-*/
-
-
-
-// distance does not affect vector summation stuff, is only a factor in value change?
-// so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
-
-
-
-// BUG! restart clears added players and fails to update autoplay status??
-
-// BUG delperson causes bug if used right after newperson
-
-// BUG if create new person, amoq will think that was previous person when visualizing turn
-
-// BUG INFO: delperson does not cause bug if delete last person in list so that person is in turn
-
-// dec is miscalculated. shoud account for x y diff instead of just absval
-
-
-// MORE NOTES...
-// ~~~~~~~~~~~~~
-
-// intensifying term is one that brings a tepid term closer to excellence?
-// IF we sum tepid relativized vectors whose X coordinates have the same value, but one of them is more excellent, shouldn't the sum be just an increase in Y value?
-// this means once excellence peaks the sum chain is terminated
-// sum chain can also be terminated by quadrant change
-
 
 
 // ============
@@ -890,7 +776,10 @@ function makeMetaphysSlots(slots) {
 				dimSlots[dimSlots.length-1].push(slots[j]);	}}}
 	for(var i = 0; i < dimSlots.length; i++) {
 		for(var j = 0; j < dimSlots[i].length; j++) {
-			ret.push(makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i]))); }} // does _.difference work here?
+			console.log("makeMetaphysSlots:");
+			console.log(_.difference(dimSlots, dimSlots[i]));
+			buffer =makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
+			ret.push(_.difference(ret, buffer)); }}
 	return ret; }
 
 function makeDimSlots(dims) {
@@ -4031,6 +3920,119 @@ function init() {
 
 
 
+// piirtofunktioita on kiva tehdä, ne ei oo niin mielenkiintosen näköisiä
+// engine funktiot on vaikea tehdä ja niistä on ylpeä
+// jotkut käyttöliittymän veemäisyydet ovat ihania tehdä kun tajuaa miten monimutkainen joku yksinkertainen asia on. esim. changeTurn
+// newPersonin (sis. addGroups alifunktioineen) ja delPersonin tekemistä ei ole tapana muistella
+// relValin tekeminen oli helppoa ja se on kaunis
+
+
+
+// TO DO
+// -----
+//
+// Metaphor-X ja Metaphor-Y ja Metaphor-diag
+// Toimintalogiikka: pätee kaikkiin pelaajiin jotka ovat siirtävän pelaajan xp:llä
+// Toimintaehto: siirtävän pelaajan xp:n tulee sisältää myös ruutu, johon siirretään (rohkaisee symmetriaan)
+//
+// AI implementation. Strategies can be intellectual patterns but mere identification algorithms can be those, too. Should we differentiate between them in some way? Not sure.
+//
+// Magic The Gathering analogy: xp should be like land, not like xp. This means you get 1 of each land at start. (???) Or draw stuff from deck?
+// Tarot expansion: 13 number cards per deck. odd are bad, even decent, high excellent. hmm. 16 is better.
+//
+// No level decrease when a player voluntarily enters a nonrelativized slot that would lower his xp. Levels affected only when a player IS MOVED to a slot.
+//
+// Math aspect: relativized slot closest to origin should have a value of 2, and so on.
+//
+// MTG aspect as debate simulator
+//
+// Polysemylator for real-time observation of one player?
+//
+// to do: beliefs as personality, use same tech as for int?
+// considerations, same tech as soc
+// calculations, priorities
+// revelations, insert new priority
+//
+// biological patterns may suggest new rules (intellectual patterns). in this case the rule bestows as much quality upon inventor as everyone who uses it
+//
+// calculative patterns personified as deities or spiritual beings?????? revolutionary philosophyical insight if true
+//
+// Modulel personality as normative quality?
+//
+// Modulel mysticality with symmetry and golden ration in power set of objects? other rules? need lots of pattern recognition for this...?
+
+/*
+
+
+
+SpatialModule is objective world
+- persons have radius (culturally determined) of friendzone, intimatezone etc. and approaching someone is a vector, ie. if you go too near someone it is LUST and if he isn't in the mood you can't even be FRIEND
+- any game actions should be defined in terms of these slots, perhaps allowing for polysemy
+
+ESPgrid is subjective world
+- oddly, there is ESPgrid and objective tables now but no subjective tables
+- considerations, as a whole, are CONDUCT
+- calculations involve ponderings about whether others will imitate my conduct or how others will react to my conduct
+- euphoria involves a low value for all calculations...
+- beliefs should probably include hard-wired reactions such as hugging feels good (of course autistic person would require hugbox(this is very important))
+
+normative is personality and SUPEREGO
+- syntactic level involves automated actions (ie. don't touch electric appliance when wet etc.)
+- who am I? own xp system for WHO I OUGHT TO BE whereas objective is WHAT I REALLY AM
+- metatheoretic level ponders components of identities regardless of who possesses said identity, ie. it might decide a certain kind of identity should be collectively established
+- analogy level involves ...
+
+mystical is esthetic
+- search for golden ratio and symmetry in *all* data is probably the best we can do. this involves
+ - player size/weight differences
+ - distance between players
+ - distance between groups
+ - temporal distance
+
+
+
+ ATTACH MODULE
+ - insert button for attaching a Module as module to current Module
+ benefit: allows to split overflowing UI into many windows, perhaps on several screens.
+ modules can also be used in isolation
+ when module is attached, all player and group and other data is copied to the current module
+
+
+
+Do these modules, metaphysically, emerge from each other? 
+
+
+
+*/
+
+
+
+// distance does not affect vector summation stuff, is only a factor in value change?
+// so, if a player moves another player to a bad slot but is distant then the negative effect of the slot is decreased by a factor
+
+
+
+// BUG! restart clears added players and fails to update autoplay status??
+
+// BUG delperson causes bug if used right after newperson
+
+// BUG if create new person, amoq will think that was previous person when visualizing turn
+
+// BUG INFO: delperson does not cause bug if delete last person in list so that person is in turn
+
+// dec is miscalculated. shoud account for x y diff instead of just absval
+
+
+// MORE NOTES...
+// ~~~~~~~~~~~~~
+
+// intensifying term is one that brings a tepid term closer to excellence?
+// IF we sum tepid relativized vectors whose X coordinates have the same value, but one of them is more excellent, shouldn't the sum be just an increase in Y value?
+// this means once excellence peaks the sum chain is terminated
+// sum chain can also be terminated by quadrant change
+
+
+
 		</script>
 	</head>
 	<body onload="init();">
@@ -4041,3 +4043,7 @@ function init() {
 		</div>
 	</body>
 </html>
+
+
+
+
