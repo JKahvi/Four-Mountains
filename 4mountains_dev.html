@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 540</title>
+		<title>Four Mountains beta 541</title>
 		<style>
 
 
@@ -278,6 +278,7 @@ function CoreModule() {
 			m.simultaneousTurns = false;
 			// state: (may be changed by user on run)
 			//m.modules = [];
+			m.lang = "fi";
 			m.playing = false;
 			m.personInTurn = false;
 			m.turn = 0;
@@ -737,6 +738,29 @@ function contains(a, obj) {
 //  MATH END
 //
 
+
+
+//
+//  LANG BEGIN
+//
+
+
+
+function Meaning(words) {
+	this.words = words; }
+
+function Word(languages, strings) {
+	this.languages = languages;
+	this.words = words; }
+
+
+
+//
+//  LANG END
+//
+
+
+
 //
 //  DIM BEGIN
 //
@@ -801,9 +825,30 @@ function NonrelSlot(dimHandle,dimCrd,dimRes,names,desc) {
 	this.names = names;
 	this.desc = desc; }
 
+function makeSlotName(dimHandle, res, coord) {
+	var ret = []; if (dimHandle === Z) {
+		if (res === 4) {
+			switch (coord) {
+				case -4 : ret.push(new Word(["en"], ["Subliminal"])); break;
+				case -3 : ret.push(new Word(["en"], ["Secrecy"])); break;
+				case -2 : ret.push(new Word(["en"], ["Privacy"])); break;
+				case -1 : ret.push(new Word(["en"], ["Moderation"])); break;
+				case  0 : ret.push(new Word(["en"], ["Aversion"])); break;
+				case  1 : ret.push(new Word(["en"], ["Casual"])); break;
+				case  2 : ret.push(new Word(["en"], ["Polite"])); break;
+				case  3 : ret.push(new Word(["en"], ["Loud"])); break;
+				case  4 : ret.push(new Word(["en"], ["Profuse"])); break; }}}
+
+	if (res === 4) {
+		switch
+		case "4Z-4+" : ret.push( 1 ); break;
+		case "0" : ret.push( 0 ); break;
+		case "-" : ret.push(-1 ); break;
+}
+
 function makeNonrelSlots(handle, res) {
 	var ret = []; if((handle === "Z") && (res === 4)) {
-		ret.push(new NonrelSlot(handle, -4, res, ["Subliminal"], ""));
+		ret.push(new NonrelSlot(handle, -4, res, makeSlotName(handle, res, -4)));
 		ret.push(new NonrelSlot(handle, -3, res, ["Secrecy"], ""));
 		ret.push(new NonrelSlot(handle, -2, res, ["Privacy"], ""));
 		ret.push(new NonrelSlot(handle, -1, res, ["Modesty"], ""));
