@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 542</title>
+		<title>Four Mountains beta 543</title>
 		<style>
 
 
@@ -1078,9 +1078,7 @@ function verbalizeNonrelSlot(dimHandle, res, coord) {
 	ret = new Meaning(ret);
 	return ret; }
 
-function makeNonrelSlots(handle, res) {
-	var ret = []; if((handle === "Z") && (res === 4)) {
-		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));
+/*		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));
 		ret.push(new NonrelSlot(handle, -3, res, verbalizeNonrelSlot(handle, res, -3)));
 		ret.push(new NonrelSlot(handle, -2, res, verbalizeNonrelSlot(handle, res, -2)));
 		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));
@@ -1122,10 +1120,12 @@ function makeNonrelSlots(handle, res) {
 	else if((handle === "J") && (res === 1)) {
 		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));//["A Posteriori"]));
 		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));//["Arbitrary"]));
-		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["A Priori"])); }
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["A Priori"])); } */
+
+function makeNonrelSlots(handle, res) {
+	var ret = []; for(var i = (0 - res); i <= res; i++) {
+		ret.push(new NonrelSlot(handle, i, res, verbalizeNonrelSlot(handle, res, i))); }
 	return ret; }
-
-
 
 function Motive(role,context,outcome) {
 	this.role = role;
