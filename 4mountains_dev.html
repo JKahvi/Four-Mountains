@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 541</title>
+		<title>Four Mountains beta 542</title>
 		<style>
 
 
@@ -746,12 +746,12 @@ function contains(a, obj) {
 
 
 
-function Meaning(words) {
-	this.words = words; }
+function Meaning(expressions) {
+	this.exprs = expressions; }
 
-function Word(languages, strings) {
-	this.languages = languages;
-	this.words = words; }
+function Expr(languages, strings) {
+	this.langs = languages;
+	this.strs = strings; }
 
 
 
@@ -820,77 +820,309 @@ function RelSlot(crds,names,desc) {
 	this.desc = desc;
 	this.conActs = []; }
 
-function NonrelSlot(dimHandle,dimCrd,dimRes,names,desc) {
+function NonrelSlot(dimHandle,dimCrd,dimRes,verbal) {
 	this.crd = new Crd(dimHandle, dimCrd, dimRes);
-	this.names = names;
-	this.desc = desc; }
+	this.names = verbal.names;
+	this.descs = verbal.descs; }
 
-function makeSlotName(dimHandle, res, coord) {
-	var ret = []; if (dimHandle === Z) {
+function verbalizeNonrelSlot(dimHandle, res, coord) {
+	var ret.names = []; var ret.descs = []; if (dimHandle === "Z") {
 		if (res === 4) {
 			switch (coord) {
-				case -4 : ret.push(new Word(["en"], ["Subliminal"])); break;
-				case -3 : ret.push(new Word(["en"], ["Secrecy"])); break;
-				case -2 : ret.push(new Word(["en"], ["Privacy"])); break;
-				case -1 : ret.push(new Word(["en"], ["Moderation"])); break;
-				case  0 : ret.push(new Word(["en"], ["Aversion"])); break;
-				case  1 : ret.push(new Word(["en"], ["Casual"])); break;
-				case  2 : ret.push(new Word(["en"], ["Polite"])); break;
-				case  3 : ret.push(new Word(["en"], ["Loud"])); break;
-				case  4 : ret.push(new Word(["en"], ["Profuse"])); break; }}}
-
-	if (res === 4) {
-		switch
-		case "4Z-4+" : ret.push( 1 ); break;
-		case "0" : ret.push( 0 ); break;
-		case "-" : ret.push(-1 ); break;
-}
+				case -4 :
+					ret.names.push(new Expr(["en"], ["Subliminal"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Subliminal"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -3 :
+					ret.names.push(new Expr(["en"], ["Secrecy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Secrecy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -2 :
+					ret.names.push(new Expr(["en"], ["Privacy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Privacy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -1 :
+					ret.names.push(new Expr(["en"], ["Moderation"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Moderation"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  0 :
+					ret.names.push(new Expr(["en"], ["Aversion"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  1 :
+					ret.names.push(new Expr(["en"], ["Casual"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  2 :
+					ret.names.push(new Expr(["en"], ["Polite"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  3 :
+					ret.names.push(new Expr(["en"], ["Loud"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  4 :
+					ret.names.push(new Expr(["en"], ["Profuse"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break; }}}
+	else if (dimHandle === "P") {
+		if (res === 4) {
+			switch (coord) {
+				case -4 :
+					ret.names.push(new Expr(["en"], ["Subliminal"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Subliminal"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -3 :
+					ret.names.push(new Expr(["en"], ["Secrecy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Secrecy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -2 :
+					ret.names.push(new Expr(["en"], ["Privacy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Privacy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -1 :
+					ret.names.push(new Expr(["en"], ["Moderation"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Moderation"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  0 :
+					ret.names.push(new Expr(["en"], ["Aversion"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  1 :
+					ret.names.push(new Expr(["en"], ["Casual"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  2 :
+					ret.names.push(new Expr(["en"], ["Polite"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  3 :
+					ret.names.push(new Expr(["en"], ["Loud"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  4 :
+					ret.names.push(new Expr(["en"], ["Profuse"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break; }}}
+	else if (dimHandle === "X") {
+		if (res === 4) {
+			switch (coord) {
+				case -4 :
+					ret.names.push(new Expr(["en"], ["Subliminal"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Subliminal"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -3 :
+					ret.names.push(new Expr(["en"], ["Secrecy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Secrecy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -2 :
+					ret.names.push(new Expr(["en"], ["Privacy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Privacy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -1 :
+					ret.names.push(new Expr(["en"], ["Moderation"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Moderation"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  0 :
+					ret.names.push(new Expr(["en"], ["Aversion"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  1 :
+					ret.names.push(new Expr(["en"], ["Casual"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  2 :
+					ret.names.push(new Expr(["en"], ["Polite"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  3 :
+					ret.names.push(new Expr(["en"], ["Loud"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  4 :
+					ret.names.push(new Expr(["en"], ["Profuse"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break; }}}
+	else if (dimHandle === "Y") {
+		if (res === 4) {
+			switch (coord) {
+				case -4 :
+					ret.names.push(new Expr(["en"], ["Subliminal"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Subliminal"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -3 :
+					ret.names.push(new Expr(["en"], ["Secrecy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Secrecy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -2 :
+					ret.names.push(new Expr(["en"], ["Privacy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Privacy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case -1 :
+					ret.names.push(new Expr(["en"], ["Moderation"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Moderation"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  0 :
+					ret.names.push(new Expr(["en"], ["Aversion"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  1 :
+					ret.names.push(new Expr(["en"], ["Casual"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  2 :
+					ret.names.push(new Expr(["en"], ["Polite"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  3 :
+					ret.names.push(new Expr(["en"], ["Loud"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break;
+				case  4 :
+					ret.names.push(new Expr(["en"], ["Profuse"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Aversion"]));
+					ret.descs.push(new Expr(["fi"], [""])); 
+				break; }}}
+	else if (dimHandle === "J") {
+		if (res === 1) {
+			switch (coord) {
+				case -1 :
+					ret.names.push(new Expr(["en"], ["Subliminal"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Subliminal"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  0 :
+					ret.names.push(new Expr(["en"], ["Secrecy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Secrecy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break;
+				case  1 :
+					ret.names.push(new Expr(["en"], ["Privacy"]));
+					ret.descs.push(new Expr(["en"], [""]));
+					ret.names.push(new Expr(["fi"], ["Privacy"]));
+					ret.descs.push(new Expr(["fi"], [""]));
+				break; }}}
+	ret = new Meaning(ret);
+	return ret; }
 
 function makeNonrelSlots(handle, res) {
 	var ret = []; if((handle === "Z") && (res === 4)) {
-		ret.push(new NonrelSlot(handle, -4, res, makeSlotName(handle, res, -4)));
-		ret.push(new NonrelSlot(handle, -3, res, ["Secrecy"], ""));
-		ret.push(new NonrelSlot(handle, -2, res, ["Privacy"], ""));
-		ret.push(new NonrelSlot(handle, -1, res, ["Modesty"], ""));
-		ret.push(new NonrelSlot(handle,  0, res, ["Aversion"], ""));
-		ret.push(new NonrelSlot(handle,  1, res, ["Casual"], ""));
-		ret.push(new NonrelSlot(handle,  2, res, ["Polite"], ""));
-		ret.push(new NonrelSlot(handle,  3, res, ["Loud"], ""));
-		ret.push(new NonrelSlot(handle,  4, res, ["Profuse"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));
+		ret.push(new NonrelSlot(handle, -3, res, verbalizeNonrelSlot(handle, res, -3)));
+		ret.push(new NonrelSlot(handle, -2, res, verbalizeNonrelSlot(handle, res, -2)));
+		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));
+		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));
+		ret.push(new NonrelSlot(handle,  2, res, verbalizeNonrelSlot(handle, res,  2)));
+		ret.push(new NonrelSlot(handle,  3, res, verbalizeNonrelSlot(handle, res,  3)));
+		ret.push(new NonrelSlot(handle,  4, res, verbalizeNonrelSlot(handle, res,  4))); }
 	else if((handle === "P") && (res === 4)) { // add more res options later
-		ret.push(new NonrelSlot(handle, -4, res, ["Initial"], ""));
-		ret.push(new NonrelSlot(handle, -3, res, ["Past"], ""));
-		ret.push(new NonrelSlot(handle, -2, res, ["Before"], ""));
-		ret.push(new NonrelSlot(handle, -1, res, ["Previous"], ""));
-		ret.push(new NonrelSlot(handle,  0, res, ["Current"], ""));
-		ret.push(new NonrelSlot(handle,  1, res, ["Next"], ""));
-		ret.push(new NonrelSlot(handle,  2, res, ["After"], ""));
-		ret.push(new NonrelSlot(handle,  3, res, ["Future"], ""));
-		ret.push(new NonrelSlot(handle,  4, res, ["Final"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));//["Initial"], ""));
+		ret.push(new NonrelSlot(handle, -3, res, verbalizeNonrelSlot(handle, res, -3)));//["Past"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, verbalizeNonrelSlot(handle, res, -2)));//["Before"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));//["Previous"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));//["Current"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["Next"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, verbalizeNonrelSlot(handle, res,  2)));//["After"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, verbalizeNonrelSlot(handle, res,  3)));//["Future"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, verbalizeNonrelSlot(handle, res,  4)));//["Final"], "")); }
 	else if((handle === "X") && (res === 4)) {
-		ret.push(new NonrelSlot(handle, -4, res, ["Champion"], "everyone likes champion"));
-		ret.push(new NonrelSlot(handle, -3, res, ["Hero"], ""));
-		ret.push(new NonrelSlot(handle, -2, res, ["Fancy"], ""));
-		ret.push(new NonrelSlot(handle, -1, res, ["Plain"], ""));
-		ret.push(new NonrelSlot(handle,  0, res, ["Unknown"], ""));
-		ret.push(new NonrelSlot(handle,  1, res, ["Novice"], ""));
-		ret.push(new NonrelSlot(handle,  2, res, ["Adept"], ""));
-		ret.push(new NonrelSlot(handle,  3, res, ["Master"], ""));
-		ret.push(new NonrelSlot(handle,  4, res, ["Ruler"], "ruler can do anything")); }
+		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));//["Champion"], "everyone likes champion"));
+		ret.push(new NonrelSlot(handle, -3, res, verbalizeNonrelSlot(handle, res, -3)));//["Hero"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, verbalizeNonrelSlot(handle, res, -2)));//["Fancy"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));//["Plain"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));//["Unknown"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["Novice"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, verbalizeNonrelSlot(handle, res,  2)));//["Adept"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, verbalizeNonrelSlot(handle, res,  3)));//["Master"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, verbalizeNonrelSlot(handle, res,  4)));//["Ruler"], "ruler can do anything")); }
 	else if((handle === "Y") && (res === 4)) {
-		ret.push(new NonrelSlot(handle, -4, res, ["Extreme"], ""));
-		ret.push(new NonrelSlot(handle, -3, res, ["Noble"], ""));
-		ret.push(new NonrelSlot(handle, -2, res, ["Mature"], ""));
-		ret.push(new NonrelSlot(handle, -1, res, ["Naive"], ""));
-		ret.push(new NonrelSlot(handle,  0, res, ["Absent"], ""));
-		ret.push(new NonrelSlot(handle,  1, res, ["Simple"], ""));
-		ret.push(new NonrelSlot(handle,  2, res, ["Complex"], ""));
-		ret.push(new NonrelSlot(handle,  3, res, ["Pure"], ""));
-		ret.push(new NonrelSlot(handle,  4, res, ["Holy"], "")); }
+		ret.push(new NonrelSlot(handle, -4, res, verbalizeNonrelSlot(handle, res, -4)));//["Extreme"], ""));
+		ret.push(new NonrelSlot(handle, -3, res, verbalizeNonrelSlot(handle, res, -3)));//["Noble"], ""));
+		ret.push(new NonrelSlot(handle, -2, res, verbalizeNonrelSlot(handle, res, -2)));//["Mature"], ""));
+		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));//["Naive"], ""));
+		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));//["Absent"], ""));
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["Simple"], ""));
+		ret.push(new NonrelSlot(handle,  2, res, verbalizeNonrelSlot(handle, res,  2)));//["Complex"], ""));
+		ret.push(new NonrelSlot(handle,  3, res, verbalizeNonrelSlot(handle, res,  3)));//["Pure"], ""));
+		ret.push(new NonrelSlot(handle,  4, res, verbalizeNonrelSlot(handle, res,  4)));//["Holy"], "")); }
 	else if((handle === "J") && (res === 1)) {
-		ret.push(new NonrelSlot(handle, -1, res, ["A Posteriori"]));
-		ret.push(new NonrelSlot(handle,  0, res, ["Arbitrary"]));
-		ret.push(new NonrelSlot(handle,  1, res, ["A Priori"])); }
+		ret.push(new NonrelSlot(handle, -1, res, verbalizeNonrelSlot(handle, res, -1)));//["A Posteriori"]));
+		ret.push(new NonrelSlot(handle,  0, res, verbalizeNonrelSlot(handle, res,  0)));//["Arbitrary"]));
+		ret.push(new NonrelSlot(handle,  1, res, verbalizeNonrelSlot(handle, res,  1)));//["A Priori"])); }
 	return ret; }
 
 
