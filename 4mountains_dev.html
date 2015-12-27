@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 549</title>
+		<title>Four Mountains beta 563</title>
 		<style>
 
 
@@ -783,10 +783,51 @@ function imposeRole(role,subject,object) {}
 
 
 function makeMetaphysSlotRange(slot, otherSlots) {
+	/*var ret = [];
+	if()*/
 
 }
 
 function makeMetaphysSlots(slots) {
+
+	var t1 = {moi: 1, terve: 1};
+	var t2 = {moi: 2, terve: 2};
+	var t3 = {moi: 0, kakku: 0};
+
+	//difference palauttaa ekan argumentin kaikki termit jotka on tokassa argumentissä, paitsi jos ekassa argumentissa on enemmän termejä kuin tokassa?
+
+	console.log("t1 = moi1, terve1");
+	console.log("t2 = moi2, terve2");
+	console.log("t3 = moi0, kakku0");
+
+	console.log("test 1: [t1,t2] - [t2] = [t1]"); // t1
+	console.log(_.difference(
+		[t1, t2], [t2] ));
+
+	console.log("test2: [t1] - [t2] = []"); // null
+	console.log(_.difference(
+		[t1], [t1] ));
+
+	console.log("test3: [t3] - [t1] = [t3]"); // t3
+	console.log(_.difference(
+		[t3],[t1] ));
+
+	console.log("test3b: [t1] - [t3] = [t1]"); // t1
+	console.log(_.difference(
+		[t1],[t3] ));
+
+	console.log("test4: [t3,t2,t1] - [t1] = [t2,t3]"); // t2, t3
+	console.log(_.difference(
+		[t3, t2, t1],[t1] ));
+
+	console.log("test5: [t1] - [t1,t2,t3] = []"); // null
+	console.log(_.difference(
+		[t1],[t1,t2,t3] ));
+
+//palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
+
+
+	console.log("end of _.difference test");
 	console.log(slots[0].crds);
 	var ret = []; var dimSlots = []; var buffer; var dims = [slots[0].crds[0].dim];
 	for(var i = 1; i < slots.length; i++) { // How many dimensions?
@@ -801,6 +842,7 @@ function makeMetaphysSlots(slots) {
 		for(var j = 0; j < dimSlots[i].length; j++) {
 			console.log("makeMetaphysSlots:");
 			console.log(dimSlots);
+			console.log("difference:");
 			console.log(_.difference(dimSlots, dimSlots[i]));
 			console.log("end of iteration");
 			buffer = makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
@@ -815,7 +857,7 @@ function makeDimSlots(dims) {
 
 function RelSlot(crds,names,desc) {
 	this.crds = crds;
-	this.names = names;
+	this.names = names;  //add names only later? i mean now, but not before, like currently is done.
 	this.desc = desc;
 	this.conActs = []; }
 
