@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 571</title>
+		<title>Four Mountains beta 575</title>
 		<style>
 
 
@@ -907,14 +907,14 @@ function verbalizeNonrelSlot(dimHandle, res, coord) {
 		if (res === 4) {
 			switch (coord) {
 				case -4 :
-					names.push(new Expr(["en"], ["Subliminal"]));
-					console.log(names[0]);
-					descs.push(new Expr(["en"], [""]));
-					names.push(new Expr(["fi"], ["Subliminal"]));
-					descs.push(new Expr(["fi"], [""]));
+					buffer = new Expr(["en"], ["Subliminal"]); slotNames.push(buffer);
+					buffer = new Expr(["en"], [""]); slotDescs.push(buffer);
+					buffer = new Expr(["fi"], ["Tiedostamaton"]); slotNames.push(buffer);
+					buffer = new Expr(["fi"], [""]); slotDescs.push(buffer);
 				break;
-				case -3 :
+				case -3 : //tässä jokin mättää, bufferiin ei ehkä tuu tarpeeks kamaa
 					names.push(new Expr(["en"], ["Secrecy"]));
+					console.log(names[1]);
 					descs.push(new Expr(["en"], [""]));
 					names.push(new Expr(["fi"], ["Secrecy"]));
 					descs.push(new Expr(["fi"], [""]));
@@ -4385,7 +4385,7 @@ Do these modules, metaphysically, emerge from each other?
 	</head>
 	<body onload="init();">
 		<div style="wrapper">
-			<div id="ModuleSelector"></div>
+			<div id="ModuleSelector"></di
 			<div id="infoBox"></div>
 			<div id="container"></div>
 		</div>
