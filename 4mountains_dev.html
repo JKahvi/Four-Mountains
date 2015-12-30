@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 563</title>
+		<title>Four Mountains beta 571</title>
 		<style>
 
 
@@ -263,8 +263,9 @@ function CoreModule() {
 			m.name = "CoreModule"; // Modules should have ids, too?
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
-			m.slots = makeDimSlots(m.dims);
-			m.slots = makeMetaphysSlots(m.slots);
+			console.log(m.dims);
+			m.slots = makeDimSlots(m.dims); // conversts nonrelslots to dimslots
+			m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
 			m.metaphysics = false;
 			m.nonrelScale = false; //absVal of nonrelativized slots
 			m.relScale = "intersect"; //absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
@@ -748,10 +749,12 @@ function contains(a, obj) {
 
 function Concept(meanings) { this.meanings = meanings; } // contextualized meanings. add contexts later?
 function Meaning(expressions) {	this.exprs = expressions; } // synonyms
-function Expr(languages, strings) { // "words"
-	this.langs = languages;
-	this.strs = strings; }
+function Expr(names,descs){ // "words"
+	this.langs = names;
+	this.strs = descs; }
+//uiop
 
+//delete myJSONObject.regex;
 
 
 //
@@ -763,6 +766,15 @@ function Expr(languages, strings) { // "words"
 //
 //  DIM BEGIN
 //
+
+
+/*
+How it works?
+1. initCoreModule calls MakeDimensions with res attribute
+2. MakeDimensions tries to create a number of dimensions.
+3. MakeDimensions calls MakeDimension for creating each dimension and stores them in m.dims
+4. initCoreModule calls MakeDimSlots to create DimSlots but these don't have names yet.
+*/
 
 
 
@@ -790,13 +802,17 @@ function makeMetaphysSlotRange(slot, otherSlots) {
 
 function makeMetaphysSlots(slots) {
 
-	var t1 = {moi: 1, terve: 1};
+	console.log(slots); }
+
+	/*var t1 = {moi: 1, terve: 1};
 	var t2 = {moi: 2, terve: 2};
-	var t3 = {moi: 0, kakku: 0};
+	var t3 = {moi: 0, kakku: 0};*/
 
-	//difference palauttaa ekan argumentin kaikki termit jotka on tokassa argumentissä, paitsi jos ekassa argumentissa on enemmän termejä kuin tokassa?
+	//difference palauttaa ekan argumentin kaikki termit jotka on tokassa argumentissä, paitsi jos ekassa argumentissa on enemmän termejä kuin tokassa? EI
 
-	console.log("t1 = moi1, terve1");
+	//palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
+
+	/*console.log("t1 = moi1, terve1");
 	console.log("t2 = moi2, terve2");
 	console.log("t3 = moi0, kakku0");
 
@@ -824,36 +840,52 @@ function makeMetaphysSlots(slots) {
 	console.log(_.difference(
 		[t1],[t1,t2,t3] ));
 
-//palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
-
-
 	console.log("end of _.difference test");
+
 	console.log(slots[0].crds);
+	console.log(slots[4].crds);
+	console.log("end of crds test");*/
+
+//palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
+/*
 	var ret = []; var dimSlots = []; var buffer; var dims = [slots[0].crds[0].dim];
 	for(var i = 1; i < slots.length; i++) { // How many dimensions?
 		if(!(slots[i].crds[0].dim === slots[i-1].crds[0].dim)) {
 			dims.push(slots[i].crds[0].dim); }}
+	console.log("dims:");
+	console.log(dims);
 	for(var i = 0; i < dims.length; i++) { // Sorts slots into array by dimensions
 		dimSlots.push([]);
 		for(var j = 0; j < slots.length; j++) {
-			if(dims[i] === slots[j].crds[0].dim) { //origin!! remove duplicates later
+			if(dims[i] === slots[j].crds[0].dim) { //origin!! remove duplicates later or contextualize to dimension? mouse wheel for Z axis. right and left click for J axis, middle for neutral
 				dimSlots[dimSlots.length-1].push(slots[j]);	}}}
+	console.log("dimSlots:");
+	console.log(dimSlots);
 	for(var i = 0; i < dimSlots.length; i++) {
-		for(var j = 0; j < dimSlots[i].length; j++) {
+		for(var j = 0; j < dimSlots[i].length; j++) { // makes a range of slots according to axis?
 			console.log("makeMetaphysSlots:");
-			console.log(dimSlots);
+			console.log(dimSlots[j]);
 			console.log("difference:");
 			console.log(_.difference(dimSlots, dimSlots[i]));
 			console.log("end of iteration");
 			buffer = makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
 			ret.push(_.difference(ret, buffer)); }}
-	return ret; }
+	return ret; }*/
 
 function makeDimSlots(dims) {
 	var ret = []; for(var i = 0; i < dims.length; i++) {
 		if(dims[i].slots.length > 0) {
 			for(var j = 0; j < dims[i].slots.length; j++) { // Converts DimSlots to RelSlots.
-				ret.push(new RelSlot([new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)], dims[i].slots[j].names, dims[i].slots[j].desc)); }}} return ret; }
+				ret.push(new RelSlot(
+					[new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)],
+					dims[i].slots[j].names,
+					dims[i].slots[j].desc));
+				console.log(ret); }}} console.log(ret); console.log("endtest and then length of prev");
+				console.log(ret.length);
+				console.log("endtest really, STOPP");
+				return ret; }
+
+				//problem is, program doesn't add slots from non-res dims
 
 function RelSlot(crds,names,desc) {
 	this.crds = crds;
@@ -867,12 +899,16 @@ function NonrelSlot(dimHandle,dimCrd,dimRes,verbal) {
 	this.descs = verbal.descs; }
 
 function verbalizeNonrelSlot(dimHandle, res, coord) {
-	var ret = new Expr([],[]); var names = []; var descs = [];
+	//console.log(dimHandle);
+	//console.log(res);
+	//console.log(coord);
+	var ret = new Expr([],[]); var names = []; var descs = []; //uiop
 	if (dimHandle === "Z") {
 		if (res === 4) {
 			switch (coord) {
 				case -4 :
 					names.push(new Expr(["en"], ["Subliminal"]));
+					console.log(names[0]);
 					descs.push(new Expr(["en"], [""]));
 					names.push(new Expr(["fi"], ["Subliminal"]));
 					descs.push(new Expr(["fi"], [""]));
@@ -1117,15 +1153,51 @@ function verbalizeNonrelSlot(dimHandle, res, coord) {
 					names.push(new Expr(["fi"], ["Privacy"]));
 					descs.push(new Expr(["fi"], [""]));
 				break; }}}
-	ret.names = names;
+	console.log("BEGIN OF INSTANCE");
+	console.log("names:");
+	ret.names = names[0];
+	console.log("descs:");
 	ret.descs = descs;
+	console.log("dimHandle:");
+	ret.dim = dimHandle;
+	console.log("ret:");
+	console.log(ret);
+	console.log("Meaning:");
 	ret = new Meaning(ret);
+	console.log(ret);
+	console.log("END OF INSTANCE");
 	return ret; }
 
+
+
 function makeNonrelSlots(handle, res) {
-	var ret = []; for(var i = (0 - res); i <= res; i++) {
+	var ret = [];
+	for(var i = (0 - res); i <= res; i++) {
+		buffer = verbalizeNonrelSlot(handle, res, i);
+		ret.push(new NonrelSlot(handle, i, res, buffer)); }
+	return ret; }
+
+
+/*function makeNonrelSlots(handle, res) {
+	var ret = [];
+	for(var i = (0 - res); i <= res; i++) {
+		var buffer = verbalizeNonrelSlot(handle, res, i);
+		buffer.handle = handle;
+		buffer.coord = i;
+		ret.push(new NonrelSlot(handle, i, res, ));}
+	return ret; }*/
+
+	//(dimHandle, res, coord)
+
+/* old version
+
+function makeNonrelSlots(handle, res) {
+	var ret = [];
+	for(var i = (0 - res); i <= res; i++) {
 		ret.push(new NonrelSlot(handle, i, res, verbalizeNonrelSlot(handle, res, i))); }
 	return ret; }
+
+	*/
 
 function Motive(role,context,outcome) {
 	this.role = role;
