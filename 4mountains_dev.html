@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 622</title>
+		<title>Four Mountains beta 623</title>
 		<style>
 
 
@@ -827,9 +827,10 @@ function countDimsFromCrds(crds) {
 function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("VERBALIZESLOTBYCRDS"); }
 	var ret = []; var m = s.Core;
 	for (var i = 0; i < m.dims.length; i++) {
-		for (var j = (0 - (m.dims[i].res)); j < m.dims[i].res; j++) {
-			ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}
-	console.log(ret.length);}
+		if(dims[i].verbal) {
+			for (var j = (0 - (m.dims[i].res)); j < m.dims[i].res; j++) {
+				ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}}
+	console.log(ret);}
 
 
 //witch(type) {	case "obj" : output = sumVal(output, valList[i].obj); brea
@@ -1356,41 +1357,45 @@ function makeDimension(dimHandle,res) {
 	var ret; var buffer; var m = s.Module;
 	switch(dimHandle) {
 		// PHYSICAL DIMENSIONS :
-		case "t" : ret = new Dimension( dimHandle, res, [],
+		case "t" : ret = new Dimension( dimHandle, false, 1000,
 			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." ); break;
 
-		case "x" : ret = new Dimension(	dimHandle, res, /*SI or imperial?*/ [],
+		case "x" : ret = new Dimension(	dimHandle, false, res, /*SI or imperial?*/
 			["width"], "\"Width\" is the lateral extent of something." ); break;
 
-		case "y" : ret = new Dimension( dimHandle, res, [],
+		case "y" : ret = new Dimension( dimHandle, false, res,
 			["height"], "\"Height\" is the distance between the base and the top of something." ); break;
 
-		case "z" : ret = ret = new Dimension( dimHandle, res, [],
+		case "z" : ret = new Dimension( dimHandle, false, res,
 			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
 
-		case "T" : ret = new Dimension( dimHandle, res, [],
+		case "T" : ret = new Dimension( dimHandle, false, 1
 			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
 
-		case "Z" : ret = new Dimension( dimHandle, res,
+		case "Z" : ret = new Dimension( dimHandle, true, res,
 			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
 
-		case "P" : ret = new Dimension( dimHandle, res,			
+		case "P" : ret = new Dimension( dimHandle, true, res,			
 			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
 		// to do: mass, temperature etc?
 		// METAPHYSICAL DIMENSIONS :
-		case "X" : ret = new Dimension( dimHandle, res,
+		case "X" : ret = new Dimension( dimHandle, true, res,
 			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
-		case "Y" : ret = new Dimension( dimHandle, res,
+
+		case "Y" : ret = new Dimension( dimHandle, true, res,
 			["ontological", "romantic"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
-		case "J" : ret = new Dimension( dimHandle, 1, /*binary*/
+
+		case "J" : ret = new Dimension( dimHandle, true, 1, /*binary*/
 			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
-		case "S" : ret = new Dimension( dimHandle, res,
-			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
+
+		case "S" : ret = new Dimension( dimHandle, true, 1,
+			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not. It is probably forbidden but possible to have objects in the system that are Dynamic" ); break; }
 	return ret; }
 
-function Dimension(handle,resolution,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
+function Dimension(handle,verbal,resolution,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
 	this.typeHandle = "Dim";
 	this.handle = handle;
+	this.verbal = verbal;
 	this.res = resolution;
 	this.names = names;
 	this.desc = desc; }
