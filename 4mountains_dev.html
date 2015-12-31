@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 623</title>
+		<title>Four Mountains beta 627</title>
 		<style>
 
 
@@ -267,6 +267,8 @@ function CoreModule() {
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
 			m.crds = makeCoordinates(m.dims);
+			m.poss = makePositions(m.crds);
+			//m.slots = makeSlots(m.crds);
 			//m.slots = makeDimSlots(m.dims, m.res); // conversts nonrelslots to dimslots
 			//m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
 			m.metaphysics = false;
@@ -823,14 +825,105 @@ function countDimsFromCrds(crds) {
 	this.crd = crd;
 	this.res = res; }*/
 
+
+function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("SLOT"); }
+	this.name = name;
+	this.X = X;
+	this.Y = Y;
+	this.color = color;
+	this.textColor = textColor;
+	this.alt = alt;
+	this.absVal = absVal(X,Y);
+	this.necStaVal = necStaVal(relVal(X,Y));}
+
+function CrdSlot(crds) { if(s.Core.maxDebug) {console.log("CRDSLOT"); }
+	this.crds = crds; }
+
+
+
+
+function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
+	var ret = [crds[0]];
+	for (var i = 1; i < crds.length; i++) {
+		if((!(i === 0)) && (crds[i].dim === crds[i-1].dim)) {
+			ret.push(crds[i]); }}
+	//console.log(ret);
+}
+
+/*
+	var ret = [[]];
+	var alreadyUsed = [];
+	for(var i = 0; i < crds.length; i++) {
+		//ret[i].push([crds[i]);
+		alreadyUsed.push([crds[i]]);
+		for(var j = 0; j < crds.length; j++) {
+			if(!(contains(alreadyUsed, crds[j]))) {
+				ret[i].push(crds[j]);
+				alreadyUsed.push(crds[j]); }}}
+	console.log(ret); }*/
+//ööl
+
+	/*
+	ensin kerätään joukko kaikista alkucrdseista.
+	sitten, niin monta kertaa kuin verbalisoituja ulottuvuuksia on, kerätään kombinaatio kaikista arvoista
+	*/
+/*
+	var ret = [[]];
+	for (var i = 0; i < (crds.length-1); i++) {
+		if (crds[i].dim === crds[i+1].dim) {
+			ret[i].push(crds[i]); }
+		else {
+			ret.push([]);
+			ret[i+1].push(crds[i]); }}
+	console.log(ret);
+	}*/
+	/*}
+
+	var ret = [crds[0
+	for(var i = 1; i < crds.length; i++) {
+		if (!(crds[i-1].dim === crds[i].dim)) {
+
+		}*/
+
+
+
+
+/*function makeSlots(crds) {
+	var ret = [];
+	for(var i = 0; i < crds.length; i++) {
+		for(var j = 0; j < crds.length; j++) {
+			if(!(crds[i].dim) === (crds[j].dim)) {
+				ret.push(new CrdSlot)
+			}
+		}
+
+	}*/
+
+
+	/*
+	var combos = powerSetOf(crds);
+	for(var i = 0; i < combos.length; i++) {
+		for(var j = 0; j < combos[i].length; j++) {
+			if((i === 0) && (j === 0)) { ret.push(combos[i]); }
+			else if (!(combos[i][j].dims) === (combos)
+
+	}
+
+	for(var i = 0; i < crds.length; i++) {
+		for(var j = 0; j < crds.length; j++) {
+			if(!(crds[i].dim) === crds[j].dim
+		}
+	}
+}*/
+
+
 //poiu
-function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("VERBALIZESLOTBYCRDS"); }
+function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("MAKECOORDINATES"); }
 	var ret = []; var m = s.Core;
-	for (var i = 0; i < m.dims.length; i++) {
+	for (var i = 0; i < m.dims.length; i++) { //makes axial coordinates
 		if(dims[i].verbal) {
-			for (var j = (0 - (m.dims[i].res)); j < m.dims[i].res; j++) {
-				ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}}
-	console.log(ret);}
+			for (var j = (0 - (m.dims[i].res)); j <= m.dims[i].res; j++) {
+				ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}} return ret;}
 
 
 //witch(type) {	case "obj" : output = sumVal(output, valList[i].obj); brea
@@ -1718,7 +1811,7 @@ function createSymbols (dIdsHandle) {
 
 
 
-function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("SLOT"); }
+/*function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("SLOT"); }
 	this.name = name;
 	this.X = X;
 	this.Y = Y;
@@ -1726,7 +1819,7 @@ function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("
 	this.textColor = textColor;
 	this.alt = alt;
 	this.absVal = absVal(X,Y);
-	this.necStaVal = necStaVal(relVal(X,Y));}
+	this.necStaVal = necStaVal(relVal(X,Y));}*/
 
 function findSlotPos(grid,x,y) { if(s.Core.maxDebug) {console.log("FINDSLOTPOS:"); }
 	console.log("Everything notworks like it actually should!!!");
