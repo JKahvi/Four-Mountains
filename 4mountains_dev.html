@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 575</title>
+		<title>Four Mountains beta 622</title>
 		<style>
 
 
@@ -256,16 +256,19 @@ var s = {
 
 function CoreModule() {
 	if(s.Core) { var m = s.Core; }
+	s.Core.maxDebug = true;
 	if(!(s.Module.name === "CoreModule")) {
 		initCoreModuleDisplay(); // to do: put conditional here to eliminate redundant draws if startup with many modules init
 		if(!m.initDone) {
-			// environment: (not supposed to change on run)
+			// environment: (must be defined before run)
 			m.name = "CoreModule"; // Modules should have ids, too?
+			m.lngs = ["en","fi"];
+			m.lng = "fi";
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
-			console.log(m.dims);
-			m.slots = makeDimSlots(m.dims); // conversts nonrelslots to dimslots
-			m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
+			m.crds = makeCoordinates(m.dims);
+			//m.slots = makeDimSlots(m.dims, m.res); // conversts nonrelslots to dimslots
+			//m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
 			m.metaphysics = false;
 			m.nonrelScale = false; //absVal of nonrelativized slots
 			m.relScale = "intersect"; //absVal of relativized slots (ie. both X and Y have non-zero value) //sum2, sum, intersect
@@ -279,7 +282,6 @@ function CoreModule() {
 			m.simultaneousTurns = false;
 			// state: (may be changed by user on run)
 			//m.modules = [];
-			m.lang = "fi";
 			m.playing = false;
 			m.personInTurn = false;
 			m.turn = 0;
@@ -305,7 +307,6 @@ function CoreModule() {
 			m.val = relVal(0,0);
 			// output:
 			m.outputToConsole = 0;
-			m.maxDebug = false;
 			m.defaultInfoBox = "";
 			m.logInfoBox = false;
 			// generate starting conditions:
@@ -529,7 +530,7 @@ function makeXp(left, right, up, down) { if(s.Core.maxDebug) {console.log("MAKEX
 	output = new Val(0, up, down, right, 0, 0, left, 0, 0);
 	return output;}
 		
-function absVal(X,Y) { if(s.Core.maxDebug) {console.log("ABSVAL"); } // change s.Core to s.Module and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy Module?
+function absVal(X,Y) { if(s.Core.maxDebug) { } // change s.Core to s.Module and it doesn't work. it should. probably caused by init problems. call this function in a different way during init, via another function, using a dummy Module?
 	if(s.Core.relScale === "sum2") {
 		if (Math.abs(X) >= Math.abs(Y)) {
 			var intrinsic = Math.abs(X) + Math.abs(Y);}
@@ -568,7 +569,7 @@ function absVal(X,Y) { if(s.Core.maxDebug) {console.log("ABSVAL"); } // change s
 			intrinsic = Math.abs(Math.floor(Math.pow(2,intrinsic - 2))); }}
 	return intrinsic;}
 	
-function relVal(X,Y) { if(s.Core.maxDebug) {console.log("RELVAL"); } // "Relative value", not "relativized value"
+function relVal(X,Y) { if(s.Core.maxDebug) {  } // "Relative value", not "relativized value"
 	var a = absVal(X,Y);
 	var relativized; // this is "relativized" in a different sense than the way how nonrelativized slots are nonrelativized. Ie. this variable contains a value that is relativized to Four Montains, not to AMOQ. But usually, when we speak of "relativization" we mean "relativization to AMOQ".
 	if		(X === 0 && Y === 0) {  //dyn
@@ -646,7 +647,7 @@ function sumPat(a,b) { if(s.Core.maxDebug) {console.log("SUMVAL"); }
 	var c = new Pattern( true, false, sumVal(a.ino, b.ino), sumVal(a.bio, b.bio), sumVal(a.soc, b.soc), sumVal(a.intl, b.intl));
 	return c; }
 	
-function sumVal(a,b) { if(s.Core.maxDebug) {console.log("SUMVAL"); }
+function sumVal(a,b) { if(s.Core.maxDebug) { }
 	var c = new Val(
 		a.dyn + b.dyn,
 		a.abs + b.abs,
@@ -742,15 +743,18 @@ function contains(a, obj) {
 
 
 //
-//  LANG BEGIN
+//  lng BEGIN
 //
 
 
 
 function Concept(meanings) { this.meanings = meanings; } // contextualized meanings. add contexts later?
-function Meaning(expressions) {	this.exprs = expressions; } // synonyms
+function Meaning(expressions) {
+	this.exprs = expressions;  }
+
+
 function Expr(names,descs){ // "words"
-	this.langs = names;
+	this.lngs = names;
 	this.strs = descs; }
 //uiop
 
@@ -758,7 +762,7 @@ function Expr(names,descs){ // "words"
 
 
 //
-//  LANG END
+//  lng END
 //
 
 
@@ -769,10 +773,12 @@ function Expr(names,descs){ // "words"
 
 
 /*
-How it works?
+How it works? OHJEET
 1. initCoreModule calls MakeDimensions with res attribute
-2. MakeDimensions tries to create a number of dimensions.
-3. MakeDimensions calls MakeDimension for creating each dimension and stores them in m.dims
+2. MakeDimensions calls MakeDimension to create a number of dimensions.
+3. MakeDimension makes new Dimension objects that have no slots
+
+returns them to MakeDimensionsdims
 4. initCoreModule calls MakeDimSlots to create DimSlots but these don't have names yet.
 */
 
@@ -794,13 +800,91 @@ function imposeRole(role,subject,object) {}
 
 
 
-function makeMetaphysSlotRange(slot, otherSlots) {
+function makeMetaphysSlotRange(slot, otherSlots) { if(s.Core.maxDebug) {console.log("MAKEMETAPHYSSLOTRANGE"); }
 	/*var ret = [];
 	if()*/
 
 }
 
-function makeMetaphysSlots(slots) {
+
+//difference palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
+
+
+function countDimsFromCrds(crds) {
+	var ret = [crds[0].dimHandle];
+	for (var i = 1; i < crds-length; i++) {
+		if(!(contains(ret, crds[i].dimHandle))) {
+			ret.push(crds[i].dimHandle) }}}
+
+
+/*function Crd(dimHandle,crd,res) { // "dimensional" or "absolute" coordinate
+	this.typeHandles = ["Abs"];
+	this.dim = dimHandle;
+	this.crd = crd;
+	this.res = res; }*/
+
+//poiu
+function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("VERBALIZESLOTBYCRDS"); }
+	var ret = []; var m = s.Core;
+	for (var i = 0; i < m.dims.length; i++) {
+		for (var j = (0 - (m.dims[i].res)); j < m.dims[i].res; j++) {
+			ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}
+	console.log(ret.length);}
+
+
+//witch(type) {	case "obj" : output = sumVal(output, valList[i].obj); brea
+
+	//console.log(m.lngs); TOIMII
+	//console.log(m.lng); TOIMII
+		//console.log("dimensions:");
+	//if (contains(m.lngs, "en")) {console.log("haa.leluja!")} TOIMII
+	//var dimensions = countDimsFromCrds(crds);
+	//console.log(dimensions);
+	//var res = countResFromCrds(crds);
+
+
+		//console.log(m.lngs.contains, "en");
+
+
+			/*switch (coord) {
+				case -4 :
+					names.p*/
+/*
+	console.log("justhappy");
+	if(contains(["en", "fi"], "en")) {console.log ("moi")}
+	if(contains(m.lngs, lng)) {console.log ("moi-lng")}
+	if ($.inArray("en", ["en", "fi"]) > -1) { console.log("1");}
+	if ($.inArray(m.lngs, [m.lng]) > -1) { console.log("1-lng");}
+
+	if (_.contains( [5,6], [5])) { console.log("5"); }
+	if (_.contains(lng, m.lngs)) { console.log(7); }
+
+	var m = s.Core; var ret = { lng : "", name : [], desc : [] };
+	//if ((lng === "fi") && (_.contains( "fi", [m.lngs]))) {
+	
+	//if = $.inArray('specialword', categories) > -1
+	//if (($.inArray(lng, m.lngs)) > -1) { console.log("lng123"); }
+	/*if (_.contains(m.lngs, lng)) {
+		print("joo");
+		if (crds.length === 1) {
+			if (crds.dim === "Z")
+				if(crds.crds === -4 ) {
+					ret.name = "nimi";
+					//ret.name = new Expr("fi", "Tiedostamaton");
+					ret.desc = "Tuntematon tuntematon";*/
+	//}}}
+/*	console.log("name:");
+	console.log(ret.name);
+	console.log("desc:");
+	console.log(ret.desc);
+	console.log(ret);
+	return ret;
+}
+*/
+
+
+
+function makeMetaphysSlots(slots) { if(s.Core.maxDebug) {console.log("MAKEMETAPHYSSLOTS"); }
 
 	console.log(slots); }
 
@@ -810,7 +894,7 @@ function makeMetaphysSlots(slots) {
 
 	//difference palauttaa ekan argumentin kaikki termit jotka on tokassa argumentissä, paitsi jos ekassa argumentissa on enemmän termejä kuin tokassa? EI
 
-	//palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
+	//difference palauttaa ensimmäisenä parametrina annetun arrayn jäsenet joita ei löydy parametrilistan seuraavien arrayden jäsenistä
 
 	/*console.log("t1 = moi1, terve1");
 	console.log("t2 = moi2, terve2");
@@ -871,11 +955,12 @@ function makeMetaphysSlots(slots) {
 			buffer = makeMetaphysSlotRange(dimSlots[i][j], _.difference(dimSlots, dimSlots[i])); // does _.difference work here?
 			ret.push(_.difference(ret, buffer)); }}
 	return ret; }*/
-
-function makeDimSlots(dims) {
+/*
+function makeDimSlots(dims, slots) { if(s.Core.maxDebug) {console.log("MAKEDIMSLOTS");}
 	var ret = []; for(var i = 0; i < dims.length; i++) {
 		if(dims[i].slots.length > 0) {
-			for(var j = 0; j < dims[i].slots.length; j++) { // Converts DimSlots to RelSlots.
+			consoel.log("converting dimslots to relslots");
+			for(var j = (0 - res); j < dims[i].res; j++) { // Converts DimSlots to RelSlots.
 				ret.push(new RelSlot(
 					[new Crd(dims[i], dims[i].res, dims[i].slots[j].crd)],
 					dims[i].slots[j].names,
@@ -887,39 +972,100 @@ function makeDimSlots(dims) {
 
 				//problem is, program doesn't add slots from non-res dims
 
-function RelSlot(crds,names,desc) {
+function RelSlot(crds,names,desc) { if(s.Core.maxDebug) {console.log("RELSLOT");}
 	this.crds = crds;
 	this.names = names;  //add names only later? i mean now, but not before, like currently is done.
 	this.desc = desc;
 	this.conActs = []; }
 
-function NonrelSlot(dimHandle,dimCrd,dimRes,verbal) {
-	this.crd = new Crd(dimHandle, dimCrd, dimRes);
-	this.names = verbal.names;
-	this.descs = verbal.descs; }
+//= new NonrelSlot(handle, i, res, buffer); */
 
-function verbalizeNonrelSlot(dimHandle, res, coord) {
+function NonrelSlot(dimHandle,dimCrd,dimRes,verbal) { if(s.Core.maxDebug) {console.log("NONRELSLOT");}
+	this.buffer = new Crd(dimHandle, dimCrd, dimRes);
+	console.log(buffer);
+	console.log(verbal.names);
+	console.log(verbal.descs);
+	this.crd = buffer;
+	this.names = verbal.names;
+	this.descs = verbal.descs;
+	console.log("NonrelSlot:");
+	console.log(this);
+	}
+
+
+/*function verablizeNonrelSlot(dimHandle, res, coord) {
+	if(res === 4) {
+		if(dimHandle === "Z") {
+			if coord === -4) {
+
+}
+		}
+	}
+}*/
+
+/*
+function verbalizeNonrelSlot(dimHandle, res, coord) { if(s.Core.maxDebug) {console.log("VERBALIZENONRELSLOT")}
 	//console.log(dimHandle);
 	//console.log(res);
 	//console.log(coord);
-	var ret = new Expr([],[]); var names = []; var descs = []; //uiop
-	if (dimHandle === "Z") {
+
+
+	var ret = []; var buffer = []; var slot = {names : [], descs : []}; //uiop ulos tulee vain descejä???
+	if (dimHandle === "T") {
 		if (res === 4) {
 			switch (coord) {
+				case -4 : // create meanings here?
+					slot.name = new Expr("en", "Subliminal");
+					slot.desc = new Expr("the unknown unknown");
+					buffer = new Meaning(slot.names, slot.descs);
+					ret.push(buffer);
+
+					slot.name = new Expr("fi", "Tiedostamaton");
+					slot.desc = new Expr("fi", "Alitajuinen tuntematon tuntematon");
+					buffer = new Meaning(slot.names, slot.descs);
+					ret.push(buffer);
+					console.log("buffer:");
+					console.log(ret);
+}}}
+	console.log("BEGIN OF INSTANCE");
+	//console.log("names:");
+	//ret.names = slotNames;
+	//console.log("descs:");
+	//ret.descs = slotDescs;
+	//console.log("dimHandle:");
+	//ret.dim = dimHandle;
+	//console.log("ret:");
+	//console.log(ret);
+	//console.log("Meaning:");
+	//ret = new Meaning(ret);
+	console.log(ret);
+	console.log("END OF INSTANCE");
+	return ret; }
+
+
+
+			/*switch (coord) {
 				case -4 :
-					buffer = new Expr(["en"], ["Subliminal"]); slotNames.push(buffer);
-					buffer = new Expr(["en"], [""]); slotDescs.push(buffer);
-					buffer = new Expr(["fi"], ["Tiedostamaton"]); slotNames.push(buffer);
-					buffer = new Expr(["fi"], [""]); slotDescs.push(buffer);
-				break;
-				case -3 : //tässä jokin mättää, bufferiin ei ehkä tuu tarpeeks kamaa
-					names.push(new Expr(["en"], ["Secrecy"]));
+					names.push(new Expr(["en"], ["Subliminal"]));
+					descs.push(new Expr(["en"], [""]));
+					names.push(new Expr(["fi"], ["Subliminal"]));
+					descs.push(new Expr(["fi"], [""]));*/
+
+					//buffer = new Expr(["fi"], ["Tiedostamaton"]); ret.names.push(buffer);
+					//buffer = new Expr(["fi"], ["tuntematon tuntematon"]); ret.descs.push(buffer);
+				//break;
+				//case -3 : //tässä jokin mättää, bufferiin ei ehkä tuu tarpeeks kamaa
+					/*names.push(new Expr(["en"], ["Secrecy"]));
 					console.log(names[1]);
 					descs.push(new Expr(["en"], [""]));
 					names.push(new Expr(["fi"], ["Secrecy"]));
-					descs.push(new Expr(["fi"], [""]));
-				break;
-				case -2 :
+					descs.push(new Expr(["fi"], [""]));*/
+					//buffer = new Expr(["en"], ["Secrecy"]); ret.names.push(buffer);
+					//buffer = new Expr(["en"], ["not tell"]); ret.descs.push(buffer);
+					//buffer = new Expr(["fi"], ["Salainen"]); ret.names.push(buffer);
+					//buffer = new Expr(["fi"], ["ei kerrota"]); ret.descs.push(buffer);
+				//break;
+				/*case -2 :
 					names.push(new Expr(["en"], ["Privacy"]));
 					descs.push(new Expr(["en"], [""]));
 					names.push(new Expr(["fi"], ["Privacy"]));
@@ -1152,33 +1298,26 @@ function verbalizeNonrelSlot(dimHandle, res, coord) {
 					descs.push(new Expr(["en"], [""]));
 					names.push(new Expr(["fi"], ["Privacy"]));
 					descs.push(new Expr(["fi"], [""]));
-				break; }}}
-	console.log("BEGIN OF INSTANCE");
-	console.log("names:");
-	ret.names = names[0];
-	console.log("descs:");
-	ret.descs = descs;
-	console.log("dimHandle:");
-	ret.dim = dimHandle;
-	console.log("ret:");
-	console.log(ret);
-	console.log("Meaning:");
-	ret = new Meaning(ret);
-	console.log(ret);
-	console.log("END OF INSTANCE");
-	return ret; }
+				break; }}}*/
 
 
-
-function makeNonrelSlots(handle, res) {
-	var ret = [];
+function makeSlotCoords(handle, res) {
+	console.log("makeSlotCoords");
+	var m = s.Core; var ret = []; var buffer;
 	for(var i = (0 - res); i <= res; i++) {
-		buffer = verbalizeNonrelSlot(handle, res, i);
-		ret.push(new NonrelSlot(handle, i, res, buffer)); }
+		//(dimHandle,crd,res)
+		buffer = new Crd(handle,i,res);
+		for(var j = 0; j < m.lngs.length; j++) {
+			buffer = verbalizeSlotByCrds(buffer);
+			console.log("test: next nonrelslot");
+			buffer = new NonrelSlot(handle, i, res, buffer); }}
+	console.log("makeSlotCoords:");
+	console.log(ret)
+	console.log("end of makeSlotCoords")
 	return ret; }
 
 
-/*function makeNonrelSlots(handle, res) {
+/*function makeSlotCoords(handle, res) {
 	var ret = [];
 	for(var i = (0 - res); i <= res; i++) {
 		var buffer = verbalizeNonrelSlot(handle, res, i);
@@ -1191,13 +1330,73 @@ function makeNonrelSlots(handle, res) {
 
 /* old version
 
-function makeNonrelSlots(handle, res) {
+function makeSlotCoords(handle, res) {
 	var ret = [];
 	for(var i = (0 - res); i <= res; i++) {
 		ret.push(new NonrelSlot(handle, i, res, verbalizeNonrelSlot(handle, res, i))); }
 	return ret; }
+ */
 
-	*/
+function makeDimensions(res) {
+	var ret = [];
+	ret.push(makeDimension("t", 0));
+	ret.push(makeDimension("x", 1));
+	ret.push(makeDimension("y", 1));
+	ret.push(makeDimension("z", 1));
+	ret.push(makeDimension("T", 0));
+	ret.push(makeDimension("Z", res));
+	ret.push(makeDimension("P", res));
+	ret.push(makeDimension("X", res));
+	ret.push(makeDimension("Y", res));
+	ret.push(makeDimension("J", 1));
+	ret.push(makeDimension("S", 1));
+	return ret; }
+
+function makeDimension(dimHandle,res) {
+	var ret; var buffer; var m = s.Module;
+	switch(dimHandle) {
+		// PHYSICAL DIMENSIONS :
+		case "t" : ret = new Dimension( dimHandle, res, [],
+			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." ); break;
+
+		case "x" : ret = new Dimension(	dimHandle, res, /*SI or imperial?*/ [],
+			["width"], "\"Width\" is the lateral extent of something." ); break;
+
+		case "y" : ret = new Dimension( dimHandle, res, [],
+			["height"], "\"Height\" is the distance between the base and the top of something." ); break;
+
+		case "z" : ret = ret = new Dimension( dimHandle, res, [],
+			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
+
+		case "T" : ret = new Dimension( dimHandle, res, [],
+			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
+
+		case "Z" : ret = new Dimension( dimHandle, res,
+			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
+
+		case "P" : ret = new Dimension( dimHandle, res,			
+			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
+		// to do: mass, temperature etc?
+		// METAPHYSICAL DIMENSIONS :
+		case "X" : ret = new Dimension( dimHandle, res,
+			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
+		case "Y" : ret = new Dimension( dimHandle, res,
+			["ontological", "romantic"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
+		case "J" : ret = new Dimension( dimHandle, 1, /*binary*/
+			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
+		case "S" : ret = new Dimension( dimHandle, res,
+			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
+	return ret; }
+
+function Dimension(handle,resolution,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
+	this.typeHandle = "Dim";
+	this.handle = handle;
+	this.res = resolution;
+	this.names = names;
+	this.desc = desc; }
+
+
+	// DIM STUFF END
 
 function Motive(role,context,outcome) {
 	this.role = role;
@@ -1280,59 +1479,9 @@ function makePlanes(handle) {
 
 
 
-function Dimension(handle,objectHandles,resolution,slots,names,desc) { // If you want to rotate a dimension, modify this function here... (Socionics)
-	this.typeHandle = "Dim";
-	this.handle = handle;
-	if(objectHandles) { this.objectHandles = objectHandles } else { this.objectHandles = []; } // object dimensions
-	this.res = resolution;
-	this.slots = slots; // We wouldn't annotate dimensions whose coordinates can be large numbers, such as the spatial dimensions or time as measured in milliseconds or similar units that are empirical instead of conceptual. Non-conceptual dimensions should have a lower case letter as symbol?
-	this.names = names;
-	this.desc = desc; }
 
-function makeDimensions(res) {
-	var ret = [];
-	ret.push(makeDimension("t", [], 1000));
-	ret.push(makeDimension("x", ["t","y","z"], 1));
-	ret.push(makeDimension("y", [], 1));
-	ret.push(makeDimension("z", [], 1));
-	ret.push(makeDimension("T", ["t","X"], 0));
-	ret.push(makeDimension("Z", [], res));
-	ret.push(makeDimension("P", ["t","T"], res));
-	ret.push(makeDimension("X", ["T","Y","Z"], res));
-	ret.push(makeDimension("Y", [], res));
-	ret.push(makeDimension("J", [], 1));
-	ret.push(makeDimension("S", [], 1));
-	return ret; }
 
-function makeDimension(dimHandle,objHandles,res) {
-	var ret; var m = s.Module;
-	switch(dimHandle) {
-		// PHYSICAL DIMENSIONS :
-		case "t" : ret = new Dimension( dimHandle, objHandles, res, [],
-			["inorganic time"], "The t-axis measures the quantity of physical time, which is measured in seconds (technically in milliseconds in JavaScript)." ); break;
-		case "x" : ret = new Dimension(	dimHandle, objHandles, res, /*SI or imperial?*/ [],
-			["width"], "\"Width\" is the lateral extent of something." ); break;
-		case "y" : ret = new Dimension( dimHandle, objHandles, res, [],
-			["height"], "\"Height\" is the distance between the base and the top of something." ); break;
-		case "z" : ret = ret = new Dimension( dimHandle, objHandles, res, [],
-			["depth"], "\"Depth\" is the extent to which an object extends inwards." ); break;
-		case "T" : ret = new Dimension( dimHandle, objHandles, res, /*unary*/ [],
-			["turn", "biological time" ], "The T-axis measures turns, which are needed for linking metaphysical time P to inorganic time t in order to simulate that which is modeled by vector summation in the Analytic Metaphysics of Quality or AMOQ. In Four Mountains, T is measured as turns." ); break;
-		case "Z" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Z", res),
-			["folding", "metaphysical depth", "social time?" ], "The Z-axis measures the quality (extroverted or introverted?) and quantity of folding, which is the object of socionics. \"Socionics\" is a branch of analytic or Jungian psychology. But the XY-plane of AMOQ is rotated 45 degrees from the XY plane of the Socionics 3-space, and this is not currently accounted for in Four Mountains." ); break;
-		case "P" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("P", res),			
-			["process time", "intellectual time"], "The P-axis measures the quantity of process time, which is a data structure for expressing analogies between temporal processes regardless of the proportions of the magnitude of their timespans. The relevant factor for similarity is divisibility, not magnitude of timespan." ); break;
-		// to do: mass, temperature etc?
-		// METAPHYSICAL DIMENSIONS :
-		case "X" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("X", res),
-			["epistemological", "classical", "modal"], "The X-axis measures the quality (rational or gnostic?) and quantity of classical quality, which is the object of epistemology. \"Epistemology\" refers to the study of knowledge." ); break;
-		case "Y" : ret = new Dimension( dimHandle, objHandles, res, makeNonrelSlots("Y", res),
-			["ontological", "romantic"], "The Y-axis measures the quality (tangible or abstract?) and quantity of romantic quality, which is the object of ontology. \"Ontology\" refers to the study of existence."); break;
-		case "J" : ret = new Dimension( dimHandle, objHandles, res, /*binary*/ [],
-			["justification", "socionics judging?"], "The positive values of the J-axis refer to justification apriori whereas the negative values refer to aposteriori." ); break;
-		case "S" : ret = new Dimension( dimHandle, objHandles, res, [],
-			["static"], "Static things are constant, reliable, predictable, sometimes safe and boring. Dynamic things are not." ); break; }
-	return ret; }
+
 
 
 
@@ -4245,6 +4394,7 @@ function personIntoPattern(person) {
 
 
 function init() {
+	//console.log(verbalizeSlotByCrds({X : 1}));
 	s.Module = "CoreModule";
 	s.Core = { initDone : false };
 	s.Spatial = { initDone : false };
@@ -4385,7 +4535,7 @@ Do these modules, metaphysically, emerge from each other?
 	</head>
 	<body onload="init();">
 		<div style="wrapper">
-			<div id="ModuleSelector"></di
+			<div id="ModuleSelector"></div>
 			<div id="infoBox"></div>
 			<div id="container"></div>
 		</div>
