@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 627</title>
+		<title>Four Mountains beta 630</title>
 		<style>
 
 
@@ -843,12 +843,24 @@ function CrdSlot(crds) { if(s.Core.maxDebug) {console.log("CRDSLOT"); }
 
 
 function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
-	var ret = [crds[0]];
-	for (var i = 1; i < crds.length; i++) {
-		if((!(i === 0)) && (crds[i].dim === crds[i-1].dim)) {
-			ret.push(crds[i]); }}
-	//console.log(ret);
+	var ret = []; var buffer = []; var usedDimensions;
+	for (var i = 0; i < crds.length; i++) {
+		usedDimensions = [crds[i].dim];
+		for (var j = 0; j < crds.length; j++) {
+			if(!(contains(usedDimensions,crds[j].dim))) {
+				buffer.push([crds[i],crds[j]]);
+				usedDimensions.push(crds[j].dim)
+				 }}
+		ret.push(buffer); }
+	console.log(ret); }
+
+/*
 }
+
+		if(!(crds[i].dim === crds[i+1].dim)) {
+			ret.push(crds[i]); }}
+	console.log(ret);
+}*/
 
 /*
 	var ret = [[]];
