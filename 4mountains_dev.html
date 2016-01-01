@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 678</title>
+		<title>Four Mountains beta 682</title>
 		<style>
 
 
@@ -1201,14 +1201,16 @@ function getVerbalizedDimensions(dims) {
 
 function makeQCoordinates(crds) {
 	console.log("MAKEQCOORDINATES:");
-	var ret = [];
+	var ret = [[]];
 	var currentDim = crds[0].dim;
 	for(var i = 0; i < crds.length; i++) {
 		if(crds[i].dim === currentDim) {
-			console.log("moi"); } 
+			ret[ret.length-1].push(crds[i]); } 
 		else {
-			console.log("jarno"); }
-		}
+			currentDim = crds[i].dim;
+			ret.push([]);
+			ret[ret.length-1].push(crds[i]); }}
+	console.log(ret);
 	}
 
 
@@ -5011,7 +5013,6 @@ Do these modules, metaphysically, emerge from each other?
 		</div>
 	</body>
 </html>
-
 
 
 
