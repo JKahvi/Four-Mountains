@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 630</title>
+		<title>Four Mountains beta 646</title>
 		<style>
 
 
@@ -266,9 +266,9 @@ function CoreModule() {
 			m.lng = "fi";
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
-			m.crds = makeCoordinates(m.dims);
-			m.poss = makePositions(m.crds);
-			//m.slots = makeSlots(m.crds);
+			m.axialCrds = makeAxialCoordinates(m.dims);
+			//m.poss = makePositions(m.crds);
+			m.axialSlots = makeAxialSlots(m.axialCrds);
 			//m.slots = makeDimSlots(m.dims, m.res); // conversts nonrelslots to dimslots
 			//m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
 			m.metaphysics = false;
@@ -842,7 +842,257 @@ function CrdSlot(crds) { if(s.Core.maxDebug) {console.log("CRDSLOT"); }
 
 
 
-function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
+/*function combs(arr,str){
+  var arrCopy,popped;
+  for(var i =0; i<arr.length; i++){
+     arrCopy = arr.splice(0);
+     popped = arrCopy.splice(i,1)
+     combs(arrCopy,popped);
+  }
+  if(arr.length === 0){
+    console.log(str);
+  }
+}*/
+
+
+
+function makeAxialSlots(crds) { if(s.Core.maxDebug) {console.log("MAKESLOTS"); }
+	var ret = {names : [], descs : [], crds : []};
+	for (var i = 0; i < crds.length; i++)
+		if(crds[i].dim === "Z") {
+			if(crds[i].res === 4) {
+				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+
+		else if(crds[i].dim === "P") {
+			if(crds[i].res === 4) {
+				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+
+		else if(crds[i].dim === "X") {
+			if(crds[i].res === 4) {
+				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+
+		else if(crds[i].dim === "Y") {
+			if(crds[i].res === 4) {
+				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+
+		else if(crds[i].dim === "J") {
+			if(crds[i].res === 1) {
+				if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+
+		else if(crds[i].dim === "S") {
+			if(crds[i].res === 1) {
+				if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "yHello!"));
+					ret.descs.push(new Expr("fi", "yMoido!")); }
+				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }}}
+			
+	return ret; }
+
+//ZPXYJS
+
+/*function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
+	var crdsByDim = [];
+	for (var i = 0; i < crds.length; i++) {	crdsByDim.push([crds[i]]); } //make array of positions
+	for (var i = 0; i < crdsByDim.length; i++) { //populate array
+		for (var j = 0; j < crds.length; j++) {
+			if(!(crds[j].dim === crdsByDim[i].dim)) {
+				crdsByDim[i].push(crds[j]);	}}
+	var unique = [];
+	$.each(crdsByDim, function(i, el){
+		if($.inArray(el, unique) === -1) crdsByDim.push(el); }); }
+	console.log(crdsByDim);
+	}*/
+
+/*
+
+var names = ["Mike","Matt","Nancy","Adam","Jenny","Nancy","Carl"];
+var uniqueNames = [];
+$.each(names, function(i, el){
+    if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+});
+
+	console.log(crdsByDim);
+	console.log(crds);
+}*/
+
+/*
+var permArr = [];
+var usedChars = [];
+
+function makePositions(crds) {
+
+  var i, ch;
+  for (i = 0; i < crds.length; i++) {
+    ch = crds.splice(i, 1)[0];
+    usedChars.push(ch);
+    if (crds.length == 0) {
+      permArr.push(usedChars.slice());
+    }
+    makePositions(crds);
+    input.splice(i, 0, ch);
+    usedChars.pop();
+  }
+  console.log(permArr);
+};
+*/
+
+
+
+/*function makePositions(crds) {
+	
+	}
+}*/
+
+
+/*function makePositions(dims) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
+	var ret = [];
+	for(var i = 0; i < dims.length; i++) // gets first Crd of every Crd combo
+		if(dims[i].verbal) {
+			for (var j = (0 - dims.res); j <= dims.res; j++) {
+				ret.push(new Crd(dims[i].handle, j, dims[i].res)) }}
+
+	console.log(ret);
+	}*/
+
+
+	/*
+	ret = [];
+	for(var i = 0; i < dims; i++)
+		if(dims[i].verbal) {
+			for(var j = (0 - dims[i].res); j <= dims[i].res, j++) {
+				ret.push([new Crd(dim[i].handle, j, res)]);
+
+		}}
+
+
+	for(var i = (0 - dims[i].res); i <= dims[i].res; i++) {
+		if(dims[i].verbal) {
+			for(var j = (0 - dims[j].res; j < dims.length; j++) {
+				if(dims[j].verbal)
+			}
+
+	}
+}*/
+
+
+/*function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS"); }
 	var ret = []; var buffer = []; var usedDimensions;
 	for (var i = 0; i < crds.length; i++) {
 		usedDimensions = [crds[i].dim];
@@ -852,7 +1102,7 @@ function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS")
 				usedDimensions.push(crds[j].dim)
 				 }}
 		ret.push(buffer); }
-	console.log(ret); }
+	console.log(ret); }*/
 
 /*
 }
@@ -930,7 +1180,7 @@ function makePositions(crds) { if(s.Core.maxDebug) {console.log("MAKEPOSITIONS")
 
 
 //poiu
-function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("MAKECOORDINATES"); }
+function makeAxialCoordinates(dims) { if(s.Core.maxDebug) {console.log("MAKECOORDINATES"); }
 	var ret = []; var m = s.Core;
 	for (var i = 0; i < m.dims.length; i++) { //makes axial coordinates
 		if(dims[i].verbal) {
@@ -1446,9 +1696,9 @@ function makeSlotCoords(handle, res) {
 function makeDimensions(res) {
 	var ret = [];
 	ret.push(makeDimension("t", 0));
-	ret.push(makeDimension("x", 1));
-	ret.push(makeDimension("y", 1));
-	ret.push(makeDimension("z", 1));
+	ret.push(makeDimension("x", 0));
+	ret.push(makeDimension("y", 0));
+	ret.push(makeDimension("z", 0));
 	ret.push(makeDimension("T", 0));
 	ret.push(makeDimension("Z", res));
 	ret.push(makeDimension("P", res));
