@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 646</title>
+		<title>Four Mountains beta 670</title>
 		<style>
 
 
@@ -266,9 +266,16 @@ function CoreModule() {
 			m.lng = "fi";
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
-			m.axialCrds = makeAxialCoordinates(m.dims);
+			console.log(m.dims);
+			m.vDims = getVerbalizedDimensions(m.dims);
+			//m.plane = makePlane(m.dims); //not use planes, attempt qslots instead
+			m.crds = makeCoordinates(m.dims);
+			console.log(m.crds);
+			m.qSlots = slotifyCoords(m.crds);
+
+			m.qSlots = makeQSlots(m.planes, m.crds);
 			//m.poss = makePositions(m.crds);
-			m.axialSlots = makeAxialSlots(m.axialCrds);
+			//m.slots = verbalizeSlots(m.crds); // this really just NAMES the slots...
 			//m.slots = makeDimSlots(m.dims, m.res); // conversts nonrelslots to dimslots
 			//m.slots = makeMetaphysSlots(m.slots); //makes rest of the slots
 			m.metaphysics = false;
@@ -284,6 +291,7 @@ function CoreModule() {
 			m.simultaneousTurns = false;
 			// state: (may be changed by user on run)
 			//m.modules = [];
+			//m.plane = makePlane(getDimByHandle("X"), getDimByHandle("Y"));
 			m.playing = false;
 			m.personInTurn = false;
 			m.turn = 0;
@@ -492,7 +500,7 @@ function PVal(ino,bio,soc,intl,bel,con,cal,epip) { //duplicated from Val in case
 	this.obj = Val.obj; this.sub = Val.sub; this.nor = Val.nor; this.mys = Val.mys; this.gno = Val.gno; this.rat = Val.rat; this.abs = Val.abs; this.tan = Val.tan;
 	this.ino = Val.obj; this.bio = Val.sub; this.soc = Val.nor; this.intl = Val.mys;this.bel = Val.gno; this.con = Val.rat; this.cal = Val.abs; this.epip = Val.tan; }
 
-function getDimensionByHandle(handle) {
+function getDimByHandle(handle) {
 	var m = s.Module;
 	for(var i = 0; i < m.dims.length; i++) {
 		if(m.dims[i].handle === handle) {
@@ -826,15 +834,7 @@ function countDimsFromCrds(crds) {
 	this.res = res; }*/
 
 
-function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("SLOT"); }
-	this.name = name;
-	this.X = X;
-	this.Y = Y;
-	this.color = color;
-	this.textColor = textColor;
-	this.alt = alt;
-	this.absVal = absVal(X,Y);
-	this.necStaVal = necStaVal(relVal(X,Y));}
+
 
 function CrdSlot(crds) { if(s.Core.maxDebug) {console.log("CRDSLOT"); }
 	this.crds = crds; }
@@ -855,154 +855,162 @@ function CrdSlot(crds) { if(s.Core.maxDebug) {console.log("CRDSLOT"); }
 }*/
 
 
+/*function verbalizeCrd(crd) {
+	var ret = {name: "moi", desc: "moi"}
+	return ret;
+}*/
 
-function makeAxialSlots(crds) { if(s.Core.maxDebug) {console.log("MAKESLOTS"); }
+
+
+function verbalizeCrds(crds) { if(s.Core.maxDebug) {console.log("VERBALIZECRDS"); }
 	var ret = {names : [], descs : [], crds : []};
-	for (var i = 0; i < crds.length; i++)
-		if(crds[i].dim === "Z") {
-			if(crds[i].res === 4) {
-				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
+	for (var i = 0; i < crds.length; i++) {
+		if(crds[i].length <= 1) { // greater values for qSlots
+			if(crds[i].dim === "Z") {
+				if(crds[i].res === 4) {
+					if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
 
-		else if(crds[i].dim === "P") {
-			if(crds[i].res === 4) {
-				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
+			else if(crds[i].dim === "P") {
+				if(crds[i].res === 4) {
+					if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
 
-		else if(crds[i].dim === "X") {
-			if(crds[i].res === 4) {
-				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
+			else if(crds[i].dim === "X") {
+				if(crds[i].res === 4) {
+					if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
 
-		else if(crds[i].dim === "Y") {
-			if(crds[i].res === 4) {
-				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
+			else if(crds[i].dim === "Y") {
+				if(crds[i].res === 4) {
+					if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === -2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 2) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 3) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
 
-		else if(crds[i].dim === "J") {
-			if(crds[i].res === 1) {
-				if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
+			else if(crds[i].dim === "J") {
+				if(crds[i].res === 1) {
+					if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
 
-		else if(crds[i].dim === "S") {
-			if(crds[i].res === 1) {
-				if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "yHello!"));
-					ret.descs.push(new Expr("fi", "yMoido!")); }
-				else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }
-				else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
-					ret.names.push(new Expr("en", "Hello!"));
-					ret.descs.push(new Expr("fi", "Moido!")); }}}
-			
+			else if(crds[i].dim === "S") {
+				if(crds[i].res === 1) {
+					if(crds[i].crd === -1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "yHello!"));
+						ret.descs.push(new Expr("fi", "yMoido!")); }
+					else if(crds[i].crd === 0) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }
+					else if(crds[i].crd === 1) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+						ret.names.push(new Expr("en", "Hello!"));
+						ret.descs.push(new Expr("fi", "Moido!")); }}}
+		else {console.log("qSlot");}}}
+	console.log(ret);		
 	return ret; }
 
 //ZPXYJS
@@ -1179,13 +1187,101 @@ function makePositions(crds) {
 }*/
 
 
+
+
+function getVerbalizedDimensions(dims) {
+	var ret = []; for(var i = 0; i < dims.length; i++) {
+		if (dims[i].verbal) { ret.push(dims[i])	}}
+	console.log(ret);
+	return ret;	}
+
+
 //poiu
-function makeAxialCoordinates(dims) { if(s.Core.maxDebug) {console.log("MAKECOORDINATES"); }
+
+
+/*function makeSlot(horCrd, verCrd) { // hor and ver are crds
+	if(!horCrd.dim === verCrd.dim) {
+		if((horCrd.crd === 1) && (verCrd.crd === 1)) {
+
+
+
+					if(crds[i].dim === "Z") {
+			if(crds[i].res === 4) {
+				if(crds[i].crd === -4) { ret.crds.push(new Crd(crds[i].dim, crds[i].crd, crds[i].res));
+					ret.names.push(new Expr("en", "Hello!"));
+					ret.descs.push(new Expr("fi", "Moido!")); }
+
+	}}}*/
+
+function makeQSlots(plane,crds) {
+	/*for(var i = 0; i < crds.length; i++) {
+		for(var j = 0; j < crds.length; j++) {
+			if(!(crds[i].dim === crds[j].dim)) && (crds[i].dim == planes)
+		}*/
+}
+
+
+/*function slotifyCrds(crds){
+	for (var i = 0; i < crds.length; i++) {
+		slotifyCrd
+	}
+}*/
+
+function slotifyCoords(crds) {
+	var ret = [];
+	for (var i = 0; i < crds.length; i++) {
+		ret.push(new Slot(
+			verbalizeCrds(crds[i]).names,
+			verbalizeCrds(crds[i]).descs,
+			888,
+			666,
+			"")); }
+		return ret;}
+
+
+function makeCoordinates(dims) { if(s.Core.maxDebug) {console.log("MAKEAXIALCOORDINATES"); }
 	var ret = []; var m = s.Core;
 	for (var i = 0; i < m.dims.length; i++) { //makes axial coordinates
 		if(dims[i].verbal) {
 			for (var j = (0 - (m.dims[i].res)); j <= m.dims[i].res; j++) {
 				ret.push(new Crd(dims[i].handle, j, dims[i].res)); }}} return ret;}
+
+
+function Slot(name,X,Y,color,textColor,alt) { if(s.Core.maxDebug) {console.log("SLOT"); }
+	this.name = name;
+	this.X = X;
+	this.Y = Y;
+	this.color = color;
+	this.textColor = textColor;
+	this.alt = alt;
+	this.absVal = absVal(X,Y);
+	//this.necStaVal = necStaVal(relVal(X,Y));
+}
+
+
+/*function makePlane(dims) { if(s.Core.maxDebug) {console.log("MAKEPLANE"); } //789
+	var ret = []; var hor = []; var ver = [];
+
+	for (var i = 0; i < dims.length; i++) {*/
+
+
+function Plane(hor, ver) {
+	this.hor = hor;
+	this.ver = ver; }
+
+	/*function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysNames) {
+	this.typeHandle = "Pln";
+	this.handle = handle;
+	this.xHandle = xHandle;
+	this.yHandle = yHandle;
+	this.planeNames = makeNames(planeNames).alts; this.name = makeNames(planeNames).proper
+	this.objNames = makeNames(objNames).alts; this.objName = makeNames(objNames).proper
+	this.subNames = makeNames(subNames).alts; this.subName = makeNames(subNames).proper
+	this.norNames = makeNames(norNames).alts; this.norName = makeNames(norNames).proper
+	this.mysNames = makeNames(mysNames).alts; this.mysName = makeNames(mysNames).proper }*/
+
+
+
 
 
 //witch(type) {	case "obj" : output = sumVal(output, valList[i].obj); brea
@@ -1813,7 +1909,7 @@ function Relation(handle,agentTypes,targetTypes,relation,names,descs) {
 
 
 
-function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysNames) {
+/*function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysNames) {
 	this.typeHandle = "Pln";
 	this.handle = handle;
 	this.xHandle = xHandle;
@@ -1822,9 +1918,9 @@ function Plane(handle,xHandle,yHandle,planeNames,objNames,subNames,norNames,mysN
 	this.objNames = makeNames(objNames).alts; this.objName = makeNames(objNames).proper
 	this.subNames = makeNames(subNames).alts; this.subName = makeNames(subNames).proper
 	this.norNames = makeNames(norNames).alts; this.norName = makeNames(norNames).proper
-	this.mysNames = makeNames(mysNames).alts; this.mysName = makeNames(mysNames).proper }
+	this.mysNames = makeNames(mysNames).alts; this.mysName = makeNames(mysNames).proper }*/
 
-function makePlanes(handle) {
+function makePlanesOld(handle) {
 	var ret; switch(handle) {
 		// METAPHYSICAL PLANES :
 		case "Idn" : ret = new Plane( handle,"X","S",["identity"],["inductive"],["emergent"],["deductive"],["reductive"] ); break;
