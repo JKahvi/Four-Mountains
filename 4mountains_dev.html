@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Four Mountains beta 673</title>
+		<title>Four Mountains beta 678</title>
 		<style>
 
 
@@ -267,10 +267,9 @@ function CoreModule() {
 			m.res = 4;
 			m.dims = makeDimensions(m.res);
 			m.vDims = getVerbalizedDimensions(m.dims);
-
-
-			//m.plane = makePlane(m.dims); //not use planes, attempt qslots instead
 			m.crds = makeCoordinates(m.vDims);
+			m.qCrds = makeQCoordinates(m.crds);
+
 			console.log(m.crds);
 			m.qSlots = slotifyCoords(m.crds);
 
@@ -1195,6 +1194,22 @@ function getVerbalizedDimensions(dims) {
 		if (dims[i].verbal) { ret.push(dims[i])	}}
 	console.log(ret);
 	return ret;	}
+
+
+//for(var i = 0; ((i < dims.length) || (i < str.length)); i++) { o[dims[i]] = ret[i]; }
+//	return o; }
+
+function makeQCoordinates(crds) {
+	console.log("MAKEQCOORDINATES:");
+	var ret = [];
+	var currentDim = crds[0].dim;
+	for(var i = 0; i < crds.length; i++) {
+		if(crds[i].dim === currentDim) {
+			console.log("moi"); } 
+		else {
+			console.log("jarno"); }
+		}
+	}
 
 
 //poiu
